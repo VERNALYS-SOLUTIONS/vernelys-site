@@ -11,46 +11,45 @@ export default function ContactPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-brand-600">
-        <div className="absolute inset-0 opacity-30">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 40%)",
-            }}
-          />
-        </div>
-        <div className="relative mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand-100">
-              Démonstration
-            </p>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Découvrez Vernelys en action
-            </h1>
-            <p className="mt-5 text-lg leading-relaxed text-white/80">
-              Réservez un créneau avec notre équipe pour une présentation
-              personnalisée adaptée aux besoins de votre cabinet.
-            </p>
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
+        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
+          <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
+            Démonstration
+          </span>
+          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            Découvrez Vernelys{" "}
+            <span className="italic text-brand-600">en action.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600">
+            Réservez un créneau avec notre équipe pour une présentation
+            personnalisée, adaptée aux besoins et aux outils de votre cabinet.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <HeroBadge label="30 minutes" />
+            <HeroBadge label="Sans engagement" />
+            <HeroBadge label="À distance ou sur site" />
           </div>
         </div>
       </section>
 
       {/* Content */}
-      <section className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-        <div className="grid gap-16 lg:grid-cols-5">
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="grid gap-12 lg:grid-cols-5 lg:gap-16">
           {/* Left: Benefits */}
           <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+            <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">
+              Le déroulé
+            </span>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
               Ce que vous découvrirez
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            <p className="mt-4 text-base leading-relaxed text-slate-600">
               En 30 minutes, nous vous montrons comment Vernelys s&apos;intègre
               dans votre quotidien.
             </p>
 
-            <div className="mt-8 space-y-6">
+            <div className="mt-10 space-y-6">
               <BenefitItem
                 icon={
                   <path
@@ -97,26 +96,40 @@ export default function ContactPage() {
               />
             </div>
 
-            <div className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-medium text-slate-700">
+            <div className="mt-10 rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <p className="text-sm font-semibold text-slate-800">
                 Vous préférez nous écrire directement ?
               </p>
               <a
                 href="mailto:sales@vernelys.com"
-                className="mt-1 inline-block text-sm font-semibold text-brand-600 hover:underline"
+                className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:underline"
               >
                 sales@vernelys.com
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                  />
+                </svg>
               </a>
             </div>
           </div>
 
           {/* Right: Form */}
           <div className="lg:col-span-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
-              <h2 className="text-xl font-bold text-slate-900">
+            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-brand-900/5 sm:p-10">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                 Réserver votre créneau
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500">
                 Remplissez le formulaire et nous vous recontacterons sous 24 h.
               </p>
               <DemoForm />
@@ -125,6 +138,24 @@ export default function ContactPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function HeroBadge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
+      <svg
+        className="h-4 w-4 text-brand-600"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={2.5}
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      </svg>
+      {label}
+    </span>
   );
 }
 
@@ -151,7 +182,7 @@ function BenefitItem({
         </svg>
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
         <p className="mt-1 text-sm leading-relaxed text-slate-600">
           {description}
         </p>

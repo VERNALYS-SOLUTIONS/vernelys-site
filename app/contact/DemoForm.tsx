@@ -51,7 +51,7 @@ export default function DemoForm() {
 
   if (submitted) {
     return (
-      <div className="mt-8 rounded-xl border border-brand-200 bg-brand-50 p-8 text-center">
+      <div className="mt-8 rounded-3xl border border-brand-200 bg-brand-50 p-8 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-600">
           <svg
             className="h-6 w-6 text-white"
@@ -133,7 +133,7 @@ export default function DemoForm() {
           name="taille"
           required
           defaultValue=""
-          className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
+          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
         >
           <option value="" disabled>
             Sélectionnez
@@ -155,7 +155,7 @@ export default function DemoForm() {
           {SOLUTIONS.map((s) => (
             <label
               key={s.value}
-              className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm transition hover:border-brand-300 hover:bg-brand-50/50 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50"
+              className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm transition hover:border-brand-300 hover:bg-brand-50/50 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50"
             >
               <input
                 type="radio"
@@ -189,7 +189,7 @@ export default function DemoForm() {
           consentement. Le formulaire n'envoie rien à un serveur : il ouvre le
           client de messagerie de l'utilisateur avec un message pré-rempli.
       ------------------------------------------------------------------- */}
-      <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <label className="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-slate-600">
           <input
             type="checkbox"
@@ -222,9 +222,23 @@ export default function DemoForm() {
 
       <button
         type="submit"
-        className="w-full rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 active:bg-brand-800"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:bg-brand-700 active:bg-brand-800"
       >
         Demander ma démo
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2.5}
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+          />
+        </svg>
       </button>
 
       <p className="text-xs leading-relaxed text-slate-400">
@@ -280,7 +294,7 @@ function Field({
         type={type}
         required={required}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
       />
     </div>
   );
