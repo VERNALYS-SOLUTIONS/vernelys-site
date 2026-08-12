@@ -182,7 +182,7 @@ export default function PlateformePage() {
                   </svg>
                 }
                 title="Données stockées en France"
-                description="Vos données sont hébergées sur nos serveurs à Paris. Aucune fuite hors du territoire, aucune sous-traitance non maîtrisée."
+                description="Vos données sont hébergées et stockées en France. Aucune réplication hors de l'Union européenne, et des sous-traitants encadrés par des accords conformes à l'article 28 du RGPD."
               />
               <SecurityItem
                 icon={
@@ -191,7 +191,7 @@ export default function PlateformePage() {
                   </svg>
                 }
                 title="Modèles opérés en Europe"
-                description="Les modèles d'IA que nous mobilisons tournent dans des infrastructures européennes. 100 % conforme au RGPD, sans transfert hors UE."
+                description="Les modèles d'IA que nous mobilisons sont exécutés dans des régions européennes. Aucun traitement de vos contenus n'est réalisé hors de l'Union européenne."
               />
               <SecurityItem
                 icon={
@@ -210,8 +210,8 @@ export default function PlateformePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
                   </svg>
                 }
-                title="Chiffrement de bout en bout"
-                description="Requêtes chiffrées en transit et au repos. Personne, pas même nous, n'accède à vos échanges avec l'IA."
+                title="Chiffrement en transit et au repos"
+                description="Requêtes et documents chiffrés pendant leur transport comme sur nos espaces de stockage. Les accès sont limités aux personnels habilités et journalisés."
               />
               <SecurityItem
                 icon={

@@ -250,7 +250,7 @@ export default function HomePage() {
             title="Vernelys Plateforme"
             description="Une plateforme collaborative qui centralise vos outils métier et une IA sécurisée : assistant, transcription de réunions, agents documentaires et pilotage de votre application."
             highlights={[
-              "IA souveraine, données hébergées en Europe",
+              "IA souveraine, données hébergées en France",
               "Transcription de réunions et comptes-rendus",
               "Agents documentaires sur vos dossiers",
               "PV juridiques automatisés",
@@ -294,7 +294,7 @@ export default function HomePage() {
             <SocleCard
               illustration={<FanIllustration />}
               title="Souveraineté & RGPD"
-              description="Données hébergées en Europe, chiffrées en transit et au repos. Un cadre de confiance pour traiter des données confidentielles."
+              description="Données hébergées en France, chiffrées en transit et au repos. Un cadre de confiance pour traiter des données confidentielles."
             />
             <SocleCard
               illustration={<TorusIllustration />}

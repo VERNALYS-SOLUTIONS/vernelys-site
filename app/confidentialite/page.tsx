@@ -289,8 +289,8 @@ export default function ConfidentialitePage() {
                 "Hébergement du site vitrine et diffusion des fichiers d'installation. Traite les journaux techniques de connexion.",
               ],
               [
-                "Prestataires OCR & IA",
-                "Reconnaissance de texte et fonctionnalités d'intelligence artificielle du complément et de la plateforme. Ils n'interviennent que sur les contenus que vous soumettez explicitement à ces traitements et n'utilisent pas vos données pour entraîner leurs modèles.",
+                "Prestataires OCR & IA (Union européenne)",
+                "Reconnaissance de texte et fonctionnalités d'intelligence artificielle du complément et de la plateforme, exécutées dans des régions européennes. Ils n'interviennent que sur les contenus que vous soumettez explicitement à ces traitements et n'utilisent pas vos données pour entraîner leurs modèles.",
               ],
               [
                 "Messagerie professionnelle",
@@ -314,22 +314,49 @@ export default function ConfidentialitePage() {
         </Section>
 
         <Section id="transferts" title="8. Transferts hors Union européenne">
+          <p className="font-medium text-slate-800">
+            8.1 — Complément Excel et plateforme Vernelys
+          </p>
           <p>
-            Nous privilégions des prestataires hébergeant les données au sein de
-            l&apos;Union européenne. Certains prestataires (hébergement,
-            fonctionnalités d&apos;IA) sont toutefois établis aux États-Unis, ce
-            qui peut donner lieu à un transfert de données hors de
+            Les données que vous nous confiez dans le cadre de nos solutions
+            sont <strong>hébergées et stockées en France</strong>. Les
+            traitements d&apos;OCR et d&apos;intelligence artificielle sont
+            exécutés <strong>exclusivement dans des régions européennes</strong>
+            {" "}: aucun de vos contenus n&apos;est traité hors de l&apos;Union
+            européenne.
+          </p>
+          <p>
+            Nous contractons avec les entités européennes de nos prestataires
+            d&apos;infrastructure, et les options de cantonnement des données au
+            sein de l&apos;Union européenne ainsi que de contrôle des accès
+            d&apos;administration et de support proposées par ces prestataires
+            sont activées. Une demande d&apos;accès émanant d&apos;une autorité
+            étrangère ne serait honorée que dans les conditions prévues par le
+            droit applicable, et nous nous engageons à vous en informer chaque
+            fois que la loi nous le permet.
+          </p>
+
+          <p className="pt-2 font-medium text-slate-800">
+            8.2 — Site vitrine
+          </p>
+          <p>
+            Le présent site est hébergé par Vercel Inc., société établie aux
+            États-Unis (voir la section{" "}
+            <a href="#hebergement" className="text-brand-600 hover:underline">
+              Hébergement
+            </a>
+            ). Les journaux techniques de connexion générés par votre navigation
+            peuvent à ce titre faire l&apos;objet d&apos;un transfert hors de
             l&apos;Union européenne.
           </p>
           <p>
-            Ces transferts sont encadrés par des garanties appropriées au sens
-            du chapitre V du RGPD : adhésion du prestataire au{" "}
+            Ce transfert est encadré par des garanties appropriées au sens du
+            chapitre V du RGPD : adhésion du prestataire au{" "}
             <em>EU-U.S. Data Privacy Framework</em> reconnu adéquat par la
-            décision de la Commission européenne du 10 juillet 2023, ou à
-            défaut clauses contractuelles types de la Commission européenne
-            complétées, le cas échéant, de mesures techniques supplémentaires
-            (chiffrement en transit et au repos, minimisation des données
-            transmises).
+            décision de la Commission européenne du 10 juillet 2023, ou à défaut
+            clauses contractuelles types de la Commission européenne complétées,
+            le cas échéant, de mesures techniques supplémentaires (chiffrement
+            en transit et au repos, minimisation des données transmises).
           </p>
           <p>
             Une copie des garanties mises en place peut vous être communiquée

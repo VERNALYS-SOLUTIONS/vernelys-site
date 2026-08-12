@@ -67,11 +67,11 @@ export default function ExcelShowcase() {
             Hautement personnalisable : ruban, raccourcis, branding cabinet
           </CheckItem>
           <CheckItem>
-            Traitement local sur la machine, données externes traitées à Paris
-            sans rétention
+            Traitement local sur la machine, données externes traitées en
+            Europe sans rétention
           </CheckItem>
           <CheckItem>
-            Chiffrement en transit de bout en bout
+            Chiffrement des échanges en transit et au repos
           </CheckItem>
           <CheckItem>
             Suivi collaboratif intuitif pour un meilleur travail en équipe
