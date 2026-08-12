@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #e6efe9;
+  --color-brand-100: #c2dccd;
+  --color-brand-200: #9bc7ac;
+  --color-brand-500: #007846;
+  --color-brand-600: #006039;
+  --color-brand-700: #00482b;
+  --color-brand-800: #013620;
+  --color-brand-900: #012417;
+  --color-brand-950: #01160e;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-white text-slate-900 antialiased;
+  font-family: var(--font-sans);
+}
+
+/* Animations — course IA */
+/* Rail pointillé qui défile vers l'arrière (le peloton "avance") */
+@keyframes rail-scroll {
+  from { background-position-x: 0; }
+  to { background-position-x: -14px; }
+}
+
+/* Pastille qui oscille entre deux positions de sa ligne (doublements) */
+@keyframes race-drift {
+  from { left: var(--x0); }
+  to { left: var(--x1); }
+}
+
+/* Orbite d'intégrations — rotation continue */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Aurore boréale du bandeau promo — halos qui dérivent */
+@keyframes aurora-drift-a {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(6%, 8%) scale(1.12); }
+}
+@keyframes aurora-drift-b {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-8%, 5%) scale(0.92); }
+}
+@keyframes aurora-drift-c {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-6%, -7%) scale(1.15); }
+}
+
+/* Léger grain radial pour les sections sombres premium */
+.bg-dark-brand {
+  background-color: var(--color-brand-950);
+  background-image: radial-gradient(
+      60% 60% at 50% 0%,
+      rgba(0, 120, 70, 0.35) 0%,
+      rgba(1, 22, 14, 0) 70%
+    ),
+    radial-gradient(
+      40% 50% at 100% 100%,
+      rgba(0, 120, 70, 0.18) 0%,
+      rgba(1, 22, 14, 0) 70%
+    );
+}

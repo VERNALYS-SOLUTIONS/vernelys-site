@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vernelys — Partie 1 : Connexion, Import PDF, Aperçu</title>
+<style>
+  :root{
+    --brand:#006039;         /* vert Vernelys officiel */
+    --brand-dark:#004a2c;
+    --brand-soft:#e3f0ea;
+    --grid:#e3e4e8;
+    --head:#f4f5f7;
+    --ink:#1f2430;
+    --muted:#6b7280;
+    --pdf-red:#e0483d;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, #eaf3ff 0%, transparent 55%),
+      radial-gradient(1000px 700px at 112% 120%, #e7fbf0 0%, transparent 50%),
+      #f5f7fb;
+    color:var(--ink);display:flex;align-items:flex-start;justify-content:center;min-height:100%;
+  }
+  .viewport{width:100%;padding:22px;display:flex;justify-content:center}
+  .frame{position:relative;margin:0 auto}
+  .stage{position:relative;width:1220px;transform-origin:top left}
+
+  .win{width:1220px;background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(20,30,60,.45), 0 8px 24px -12px rgba(20,30,60,.25);
+    border:1px solid rgba(20,30,60,.08)}
+  .titlebar{height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;
+    background:linear-gradient(180deg,#fbfbfd,#f1f2f6);border-bottom:1px solid #e7e8ee}
+  .dots{display:flex;gap:8px}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .doc-name{font-size:13px;color:var(--muted);margin-left:6px}
+  .doc-name b{color:var(--ink);font-weight:600}
+
+  /* Ruban — vraies icônes Vernelys */
+  .ribbon{background:#fff;border-bottom:1px solid #ececf1}
+  .tabs{display:flex;gap:2px;padding:6px 12px 0;font-size:12.5px}
+  .tab{padding:7px 11px;color:#59616e;border-radius:8px 8px 0 0;position:relative;white-space:nowrap}
+  .tab.addin{color:var(--brand);font-weight:700}
+  .tab.active::after{content:"";position:absolute;left:9px;right:9px;bottom:-1px;height:3px;border-radius:3px;background:var(--brand)}
+  .ribbon-body{display:flex;align-items:stretch;padding:7px 10px;min-height:74px;border-top:1px solid #f1f2f6}
+  .rgroup{display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #eef0f4}
+  .rgroup .items{display:flex;gap:2px;align-items:flex-start}
+  .rgroup .glabel{font-size:10px;color:var(--muted)}
+  .ritem{display:flex;flex-direction:column;align-items:center;gap:4px;width:55px;padding:4px 1px;border-radius:8px}
+  .ritem:hover{background:#f5f7f9}
+  .ritem .ic{height:28px;display:grid;place-items:center}
+  .ritem .ic img,.ritem .ic svg{width:26px;height:26px;object-fit:contain;image-rendering:auto}
+  .ritem .t{font-size:9px;line-height:1.1;text-align:center;color:#3f4756;width:53px;overflow-wrap:anywhere;hyphens:auto}
+
+  .formula{display:flex;align-items:center;gap:10px;padding:5px 14px;border-bottom:1px solid #ececf1;background:#fdfdfe}
+  .namebox{width:84px;font-size:12px;color:#374151;border:1px solid #e6e7ec;border-radius:6px;padding:4px 8px;background:#fff;text-align:center}
+  .fx{color:#9aa1ad;font-style:italic;font-size:13px}
+
+  .body{display:flex;height:452px}
+  .grid{flex:1;overflow:hidden;background:#fff}
+  table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
+  .colh th{background:var(--head);color:#8a90a0;font-weight:500;height:22px;border:1px solid var(--grid);text-align:center}
+  .rowh{background:var(--head);color:#9aa0ad;font-weight:500;text-align:center;border:1px solid var(--grid);width:36px;height:26px}
+  td.cell{border:1px solid var(--grid);height:26px}
+  .cell.sel{outline:2px solid var(--brand);outline-offset:-2px}
+
+  /* Volet complément */
+  .pane{width:372px;border-left:1px solid #e7e8ee;background:#fff;position:relative;overflow:hidden}
+  .pane-state{position:absolute;inset:0;padding:22px 20px;opacity:0;transform:translateY(8px);display:flex;flex-direction:column}
+  .pane-head{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:#20303f;margin-bottom:14px}
+  .pane-head .hi{width:26px;height:26px;border-radius:7px;background:var(--brand-soft);display:grid;place-items:center}
+  .pane-head .hi img{width:18px;height:18px}
+
+  .logo{width:64px;height:64px;border-radius:16px;overflow:hidden;display:grid;place-items:center;margin:8px auto 14px;box-shadow:0 12px 26px -12px rgba(0,96,57,.8)}
+  .logo img{width:100%;height:100%;display:block}
+  #st-connexion h2{margin:0;text-align:center;font-size:20px;color:#1c2b39}
+  .sub{margin:8px auto 22px;text-align:center;font-size:12.5px;color:var(--muted);max-width:280px;line-height:1.5}
+  .flabel{font-size:12px;color:#3f4756;font-weight:600;margin-bottom:6px}
+  .field{display:flex;align-items:center;border:1.5px solid #dfe2e8;border-radius:9px;padding:11px 12px;background:#fff;position:relative;transition:border-color .2s}
+  .field.focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,96,57,.12)}
+  .field .val{flex:1;font-size:13px;color:#222;letter-spacing:.5px;min-height:16px}
+  .field .caret{display:none;width:1.5px;height:16px;background:var(--brand);margin-left:1px;animation:blink 1s steps(1) infinite}
+  .field.focus .caret{display:inline-block}
+  @keyframes blink{50%{opacity:0}}
+  .field .afficher{font-size:12px;color:var(--brand);font-weight:600;margin-left:8px}
+  .placeholder{color:#aab0bb}
+  .btn-brand{position:relative;margin-top:18px;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 22px -12px rgba(0,96,57,.9);transition:transform .12s,filter .2s}
+  .btn-brand.press{transform:translateY(2px) scale(.99);filter:brightness(.95)}
+  .spinner{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;display:none;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pane-footer{margin-top:auto;text-align:center;font-size:10.5px;color:#b3b9c4;padding-top:16px}
+
+  .btn-sm{background:var(--brand);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;box-shadow:0 6px 14px -8px rgba(0,96,57,.9)}
+  .btn-sm.press{transform:translateY(1px) scale(.98)}
+  .btn-sm .ring{position:absolute;inset:-6px;border-radius:12px;border:2px solid var(--brand);opacity:0}
+  .btn-ghost{background:#fff;color:#3f4756;border:1.5px solid #e2e5ea;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;cursor:pointer}
+  .pdf-ic{width:26px;height:30px;flex:none;border-radius:4px;background:var(--pdf-red);position:relative;display:grid;place-items:end center}
+  .pdf-ic::before{content:"";position:absolute;top:0;right:0;border-width:0 8px 8px 0;border-style:solid;border-color:#fff #fff transparent transparent}
+  .pdf-ic span{font-size:7.5px;font-weight:800;color:#fff;margin-bottom:3px;letter-spacing:.3px}
+
+  .pdf-shell{flex:1;border:1px solid #e6e8ec;border-radius:10px;overflow:hidden;background:#f3f4f6;display:flex;flex-direction:column}
+  .pdf-scroll{flex:1;overflow:hidden;padding:8px}
+  .pdf-frame{width:100%;height:100%;border:0;border-radius:4px;background:#fff;box-shadow:0 8px 20px -10px rgba(0,0,0,.25)}
+  .pdf-actions{display:flex;gap:8px;padding:12px;border-top:1px solid #e6e8ec;background:#fff}
+  .pdf-actions button{flex:1;border:1.5px solid var(--brand);color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;opacity:0;transform:translateY(6px);display:flex;align-items:center;justify-content:center;gap:6px}
+  .pdf-actions button img{width:15px;height:15px}
+
+  .statusbar{display:flex;align-items:center;gap:16px;height:28px;padding:0 16px;background:var(--brand);color:#eafff2;font-size:11px}
+  .statusbar .sp{flex:1}
+  .statusbar .tag{color:#d3efe0;letter-spacing:.2px}
+
+  /* ===== Fenêtre flottante indépendante « Fichiers liés » ===== */
+  .flwin{position:absolute;left:160px;top:52px;width:900px;height:560px;background:#fff;border-radius:8px;overflow:hidden;
+    box-shadow:0 34px 80px -20px rgba(15,23,42,.5), 0 10px 26px -12px rgba(15,23,42,.3);
+    border:1px solid #e2e4e9;opacity:0;pointer-events:none;display:flex;flex-direction:column;z-index:40}
+  .fl-titlebar{height:40px;flex:none;display:flex;align-items:center;padding:0 0 0 16px;border-bottom:1px solid #eceef1;background:#fff}
+  .fl-title{font-size:13px;font-weight:600;color:#1f2430}
+  .fl-wc{margin-left:auto;display:flex;height:100%}
+  .fl-wc .wb{width:44px;display:grid;place-items:center}
+  .fl-wc svg{width:11px;height:11px}
+  .fl-wc svg line,.fl-wc svg rect{stroke:#6b7280;stroke-width:1.2;fill:none}
+  .fl-wc .wb.close svg line{stroke:#6b7280}
+
+  .fl-toolbar{flex:none;display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid #eceef1}
+  .fl-toolbar .btn-sm{padding:8px 14px}
+  .fl-toolbar .btn-ghost{display:flex;align-items:center;gap:7px;padding:8px 13px}
+  .fl-icon-btn{width:32px;height:32px;border:none;background:none;border-radius:6px;display:grid;place-items:center;color:#6b7280;cursor:pointer}
+  .fl-icon-btn.danger{color:#d1453b}
+  .fl-icon-btn svg{width:16px;height:16px}
+  .fl-sep{width:1px;height:20px;background:#e5e7eb;margin:0 2px;flex:none}
+  .fl-search{flex:1;display:flex;align-items:center;gap:8px;border:1.5px solid #e6e8ec;border-radius:7px;padding:8px 12px;font-size:12.5px;color:#aab0bb}
+  .fl-search svg{width:14px;height:14px;flex:none;color:#aab0bb}
+
+  .fl-body{flex:1;display:flex;overflow:hidden}
+  .fl-side{width:222px;flex:none;background:#fafafa;border-right:1px solid #eceef1;padding:16px 10px}
+  .fl-side-label{font-size:10.5px;letter-spacing:.6px;color:#9aa0ad;font-weight:700;margin:0 0 8px 8px}
+  .fl-folder{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--brand-soft);color:var(--brand);font-size:12.5px;font-weight:600;white-space:nowrap}
+  .fl-folder svg{width:15px;height:15px;flex:none}
+  .fl-folder .dash{margin-left:auto;color:#9fb8ac;font-weight:400}
+
+  .fl-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .fl-thead{display:flex;padding:11px 16px;border-bottom:1px solid #eceef1;font-size:11px;color:#9aa0ad;font-weight:600}
+  .fl-c-nom{flex:1}.fl-c-date{width:150px}.fl-c-poids{width:90px}.fl-c-ocr{width:64px}
+  .fl-rows{flex:1;overflow-y:auto}
+  .fl-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid #f2f3f5;font-size:12.5px;color:#26303c;opacity:0}
+  .fl-row .fl-c-nom{display:flex;align-items:center;gap:10px;overflow:hidden}
+  .fl-row .fl-c-nom .nom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fl-row .fl-c-date,.fl-row .fl-c-poids{color:#8b93a0;font-size:11.5px}
+  .fl-row .fl-c-ocr{display:flex}
+  .fl-ocr-chk{width:19px;height:19px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:10px;transform:scale(0)}
+  .fl-row.hot{background:var(--brand-soft)}
+
+  .fl-status{flex:none;height:32px;display:flex;align-items:center;gap:26px;padding:0 16px;background:#fafafa;border-top:1px solid #eceef1;font-size:11.5px;color:#6b7280}
+
+  /* ===== Boîte de dialogue « Ouvrir » (Windows) ===== */
+  .dlg-overlay{position:absolute;inset:0;background:rgba(15,23,42,.32);z-index:45;opacity:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .dlg{width:600px;background:#f3f3f3;border-radius:10px;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);border:1px solid #d9dade;transform:scale(.96);opacity:0}
+  .dlg-title{height:38px;background:#fff;display:flex;align-items:center;padding:0 12px;font-size:13px;color:#222;border-bottom:1px solid #ededed}
+  .dlg-title .wc{margin-left:auto;display:flex;gap:16px;color:#8a8f98;font-size:12px}
+  .dlg-addr{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fafafa;border-bottom:1px solid #ededed}
+  .dlg-crumb{flex:1;display:flex;align-items:center;gap:6px;font-size:12px;color:#3a4048;border:1px solid #e2e3e7;background:#fff;border-radius:5px;padding:6px 9px}
+  .dlg-searchbox{width:150px;font-size:12px;color:#a0a4ac;border:1px solid #e2e3e7;background:#fff;border-radius:5px;padding:6px 9px}
+  .dlg-main{display:flex;height:250px}
+  .dlg-side{width:158px;border-right:1px solid #e6e6e9;padding:8px;font-size:12px;color:#3a4048;background:#fafafa}
+  .dlg-side .s-item{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:5px}
+  .dlg-side .s-item.on{background:#e9eefb}
+  .dlg-files{flex:1;overflow:hidden;background:#fff}
+  .dlg-fh{display:flex;font-size:11px;color:#8a8f98;padding:7px 12px;border-bottom:1px solid #eee}
+  .dlg-fh .h-nom{flex:1}.dlg-fh .h-date{width:110px}.dlg-fh .h-type{width:96px}
+  .dfile{display:flex;align-items:center;gap:10px;padding:7px 12px;font-size:12px;color:#2a2f3a;cursor:default}
+  .dfile.sel{background:#cfe2ff}
+  .dfile .di{width:18px;height:22px;background:var(--pdf-red);border-radius:2px;position:relative;flex:none}
+  .dfile .di::after{content:"PDF";position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:5.5px;font-weight:800;color:#fff}
+  .dfile .d-nom{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dfile .d-date{width:110px;color:#8a8f98}.dfile .d-type{width:96px;color:#8a8f98}
+  .dlg-foot{background:#fafafa;border-top:1px solid #ededed;padding:12px;display:flex;align-items:center;gap:10px}
+  .dlg-foot .lbl{font-size:12px;color:#3a4048}
+  .dlg-name{flex:1;font-size:12px;color:#222;border:1px solid #cfd2d8;background:#fff;border-radius:5px;padding:7px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dlg-type{font-size:12px;color:#3a4048;border:1px solid #cfd2d8;background:#fff;border-radius:5px;padding:7px 9px;width:150px}
+  .dlg-open{background:var(--brand);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12.5px;font-weight:700;cursor:pointer;position:relative}
+  .dlg-open.press{transform:translateY(1px) scale(.98)}
+  .dlg-open .ring{position:absolute;inset:-6px;border-radius:10px;border:2px solid var(--brand);opacity:0}
+  .dlg-cancel{background:#fff;color:#3a4048;border:1px solid #cfd2d8;border-radius:6px;padding:8px 14px;font-size:12.5px;cursor:pointer}
+
+  .cursor{position:absolute;left:0;top:0;z-index:60;filter:drop-shadow(0 3px 5px rgba(0,0,0,.28));will-change:transform;pointer-events:none}
+  .callout{position:absolute;z-index:50;width:290px;background:#0f1b2d;color:#fff;padding:13px 15px;border-radius:13px;box-shadow:0 20px 40px -16px rgba(10,20,40,.6);opacity:0}
+  .callout .k{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;margin-bottom:3px}
+  .callout .k .spark{width:22px;height:22px;border-radius:7px;background:linear-gradient(160deg,#0c7a4c,var(--brand));display:grid;place-items:center;font-size:12px}
+  .callout p{margin:0;font-size:12.5px;line-height:1.45;color:#c7d0dd}
+  .callout p b{color:#fff}
+  .callout.left::after{content:"";position:absolute;right:-8px;top:22px;width:16px;height:16px;background:#0f1b2d;transform:rotate(45deg);border-radius:3px}
+  .callout.up::after{content:"";position:absolute;left:30px;top:-8px;width:16px;height:16px;background:#0f1b2d;transform:rotate(45deg);border-radius:3px}
+
+  .replay{position:absolute;right:0;top:-14px;font-size:12px;color:var(--muted);background:#fff;border:1px solid #e4e6ec;border-radius:8px;padding:6px 12px;cursor:pointer;z-index:70}
+  .replay:hover{border-color:#cfd2da}
+</style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="frame" id="frame">
+      <button class="replay" id="replay">↻ Rejouer</button>
+      <div class="stage" id="stage">
+        <div class="win">
+          <div class="titlebar">
+            <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+            <div class="doc-name"><b>Classeur d'audit.xlsx</b> — Excel</div>
+          </div>
+
+          <div class="ribbon">
+            <div class="tabs">
+              <div class="tab">Fichier</div><div class="tab">Accueil</div><div class="tab">Insertion</div>
+              <div class="tab">Données</div><div class="tab">Révision</div>
+              <div class="tab addin active">Outil Excel — Vernelys</div>
+            </div>
+            <div class="ribbon-body" id="ribbon-body">
+              <!-- Groupes construits en JS à partir des vraies icônes -->
+            </div>
+          </div>
+
+          <div class="formula">
+            <div class="namebox">A1</div><div class="fx">fx</div>
+          </div>
+
+          <div class="body">
+            <div class="grid" id="grid"></div>
+            <aside class="pane" id="pane">
+
+              <div class="pane-state" id="st-connexion">
+                <div class="logo"><img src="icones/vernalys-logo.svg" alt="Vernelys"></div>
+                <h2>Connexion</h2>
+                <p class="sub">Saisissez le code fourni par votre entreprise pour activer vos audits.</p>
+                <div class="flabel">Code entreprise</div>
+                <div class="field" id="field">
+                  <span class="val"><span id="code" class="placeholder">Code communiqué par l'entreprise</span></span>
+                  <span class="caret"></span>
+                  <span class="afficher">Afficher</span>
+                </div>
+                <button class="btn-brand" id="btn-connexion"><span class="spinner" id="spin"></span><span id="cnx-label">Connexion</span></button>
+                <div class="pane-footer">© Vernelys 2025 — tous droits réservés</div>
+              </div>
+
+              <div class="pane-state" id="st-apercu">
+                <div class="pane-head"><span class="hi"><img src="icones/icon-apercu-taskpane-32.png"></span> Aperçu des PDF</div>
+                <div class="pdf-shell">
+                  <div class="pdf-scroll">
+                    <iframe class="pdf-frame" title="Aperçu PDF"
+                      src="Ressources/RB%20Soci%C3%A9t%C3%A9%20G%C3%A9n%C3%A9ral%20factice.pdf#toolbar=0&amp;navpanes=0&amp;view=FitH"></iframe>
+                  </div>
+                  <div class="pdf-actions">
+                    <button class="pa"><img src="icones/icon-text-clip-32.png">Texte</button>
+                    <button class="pa"><img src="icones/icon-sum-clip-32.png">Somme</button>
+                    <button class="pa"><img src="icones/icon-table-clip-32.png">Tableau</button>
+                  </div>
+                </div>
+              </div>
+
+            </aside>
+          </div>
+
+          <div class="statusbar">
+            <span>Prêt</span><span class="sp"></span>
+            <span>Vernelys v1.0</span>
+          </div>
+        </div>
+
+        <!-- Fenêtre flottante indépendante : Fichiers liés -->
+        <div class="flwin" id="win-fichiers">
+          <div class="fl-titlebar">
+            <span class="fl-title">Fichiers liés</span>
+            <span class="fl-wc">
+              <span class="wb"><svg viewBox="0 0 12 12"><line x1="1" y1="6" x2="11" y2="6"/></svg></span>
+              <span class="wb"><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="1"/></svg></span>
+              <span class="wb close"><svg viewBox="0 0 12 12"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg></span>
+            </span>
+          </div>
+          <div class="fl-toolbar">
+            <button class="btn-sm" id="btn-import"><span class="ring" id="import-ring"></span>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              Importer
+            </button>
+            <button class="btn-ghost">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M12 11v4m-2-2h4"/></svg>
+              Nouveau dossier
+            </button>
+            <span class="fl-sep"></span>
+            <button class="fl-icon-btn" title="Actualiser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 3v6h-6"/></svg></button>
+            <button class="fl-icon-btn danger" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-9 0l1 12a2 2 0 002 2h4a2 2 0 002-2l1-12"/></svg></button>
+            <span class="fl-sep"></span>
+            <div class="fl-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Rechercher un fichier...</div>
+            <span class="fl-sep"></span>
+            <button class="fl-icon-btn" title="Affichage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+          </div>
+          <div class="fl-body">
+            <aside class="fl-side">
+              <div class="fl-side-label">DOSSIERS</div>
+              <div class="fl-folder">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6a2 2 0 012-2h4.17a2 2 0 011.41.59L12 6h7a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"/></svg>
+                Toutes les sources <span class="dash">—</span>
+              </div>
+            </aside>
+            <div class="fl-main">
+              <div class="fl-thead">
+                <span class="fl-c-nom">Nom</span><span class="fl-c-date">Date de modif.</span><span class="fl-c-poids">Poids</span><span class="fl-c-ocr">OCR</span>
+              </div>
+              <div class="fl-rows" id="fl-filelist"></div>
+            </div>
+          </div>
+          <div class="fl-status">
+            <span id="fl-count-folder">0 fichiers dans ce dossier</span>
+            <span id="fl-count-classeur">0 liés au classeur</span>
+            <span id="fl-updated">Mis à jour --:--</span>
+          </div>
+        </div>
+
+        <!-- Boîte de dialogue Ouvrir -->
+        <div class="dlg-overlay" id="dlg-overlay">
+          <div class="dlg" id="dlg">
+            <div class="dlg-title">Ouvrir<span class="wc"><span>—</span><span>▢</span><span>✕</span></span></div>
+            <div class="dlg-addr">
+              <div class="dlg-crumb">📁 Ce PC › Documents › Audit 2025 › PDF à traiter</div>
+              <div class="dlg-searchbox">🔍 Rechercher</div>
+            </div>
+            <div class="dlg-main">
+              <div class="dlg-side">
+                <div class="s-item">⭐ Accès rapide</div>
+                <div class="s-item">🖥️ Bureau</div>
+                <div class="s-item">⬇️ Téléchargements</div>
+                <div class="s-item on">📁 Documents</div>
+                <div class="s-item">🖼️ Images</div>
+                <div class="s-item">💻 Ce PC</div>
+              </div>
+              <div class="dlg-files">
+                <div class="dlg-fh"><span class="h-nom">Nom</span><span class="h-date">Modifié le</span><span class="h-type">Type</span></div>
+                <div id="dlg-filelist"></div>
+              </div>
+            </div>
+            <div class="dlg-foot">
+              <span class="lbl">Nom du fichier :</span>
+              <div class="dlg-name" id="dlg-name"></div>
+              <div class="dlg-type">Fichiers PDF (*.pdf)</div>
+              <button class="dlg-open" id="dlg-open"><span class="ring" id="dlg-ring"></span>Ouvrir</button>
+              <button class="dlg-cancel">Annuler</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout" id="callout"><div class="k"><span class="spark">⚡</span> <span id="co-title"></span></div><p id="co-text"></p></div>
+        <div class="cursor" id="cursor">
+          <svg width="26" height="30" viewBox="0 0 26 30"><path d="M2 2 L2 22 L8 17 L12 26 L16 24 L12 15 L20 15 Z" fill="#fff" stroke="#1f2430" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const DESIGN_W = 1220;
+  const ic = f => `icones/${encodeURIComponent(f)}`;
+
+  // ---- Ruban : groupes + vraies icônes (à confirmer) ----
+  const ribbon = [
+    {label:"Outils principaux", items:[
+      ["si-erreur-0-32 (1).png","Si erreur"],
+      ["Supprimer_Espace_32.png","Suppr espace"],
+      ["Audit_formule_32.png","Audit formule"],
+    ]},
+    {label:"Documents", items:[
+      ["icon-importer.png","Importer"],
+      ["icon-text-clip-32.png","Texte"],
+      ["icon-sum-clip-32.png","Somme"],
+      ["icon-table-clip-32.png","Tableau"],
+      ["clip-supp-red-32.png","Suppression"],
+      ["icon-apercu-taskpane-32.png","Aperçu"],
+    ]},
+    {label:"Raccourcis", items:[
+      ["gestionnaire-raccourcis-32.png","Gestionnaire"],
+      ["index-raccourcis-32.png","Index"],
+    ]},
+    {label:"Audit comptable", items:[
+      ["apps-icon-32.png","Application"],
+    ]},
+    {label:"IA", items:[
+      ["icon-assistant-ia-32.png","IA"],
+    ]},
+    {label:"Aide & Paramètres", items:[
+      ["documentation-32.png","Documentation"],
+      ["reference_b_32.png","Aide"],
+      ["parametre-32.png","Paramètre"],
+    ]},
+    {label:"Compte", items:[
+      ["logout-32px.png","Déconnexion"],
+    ]},
+  ];
+  const iconHtml = f => `<img src="${ic(f)}" alt="">`;
+  document.getElementById('ribbon-body').innerHTML = ribbon.map(g =>
+    `<div class="rgroup"><div class="items">`+
+    g.items.map(it=>`<div class="ritem"><div class="ic">${iconHtml(it[0])}</div><div class="t">${it[1]}</div></div>`).join('')+
+    `</div><div class="glabel">${g.label}</div></div>`
+  ).join('');
+
+  // ---- grille vide ----
+  (function(){
+    const cols=8, rowsN=15;
+    let h='<table><colgroup><col style="width:36px">'+'<col>'.repeat(cols)+'</colgroup><thead><tr class="colh"><th></th>';
+    for(let c=0;c<cols;c++) h+=`<th>${String.fromCharCode(65+c)}</th>`;
+    h+='</tr></thead><tbody>';
+    for(let r=1;r<=rowsN;r++){h+=`<tr><td class="rowh">${r}</td>`;for(let c=0;c<cols;c++)h+=`<td class="cell${(r===4&&c===2)?' sel':''}"></td>`;h+='</tr>';}
+    document.getElementById('grid').innerHTML=h+'</tbody></table>';
+  })();
+
+  const files=[
+    {nom:"État des charges sociales.pdf", date:"16/07/2025", poids:"41 Ko"},
+    {nom:"FRLM INDICO — annexe exercice 2023.pdf", date:"16/07/2025", poids:"88 Ko"},
+    {nom:"Comptes annuels 2024.pdf", date:"16/07/2025", poids:"210 Ko"},
+    {nom:"05 Société Générale — relevé.pdf", date:"16/07/2025", poids:"137 Ko"},
+  ];
+
+  const $=id=>document.getElementById(id);
+  const frame=$('frame'),stage=$('stage'),cursor=$('cursor'),callout=$('callout'),coTitle=$('co-title'),coText=$('co-text'),
+        pane=$('pane'),field=$('field'),code=$('code'),btnCnx=$('btn-connexion'),spin=$('spin'),cnxLabel=$('cnx-label'),
+        winFichiers=$('win-fichiers'),btnImport=$('btn-import'),importRing=$('import-ring'),flFilelist=$('fl-filelist'),
+        flCountFolder=$('fl-count-folder'),flCountClasseur=$('fl-count-classeur'),flUpdated=$('fl-updated'),
+        dlgOverlay=$('dlg-overlay'),dlg=$('dlg'),dlgFilelist=$('dlg-filelist'),dlgName=$('dlg-name'),dlgOpen=$('dlg-open'),dlgRing=$('dlg-ring');
+  const states={connexion:$('st-connexion'),apercu:$('st-apercu')};
+
+  // dialog file rows
+  dlgFilelist.innerHTML = files.map(f=>
+    `<div class="dfile"><div class="di"></div><div class="d-nom">${f.nom}</div><div class="d-date">${f.date} 09:12</div><div class="d-type">Document PDF</div></div>`
+  ).join('');
+
+  let scale=1;
+  // Mode "plein écran" (?full=1) : utilisé par compil.html pour remplir la fenêtre
+  // au lieu de plafonner à 1 et de laisser des marges.
+  const FULL=!!new URLSearchParams(location.search).get('full');
+  if(FULL){
+    document.documentElement.style.background='transparent';
+    document.body.style.background='transparent';
+    document.body.style.alignItems='center';
+    const _vp=document.querySelector('.viewport');
+    if(_vp){_vp.style.padding='0';_vp.style.background='transparent';}
+  }
+  function fit(){
+    const availW=Math.max(320,frame.parentElement.clientWidth-4);
+    const availH=Math.max(200,window.innerHeight-4);
+    const nat=stage.offsetHeight||900;
+    scale=Math.min(FULL?99:1, availW/DESIGN_W, availH/nat);
+    stage.style.transform=`scale(${scale})`;
+    frame.style.width=(DESIGN_W*scale)+'px';
+    frame.style.height=(stage.offsetHeight*scale)+'px';
+  }
+  window.addEventListener('resize',fit);
+
+  function rectOf(el){const a=el.getBoundingClientRect(),s=stage.getBoundingClientRect();
+    return {x:(a.left-s.left)/scale,y:(a.top-s.top)/scale,w:a.width/scale,h:a.height/scale};}
+  const centerOf=el=>{const r=rectOf(el);return {x:r.x+r.w/2,y:r.y+r.h/2};};
+
+  // Vitesse : override via URL (?speed=X), sinon 1 par défaut. Utilisé par compil.html
+  // pour condenser cette partie dans son créneau de la vidéo globale.
+  const SPEED=Number(new URLSearchParams(location.search).get('speed'))||1;
+  const delay=ms=>new Promise(r=>setTimeout(r,ms/SPEED));
+  const anim=(el,fr,o)=>{const opts={...o};if(opts.duration!=null)opts.duration/=SPEED;if(opts.delay!=null)opts.delay/=SPEED;return el.animate(fr,{fill:'forwards',...opts}).finished;};
+  const EASE='cubic-bezier(.22,1,.36,1)';
+
+  let cx=DESIGN_W-140,cy=430;
+  const placeCursor=(x,y)=>{cx=x;cy=y;cursor.style.transform=`translate(${x}px,${y}px)`;};
+  function moveCursor(x,y,ms=800){const p=cursor.animate([{transform:`translate(${cx}px,${cy}px)`},{transform:`translate(${x}px,${y}px)`}],{duration:ms/SPEED,easing:EASE,fill:'forwards'});cx=x;cy=y;return p.finished;}
+  const clickAt=async el=>{const c=centerOf(el);await moveCursor(c.x,c.y,700);};
+  function pressPulse(el,ring){el.classList.add('press');if(ring)ring.animate([{opacity:.9,transform:'scale(.8)'},{opacity:0,transform:'scale(1.3)'}],{duration:520,easing:'ease-out'});setTimeout(()=>el.classList.remove('press'),150);}
+
+  function showState(name,ms=440){for(const k in states){const on=k===name,s=states[k];
+    s.style.transition=`opacity ${ms}ms ease, transform ${ms}ms ease`;s.style.opacity=on?1:0;s.style.transform=on?'translateY(0)':'translateY(8px)';s.style.pointerEvents=on?'auto':'none';}
+    return delay(ms);}
+
+  async function typeCode(text,per=95){code.textContent='';code.classList.remove('placeholder');field.classList.add('focus');
+    for(const ch of text){code.textContent+=ch;await delay(per);}await delay(250);field.classList.remove('focus');}
+
+  function makeFlRow(f){const row=document.createElement('div');row.className='fl-row';
+    row.innerHTML=`<div class="fl-c-nom"><span class="pdf-ic"><span>PDF</span></span><span class="nom">${f.nom}</span></div>`+
+      `<div class="fl-c-date">${f.date}</div><div class="fl-c-poids">${f.poids}</div>`+
+      `<div class="fl-c-ocr"><span class="fl-ocr-chk">✓</span></div>`;
+    return row;}
+  const nowHM=()=>new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+
+  function showCallout(target,side,title,text,off={x:0,y:0}){coTitle.textContent=title;coText.innerHTML=text;callout.className='callout '+side;
+    const r=rectOf(target);let x=side==='left'?r.x-290-16:r.x;let y=side==='left'?r.y+r.h/2-34:r.y+r.h+14;x+=off.x;y+=off.y;
+    callout.style.left=x+'px';callout.style.top=y+'px';
+    return anim(callout,[{opacity:0,transform:'translateY(8px) scale(.96)'},{opacity:1,transform:'none'}],{duration:460,easing:EASE});}
+  const hideCallout=()=>anim(callout,[{opacity:1},{opacity:0}],{duration:300});
+
+  async function openDialog(){dlgOverlay.style.pointerEvents='auto';
+    anim(dlgOverlay,[{opacity:0},{opacity:1}],{duration:260});
+    await anim(dlg,[{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'scale(1)'}],{duration:300,easing:EASE});}
+  async function closeDialog(){anim(dlg,[{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.97)'}],{duration:240,easing:'ease-in'});
+    await anim(dlgOverlay,[{opacity:1},{opacity:0}],{duration:260});dlgOverlay.style.pointerEvents='none';
+    dlgFilelist.querySelectorAll('.dfile').forEach(d=>d.classList.remove('sel'));dlgName.textContent='';}
+
+  async function openFichiersWindow(){pane.style.transition='opacity 380ms ease';pane.style.opacity=0;await delay(200);
+    winFichiers.style.pointerEvents='auto';
+    await anim(winFichiers,[{opacity:0,transform:'translateY(10px) scale(.97)'},{opacity:1,transform:'none'}],{duration:420,easing:EASE});}
+  async function closeFichiersWindow(){await anim(winFichiers,[{opacity:1,transform:'none'},{opacity:0,transform:'translateY(8px) scale(.98)'}],{duration:320,easing:'ease-in'});
+    winFichiers.style.pointerEvents='none';pane.style.opacity=1;}
+
+  function reset(){placeCursor(DESIGN_W-140,430);callout.style.opacity=0;
+    flFilelist.innerHTML='';flCountFolder.textContent='0 fichiers dans ce dossier';flCountClasseur.textContent='0 liés au classeur';flUpdated.textContent='Mis à jour --:--';
+    winFichiers.style.transition='none';winFichiers.style.opacity=0;winFichiers.style.pointerEvents='none';winFichiers.style.transform='none';
+    pane.style.transition='none';pane.style.opacity=1;
+    code.textContent="Code communiqué par l'entreprise";code.classList.add('placeholder');field.classList.remove('focus');
+    spin.style.display='none';cnxLabel.style.opacity=1;dlgOverlay.style.opacity=0;dlgOverlay.style.pointerEvents='none';
+    dlg.style.opacity=0;dlgName.textContent='';dlgFilelist.querySelectorAll('.dfile').forEach(d=>d.classList.remove('sel'));
+    for(const k in states){states[k].style.transition='none';states[k].style.opacity=k==='connexion'?1:0;states[k].style.transform=k==='connexion'?'none':'translateY(8px)';states[k].style.pointerEvents=k==='connexion'?'auto':'none';}}
+
+  async function run(){
+    fit();reset();await delay(750);
+
+    // 1) CONNEXION
+    await clickAt(field);
+    await typeCode("AUDIT-2025-DEMO");
+    await delay(200);
+    await clickAt(btnCnx);pressPulse(btnCnx);
+    cnxLabel.style.opacity=0;spin.style.display='inline-block';
+    await delay(1100);spin.style.display='none';
+
+    // 1bis) ouverture de la fenêtre indépendante « Fichiers liés »
+    await openFichiersWindow();await delay(400);
+
+    // 2) IMPORT → BOÎTE DE DIALOGUE OS
+    await clickAt(btnImport);pressPulse(btnImport,importRing);await delay(300);
+    await openDialog();await delay(350);
+    // sélection des fichiers dans la boîte
+    const dRows=[...dlgFilelist.querySelectorAll('.dfile')];
+    await clickAt(dRows[0]);
+    const names=[];
+    for(let i=0;i<dRows.length;i++){dRows[i].classList.add('sel');names.push(`"${files[i].nom}"`);
+      dlgName.textContent=names.join(' ');await delay(160);}
+    await delay(500);
+    // clic Ouvrir
+    await clickAt(dlgOpen);pressPulse(dlgOpen,dlgRing);await delay(200);
+    await closeDialog();await delay(250);
+
+    // 3) cascade dans la fenêtre Fichiers liés
+    for(const f of files){const row=makeFlRow(f);flFilelist.appendChild(row);
+      anim(row,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:360,easing:EASE});
+      await delay(150);anim(row.querySelector('.fl-ocr-chk'),[{transform:'scale(0)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:360,easing:EASE});
+      const n=flFilelist.children.length;
+      flCountFolder.textContent=`${n} fichier${n>1?'s':''} dans ce dossier`;
+      flCountClasseur.textContent=`${n} lié${n>1?'s':''} au classeur`;
+      flUpdated.textContent=`Mis à jour ${nowHM()}`;
+      await delay(220);}
+    await delay(250);
+    await showCallout(btnImport,'left','Import en 1 clic','Sélectionnez vos PDF et ils se lient <b>directement dans Excel</b>.');
+    await delay(2200);await hideCallout();
+
+    // 4) sélection d'un fichier → aperçu (dans le volet Excel)
+    const rows=flFilelist.querySelectorAll('.fl-row');const target=rows[rows.length-1];
+    await clickAt(target);target.classList.add('hot');await delay(400);
+    await closeFichiersWindow();await delay(150);
+    await showState('apercu');await delay(450);
+    document.querySelectorAll('.pdf-actions .pa').forEach((b,i)=>anim(b,[{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:360,delay:i*90,easing:EASE}));
+    await delay(500);
+    await showCallout(document.querySelector('.pdf-actions'),'up','Aperçu intégré','Lisez le PDF et extrayez <b>texte, sommes et tableaux</b> sans quitter Excel.',{x:-6,y:6});
+    await delay(2800);await hideCallout();await delay(300);
+  }
+
+  let running=true;
+  (async function loop(){while(running){await run();}})();
+  $('replay').addEventListener('click',()=>location.reload());
+  window.addEventListener('load',fit);fit();
+})();
+</script>
+<script>/* Masque le bouton Rejouer quand l'animation est embarquée (iframe : carrousel / compil). */
+if(window.self!==window.top){var _r=document.getElementById("replay");if(_r)_r.style.display="none";}</script>
+</body>
+</html>

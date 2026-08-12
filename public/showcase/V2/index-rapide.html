@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Vernelys Animation V2 (rapide)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- ===== TOP BAR (persistent identique à la V1) ===== -->
+  <div class="top">
+    <div class="logoT">V</div><div class="nameT">VERNELYS</div>
+    <div class="appsT" id="appsT"><div class="gridi"><i></i><i></i><i></i><i></i></div>Applications</div>
+    <div class="crumb" id="crumb">›&nbsp; Transcription &amp; CR de réunion</div>
+    <div class="srchT"><div class="mag"></div>Rechercher partout apps, conversations, documents</div>
+    <div class="rightT"><span>▤ Base documentaire</span><span class="gauge"></span>Consommation<svg class="shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg><div class="avT">VL</div></div>
+  </div>
+
+  <div class="row">
+    <!-- ===== SIDEBAR (persistent identique à la V1) ===== -->
+    <div class="side">
+      <div class="filtS"><div class="mag"></div>Filtrer la sidebar…<div class="pl">+</div></div>
+      <div class="newS">+&nbsp; Nouvelle conversation</div>
+
+      <div class="secS">
+        <div class="secH"><span>⌄ AGENTS</span><span>11</span></div>
+        <div class="itS"><span class="bdg b-g">PC</span>@ProcédurescabinetVernelys</div>
+        <div class="itS"><span class="bdg b-b">RJ</span>@Référentieljuridique2026</div>
+        <div class="itS"><span class="bdg b-o">FO</span>@Formations&amp;onboarding</div>
+        <div class="itS"><span class="bdg b-p">CD</span>@PVcomitédedirection</div>
+        <div class="itS" style="color:var(--muted)"><span class="bdg" style="background:#eef1f3;color:#67737e">@</span>Voir tous les agents<span class="cnt">+7</span></div>
+      </div>
+
+      <div class="secS">
+        <div class="secH"><span>⌄ BIBLIOTHÈQUE</span></div>
+        <div class="itS"><span class="fld"></span>Général<span class="cnt">10</span></div>
+        <div class="itS" style="padding-left:16px"><span class="fld"></span>SARL Martin &amp; Fils<span class="cnt">8</span></div>
+        <div class="itS" style="padding-left:16px"><span class="fld"></span>SAS Dupont Industries<span class="cnt">12</span></div>
+        <div class="itS" style="padding-left:16px"><span class="fld"></span>Boulangerie Dervieux<span class="cnt">4</span></div>
+        <div class="itS" style="padding-left:16px"><span class="fld"></span>Lucet SAS<span class="cnt">3</span></div>
+        <div class="itS" style="color:var(--muted)"><span style="width:12px;text-align:center">+</span>Nouveau dossier<span class="cnt">⌄</span></div>
+      </div>
+
+      <div class="secS">
+        <div class="secH"><span>⌄ RÉCENTS</span><span>◷</span></div>
+        <div class="itS"><span class="bdg b-g">CL</span>Note de frais SARL Martin &amp; Fils</div>
+        <div class="itS"><span class="bdg b-b">VF</span>Audit fiscal SAS Dupont Industries</div>
+        <div class="itS"><span class="bdg b-p">PV</span>PV d'AGE Boulangerie Dervieux</div>
+      </div>
+
+      <div class="footS"><div class="avT">VL</div><div><div class="t1">Cabinet Vasseur</div><div class="t2">Espace équipe</div></div></div>
+    </div>
+
+    <!-- ===== MAIN ===== -->
+    <div class="main">
+
+      <!-- ---------- PANE 1 : accueil ---------- -->
+      <div class="pane" id="paneHome">
+        <div class="col">
+          <div class="hero fu" data-s="1">V</div>
+          <div class="greet fu" data-s="2">Bonjour Valérie. <span>Que voulez-vous faire aujourd'hui&nbsp;?</span></div>
+
+          <div class="chatwrap fu" data-s="4">
+            <div class="chat">
+              <div class="field"><span class="plc">Posez votre question @ pour mentionner un agent, / pour insérer un prompt</span></div>
+              <div class="tools">
+                <div class="plusB">+</div>
+                <div class="t">⊕ Web</div>
+                <div class="t">⊘ Prompts</div>
+                <div class="sp"><span>🎙</span><div class="send">↑</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cards fu" data-s="5">
+            <div class="c"><div class="ci">@</div><div><div class="c1">Mentionner un agent</div><div class="c2">Juridique, fiscal, RH…</div></div></div>
+            <div class="c"><div class="ci">⠿</div><div><div class="c1">Lancer une application</div><div class="c2">17 apps disponibles</div></div></div>
+            <div class="c"><div class="ci">TR</div><div><div class="c1">Transcription &amp; CR de réunion</div><div class="c2">Audio → compte rendu</div></div></div>
+          </div>
+
+          <div class="fu" data-s="6">
+            <div class="recH"><span>REPRENDRE OÙ VOUS EN ÉTIEZ</span><span>VOIR L'HISTORIQUE →</span></div>
+            <div class="recR"><span class="bdg b-g">CL</span>Note de frais SARL Martin &amp; Fils<span class="rk">CL</span><span class="rt">il y a 12 min</span></div>
+            <div class="recR"><span class="bdg b-b">VF</span>Audit fiscal SAS Dupont Industries<span class="rk">VF</span><span class="rt">il y a 1 h</span></div>
+            <div class="recR"><span class="bdg b-p">PV</span>PV d'AGE Boulangerie Dervieux<span class="rk">PV</span><span class="rt">il y a 3 h</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- PANE 2 : application Transcription ---------- -->
+      <div class="pane" id="paneApp">
+        <div class="appwrap">
+
+          <div class="qs fu2" data-s="1">
+            <div class="qs-h">Démarrage rapide</div>
+            <div class="qs-b">
+              <div class="recBtn" id="recBtn"><i class="dotr"></i>🎙 Enregistrer</div>
+              <div class="qs-l" id="linkFld"><span class="ph">▭&nbsp; Coller un lien Teams · Meet · Zoom…</span><span class="typed" id="linkTxt"></span><i class="cr" id="linkCr"></i></div>
+              <div class="qs-r"><div class="ob">⬆ Importer MP3</div><div class="ob">▤ Planifier ⌄</div></div>
+            </div>
+          </div>
+
+          <div class="cols">
+            <!-- colonne gauche : file de validation -->
+            <div class="cL fu2" data-s="2">
+              <div class="colH">Transcriptions en attente de validation</div>
+
+              <div class="vc warn">
+                <div class="vc-t"><span class="kk">◷ CR À VALIDER</span><span class="due">Échéance demain</span></div>
+                <div class="vc-n">Revue annuelle des comptes</div>
+                <div class="vc-s">SARL Martin &amp; Fils · 1h 22min · CODIR</div>
+                <div class="vbtn">Valider →</div>
+              </div>
+
+              <div class="vc warn">
+                <div class="vc-t"><span class="kk">◷ CR À VALIDER</span></div>
+                <div class="vc-n">Audit préparatoire TVA</div>
+                <div class="vc-s">SAS Dupont Industries · 54 min · Audit</div>
+                <div class="vbtn">Valider →</div>
+              </div>
+
+              <div class="vc">
+                <div class="vc-t"><span class="kk">◷ EN TRAITEMENT · 1</span></div>
+                <div class="vc-n">Formation fiscale 2025</div>
+                <div class="vc-s">Cabinet Vernelys · 1h 47</div>
+                <div class="pg"><i id="pgBar"></i></div>
+                <div class="vc-s">62% · ~ 4 min restantes</div>
+              </div>
+
+              <div class="stats">
+                <div class="kk">CETTE SEMAINE</div>
+                <div class="st-r">
+                  <div><div class="st-b">14h 37</div><div class="st-s">Heures transcrites</div></div>
+                  <div><div class="st-b">23</div><div class="st-s">Archivées · ce mois</div></div>
+                </div>
+                <div class="st-f"><span>Validation à temps</span><b>96 %</b></div>
+              </div>
+            </div>
+
+            <!-- colonne centre : historique -->
+            <div class="cC fu2" data-s="3">
+              <div class="cC-h">
+                <div class="colH">Réunions passées</div>
+                <span class="tb on">Toutes <em>5</em></span>
+                <span class="tb wn">À valider <em>2</em></span>
+                <span class="tb">En cours <em>1</em></span>
+                <span class="tb">Archivées <em>3</em></span>
+              </div>
+              <table class="tbl">
+                <thead><tr><th>RÉUNION</th><th>DOSSIER CLIENT</th><th>DATE</th><th>DURÉE</th><th>NATURE</th><th>STATUT</th></tr></thead>
+                <tbody>
+                  <tr class="hl" id="rowRAC"><td><b>Revue annuelle des comptes</b><s>Clôture exercice 2024</s></td><td><i class="dt"></i>SARL Martin &amp;…</td><td>28 avr. 2025</td><td>1h 22min</td><td><span class="tag">CODIR</span></td><td><span class="stt wn">▪ À valider</span></td></tr>
+                  <tr class="hl"><td><b>Audit préparatoire TVA</b><s>Contrôle de TVA Q1 2025</s></td><td><i class="dt"></i>SAS Dupont In…</td><td>25 avr. 2025</td><td>54 min</td><td><span class="tag">Audit</span></td><td><span class="stt wn">▪ À valider</span></td></tr>
+                  <tr><td><b>Point de gestion mensuel</b><s>Suivi trésorerie &amp; résultats</s></td><td><i class="dt"></i>Boulangerie De…</td><td>22 avr. 2025</td><td>38 min</td><td><span class="tag">Gestion</span></td><td><span class="stt ok">✓ Archivée</span></td></tr>
+                  <tr><td><b>Entretien annuel M. Perrot</b><s>Entretien individuel RH</s></td><td><i class="dt"></i>Lucet SAS</td><td>18 avr. 2025</td><td>47 min</td><td><span class="tag">Entretien</span></td><td><span class="stt ok">✓ Archivée</span></td></tr>
+                  <tr><td><b>Réunion de service comptabilité</b><s>Organisation interne Q2</s></td><td><i class="dt"></i>Cabinet Vasseur</td><td>15 avr. 2025</td><td>1h 05min</td><td><span class="tag">Réunion</span></td><td><span class="stt ok">✓ Archivée</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- colonne droite : agenda -->
+            <div class="cR fu2" data-s="4">
+              <div class="colH">Agenda</div>
+              <div class="ag-h"><span><i class="dt g"></i>Cette semaine</span><span class="cnt">6 à venir</span></div>
+
+              <div class="ag-n">
+                <div class="ag-w g">◷ Dans 23 min</div>
+                <div class="ag-t">Point mensuel SARL Martin &amp; Fils</div>
+                <span class="tag bl">Meet</span>
+                <div class="actv">Activer</div>
+              </div>
+
+              <div class="ag-i"><div class="ag-w">Mar 14:30 · 45 min</div><div class="ag-t">Réunion service comptabilité Cabinet Vasseur</div><span class="tag bl">Teams</span></div>
+              <div class="ag-i"><div class="ag-w">Mer 09:30 · 1h</div><div class="ag-t">Entretien annuel Mme Faure</div><span class="tag bl">Meet</span></div>
+              <div class="ag-i"><div class="ag-w">Jeu 11:00 · 30 min</div><div class="ag-t">Revue trimestrielle Lucet SAS</div><span class="tag bl">Teams</span></div>
+              <div class="ag-i"><div class="ag-w">Ven 15:00 · 1h</div><div class="ag-t">Bilan annuel Boulangerie Dervaux</div><span class="tag bl">Meet</span></div>
+              <div class="ag-i"><div class="ag-w">Lun 10:30 · 45 min</div><div class="ag-t">Point fiscal SAS Dupont Industries</div><span class="tag bl">Teams</span></div>
+              <div class="ag-f">Voir tout l'agenda →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== MODALE APPLICATIONS (au-dessus de tout) ===== -->
+  <div class="scrim" id="scrim"></div>
+  <div class="modal" id="modal">
+    <div class="md-h"><div class="gridi g2"><i></i><i></i><i></i><i></i></div><b>Applications &amp; agents</b><span class="cnt">17 disponibles</span><span class="x">×</span></div>
+    <div class="md-s"><div class="mag"></div>Rechercher une application ou un agent…</div>
+    <div class="md-b">
+      <div class="md-k">RÉCENTS</div>
+      <div class="md-g">
+        <div class="mc"><div class="bdg b-g">CL</div><div class="mc-n">Chat libre</div><div class="mc-s">Assistant généraliste · LLM Vertex AI</div></div>
+        <div class="mc"><div class="bdg b-b">AD</div><div class="mc-n">Agent documentaire</div><div class="mc-s">RAG sur votre base documentaire</div></div>
+      </div>
+      <div class="md-k">GÉNÉRIQUES</div>
+      <div class="md-g">
+        <div class="mc"><div class="bdg b-g">CL</div><div class="mc-n">Chat libre</div><div class="mc-s">Assistant généraliste · LLM Vertex AI</div></div>
+        <div class="mc"><div class="bdg b-b">AD</div><div class="mc-n">Agent documentaire</div><div class="mc-s">RAG sur votre base documentaire</div></div>
+        <div class="mc" id="mcTR"><div class="bdg b-o">TR</div><div class="mc-n">Transcription &amp; CR de réunion</div><div class="mc-s">Audio → compte rendu structuré</div></div>
+        <div class="mc"><div class="bdg b-p">PV</div><div class="mc-n">Gestionnaire PV Juridique</div><div class="mc-s">Extraction d'assemblées &amp; décisions</div></div>
+      </div>
+      <div class="md-k">AGENTS</div>
+      <div class="md-g">
+        <div class="mc"><div class="bdg b-g">PC</div><div class="mc-n">@ProcédurescabinetVernelys</div><div class="mc-s">Procédures cabinet · 84 documents</div></div>
+        <div class="mc"><div class="bdg b-b">RJ</div><div class="mc-n">@Référentieljuridique2026</div><div class="mc-s">Référentiel juridique · 156 documents</div></div>
+      </div>
+    </div>
+    <div class="md-f">
+      <div class="md-k">CONNECTEURS</div>
+      <div class="md-g">
+        <div class="mc rw"><div class="bdg b-b">▤</div><div><div class="mc-n">Legifrance</div><div class="mc-s">Textes officiels</div></div></div>
+        <div class="mc rw"><div class="bdg b-o">▤</div><div><div class="mc-n">Pennylane</div><div class="mc-s">Comptabilité</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODALE : démarrage rapide présentiel ===== -->
+  <div class="modal qsm" id="modalQS">
+    <div class="qsm-h"><b>Démarrage rapide Présentiel</b><span class="x">×</span></div>
+    <div class="qsm-sub">Configuration minimale, complétez les détails après la réunion</div>
+    <div class="micbox">
+      <div class="micdot">🎙</div>
+      <div><div class="mic-n">Microphone prêt</div><div class="mic-s">Micro intégré niveau : bon</div></div>
+      <div class="lvl" id="lvl"></div>
+    </div>
+    <div class="qsm-k">OPTIONNEL À COMPLÉTER APRÈS SI BESOIN</div>
+    <div class="qsm-sel"><div class="sel">Dossier client…<i>⌄</i></div><div class="sel">Nature…<i>⌄</i></div></div>
+    <div class="qsm-go" id="qsGo"><i class="dotr"></i>Lancer l'enregistrement</div>
+  </div>
+
+  <!-- ===== MODALE : enregistrement en cours ===== -->
+  <div class="modal recm" id="modalRec">
+    <div class="pulse"><i></i></div>
+    <div class="rtime" id="rtime">00:00</div>
+    <div class="rsub">Enregistrement en cours SARL Martin &amp; Fils</div>
+    <div class="rstop">▢ Arrêter et traiter</div>
+  </div>
+
+  <!-- ===== FENÊTRE TEAMS ===== -->
+  <div class="teams" id="teams">
+    <div class="tm-rail"><i class="tmlogo"></i><i></i><i></i><i></i><i></i><i></i><i class="tmgem"></i></div>
+    <div class="tm-main">
+      <div class="tm-top"><div class="tm-srch"><div class="mag"></div>Rechercher</div><div class="tm-av">AC</div></div>
+      <div class="tm-note"><span class="i">ⓘ</span>Restez informé. Activez les notifications de bureau.<span class="tm-act">Activer</span><span class="tm-x">×</span></div>
+      <div class="tm-bar">
+        <span class="tm-l"><i class="tmsh"></i>05:34</span>
+        <span class="tm-tools">
+          <em class="rec"><i></i>Enregistrer</em><em>Conversation</em><em>Participants</em><em>Lever la main</em>
+          <em>Réagir</em><em>Affichage</em><em>Autres</em><em class="sep">Caméra</em><em>Microphone</em><em>Partager</em>
+          <em class="quit">Quitter</em>
+        </span>
+      </div>
+      <div class="tm-grid" id="tmGrid">
+        <div class="tm-tile"><div class="tm-face f1">MV</div><span>M. Vasseur</span></div>
+        <div class="tm-tile"><div class="tm-face f2">MM</div><span>M. Martin</span></div>
+        <div class="tm-tile"><div class="tm-face f3">MF</div><span>Mme Faure</span></div>
+        <div class="tm-tile"><div class="tm-face f4">MP</div><span>Mme Petit</span></div>
+        <div class="tm-tile join" id="tmBot"><div class="tm-face fv">V</div><span>Assistant Vernelys</span><em class="live">● transcription</em></div>
+      </div>
+      <div class="tm-toast" id="tmToast">
+        <div class="tt-ic">V</div>
+        <div><div class="tt-n">Assistant de transcription Vernelys</div><div class="tt-s">a rejoint la réunion la transcription a démarré</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGE DE DÉTAIL D'UNE RÉUNION ===== -->
+  <div class="detail" id="detail">
+    <div class="dt-h">
+      <div class="dt-back">‹&nbsp; Tableau de bord</div>
+      <div class="dt-ttl">
+        <div class="dt-t1">Revue annuelle des comptes<span class="pb val">• À valider</span><span class="pb qs" id="qsBadge">⚡ Démarrage rapide</span></div>
+        <div class="dt-t2">
+          <span>▤ 28 avr. 2025</span><span>◷ 1h 22min</span><span>⚲ Présentiel</span>
+          <span class="meta" id="mCli">▤ SARL Martin &amp; Fils</span><span class="meta" id="mNat">✎ Entretien client</span>
+        </div>
+      </div>
+      <div class="dt-hr"><div class="ob">▤ Archiver</div><div class="sendr" id="sendR">➤ Envoyer le rapport</div></div>
+    </div>
+
+    <div class="dt-body">
+      <!-- panneau gauche : lecteur + transcription -->
+      <div class="dt-l">
+        <div class="pl-r">
+          <div class="pl-b">▶</div><span class="pl-t">00:18</span>
+          <div class="pl-bar"><i></i></div>
+          <span class="pl-t">1:22:13</span>
+          <span class="sp">0.75×</span><span class="sp on">1×</span><span class="sp">1.5×</span>
+        </div>
+        <div class="wave" id="wave"></div>
+        <div class="spk">
+          <span class="kk">INTERVENANTS</span>
+          <span class="sn s1">M. Vasseur</span><span class="sn s3">Mme Faure</span>
+          <span class="sn s2">M. Martin</span><span class="sn s4">Mme Petit</span>
+          <div class="ob idb">🎙 Identifier les intervenants</div>
+        </div>
+        <div class="tr-list">
+          <div class="te cur"><div class="th"><span class="fc f1">MV</span><b class="s1">M. Vasseur</b><em>00:00:18</em></div><p>Bonjour à tous. Je vous propose de commencer par le point sur la <u>trésorerie du premier trimestre</u>, avant de passer en revue les éléments de clôture.</p></div>
+          <div class="te"><div class="th"><span class="fc f2">MM</span><b class="s2">M. Martin</b><em>00:01:42</em></div><p>Parfait. Côté trésorerie, on est à environ <u>48 000 euros</u> de solde disponible au <u>31 mars</u>. Les encaissements ont été conformes aux prévisions, avec un décalage de 12 jours sur la facture SOGECIM.</p></div>
+          <div class="te"><div class="th"><span class="fc f3">MF</span><b class="s3">Mme Faure</b><em>00:03:05</em></div><p>J'ai relancé SOGECIM la semaine dernière. Ils ont confirmé un paiement avant le <u>15 mai</u>. Est-ce qu'on doit anticiper un décaissement exceptionnel pour le congé annuel de M. Perrot ?</p></div>
+          <div class="te"><div class="th"><span class="fc f1">MV</span><b class="s1">M. Vasseur</b><em>00:04:22</em></div><p>Non, on peut décaler. Je propose qu'on valide le versement des congés une fois l'encaissement SOGECIM confirmé. Mme Petit, pouvez-vous préparer le calcul des indemnités pour la semaine prochaine ?</p></div>
+          <div class="te"><div class="th"><span class="fc f4">MP</span><b class="s4">Mme Petit</b><em>00:05:10</em></div><p>Oui, pas de problème. Je prépare ça et je vous envoie un tableau de synthèse avant jeudi prochain.</p></div>
+          <div class="te"><div class="th"><span class="fc f1">MV</span><b class="s1">M. Vasseur</b><em>00:06:38</em></div><p>Très bien. Passons maintenant aux points de clôture de l'exercice 2024. Quelques provisions à passer sur les créances douteuses. J'ai identifié trois dossiers à risque.</p></div>
+          <div class="te"><div class="th"><span class="fc f2">MM</span><b class="s2">M. Martin</b><em>00:08:15</em></div><p>Les dossiers Bertrand, Immotech et Leclair ? J'ai les éléments avec moi. On peut provisionner à <u>50%</u> sur Bertrand la situation est incertaine. Les deux autres méritent une provision à 100%.</p></div>
+        </div>
+      </div>
+
+      <!-- panneau droit : onglets -->
+      <div class="dt-r">
+        <div class="tabs">
+          <span class="tbi on" data-t="syn">Synthèse</span>
+          <span class="tbi" data-t="odj">Ordre du jour</span>
+          <span class="tbi" data-t="tsk">Tâches &amp; échéances</span>
+          <span class="tbi" data-t="dec">Décisions</span>
+          <span class="tbi" data-t="rap">Rapport</span>
+        </div>
+
+        <!-- onglet synthèse -->
+        <div class="tp on" id="tp-syn">
+          <div class="fillbox" id="fillBox">
+            <div class="fb-h"><span class="i">ⓘ</span><div><div class="fb-n">Complétez les informations de cette réunion</div><div class="fb-s">Démarrée en mode rapide dossier client, nature et participants non renseignés</div></div><span class="fb-c">⌃</span></div>
+            <div class="fb-g">
+              <div class="fb-f"><div class="kk">DOSSIER CLIENT *</div>
+                <div class="dsel" id="selCli"><span id="selCliV">Sélectionner…</span><i>⌄</i>
+                  <div class="dlist" id="lstCli">
+                    <div class="di sel">Sélectionner…</div><div class="di" id="optCli">SARL Martin &amp; Fils</div>
+                    <div class="di">SAS Dupont Industries</div><div class="di">Boulangerie Dervieux</div>
+                    <div class="di">Lucet SAS</div><div class="di">Cabinet Vasseur Interne</div>
+                  </div>
+                </div>
+              </div>
+              <div class="fb-f"><div class="kk">NATURE *</div>
+                <div class="dsel" id="selNat"><span id="selNatV">Sélectionner…</span><i>⌄</i>
+                  <div class="dlist" id="lstNat">
+                    <div class="di">Sélectionner…</div><div class="di">CODIR</div><div class="di">Audit</div>
+                    <div class="di">Formation</div><div class="di">Gestion de projet</div>
+                    <div class="di">Entretien individuel</div><div class="di" id="optNat">Entretien client</div>
+                  </div>
+                </div>
+              </div>
+              <div class="fb-f wide"><div class="kk">PARTICIPANTS À NOTIFIER</div>
+                <div class="inp">e-mails séparés par des virgules</div>
+              </div>
+              <div class="fb-chk"><span class="ck">✓</span>Archiver dans le dossier client (RAG)</div>
+            </div>
+            <div class="fb-a"><div class="ob">Plus tard</div><div class="save" id="btnSave">✓ Enregistrer</div></div>
+          </div>
+
+          <div class="sec-t">Synthèse générale <em>Généré par IA · À valider</em></div>
+          <div class="box">
+            <p>La réunion de revue annuelle des comptes s'est tenue le 28 avril 2025 en présentiel au cabinet. Présents : M. Vasseur (expert-comptable), M. Martin (client SARL Martin &amp; Fils), Mme Faure (assistante comptable), Mme Petit (gestionnaire RH).</p>
+            <p>La séance a couvert deux axes principaux : l'analyse de trésorerie du Q1 2025 et les points de clôture de l'exercice 2024.</p>
+          </div>
+          <div class="box kb">
+            <div class="kb-t">◈ Points clés</div>
+            <div class="kb-i">› Solde trésorerie : 48 000 € au 31/03/2025</div>
+            <div class="kb-i">› Facture SOGECIM encaissement avant le 15 mai</div>
+            <div class="kb-i">› Provisions sur 3 créances douteuses (Bertrand, Immotech, Leclair)</div>
+          </div>
+        </div>
+
+        <!-- onglet ordre du jour -->
+        <div class="tp" id="tp-odj">
+          <div class="sec-t">Ordre du jour traité</div>
+          <div class="li"><span class="ck">✓</span>Trésorerie Q1 2025<em>12 min</em></div>
+          <div class="li"><span class="ck">✓</span>Suivi facture SOGECIM<em>8 min</em></div>
+          <div class="li"><span class="ck">✓</span>Clôture exercice 2024 provisions<em>24 min</em></div>
+          <div class="li"><span class="ck">✓</span>Indemnités de congés M. Perrot<em>6 min</em></div>
+          <div class="li"><span class="ck n">5</span>Points divers<em></em></div>
+        </div>
+
+        <!-- onglet tâches -->
+        <div class="tp" id="tp-tsk">
+          <div class="sec-t">Tâches &amp; échéances</div>
+          <div class="tk"><span class="cb"></span><div><div class="tk-n">Préparer le calcul des indemnités de congés de M. Perrot</div><div class="tk-s">⚇ Mme Petit &nbsp; ▤ Jeudi 8 mai 2025</div></div></div>
+          <div class="tk"><span class="cb"></span><div><div class="tk-n">Confirmer l'encaissement SOGECIM et informer M. Vasseur</div><div class="tk-s">⚇ Mme Faure &nbsp; ▤ 15 mai 2025</div></div></div>
+          <div class="tk"><span class="cb"></span><div><div class="tk-n">Valider les provisions créances douteuses (Bertrand, Immotech, Leclair)</div><div class="tk-s">⚇ M. Vasseur &nbsp; ▤ 12 mai 2025</div></div></div>
+          <div class="tk done"><span class="cb on">✓</span><div><div class="tk-n">Transmettre les justificatifs Immotech et Leclair</div><div class="tk-s">⚇ M. Martin &nbsp; ▤ 9 mai 2025</div></div></div>
+        </div>
+
+        <!-- onglet décisions -->
+        <div class="tp" id="tp-dec">
+          <div class="sec-t">Décisions actées</div>
+          <div class="dc"><span class="n">1</span>Le versement des indemnités de congés de M. Perrot est conditionné à l'encaissement de la facture SOGECIM.</div>
+          <div class="dc"><span class="n">2</span>Provisionnement à 50% sur le dossier Bertrand.</div>
+          <div class="dc"><span class="n">3</span>Provisionnement à 100% sur les dossiers Immotech et Leclair.</div>
+        </div>
+
+        <!-- onglet rapport -->
+        <div class="tp" id="tp-rap">
+          <div class="sec-t">Rapport <em>Généré par IA · Éditable</em></div>
+          <div class="box rap">
+            <p>Revue annuelle des comptes<br>SARL Martin &amp; Fils Cabinet Vasseur<br>28 avril 2025</p>
+            <hr>
+            <p><b>1. CONTEXTE ET PARTICIPANTS</b></p>
+            <p>La réunion annuelle de revue des comptes s'est tenue le 28 avril 2025 en présentiel au cabinet.</p>
+            <p>Étaient présents :<br>• M. Vasseur Expert-comptable (Cabinet Vasseur)<br>• M. Martin Dirigeant (SARL Martin &amp; Fils)<br>• Mme Faure Assistante comptable (Cabinet Vasseur)<br>• Mme Petit Gestionnaire RH (Cabinet Vasseur)</p>
+            <hr>
+            <p><b>2. TRÉSORERIE Q1 2025</b></p>
+            <p>Le solde disponible au 31 mars 2025 s'établit à 48 000 euros. Les encaissements du trimestre ont été conformes aux prévisions budgétaires, à l'exception d'un décalage de 12 jours sur la facture SOGECIM.</p>
+            <p>Mme Faure a confirmé avoir relancé SOGECIM le 22 avril. Le paiement est attendu avant le 15 mai 2025.</p>
+            <hr>
+            <p><b>3. INDEMNITÉS DE CONGÉS M. PERROT</b></p>
+            <p>Il a été décidé de conditionner le versement des indemnités de congés annuels de M. Perrot à la réception effective du paiement SOGECIM. Mme Petit est chargée de préparer le tableau de calcul des indemnités pour transmission avant le jeudi 8 mai 2025.</p>
+          </div>
+          <div class="rap-a"><div class="save on">✓ Enregistrer</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CARTON INTRO ===== -->
+  <div class="card-full" id="intro">
+    <div class="cf-logo">V</div>
+    <div class="cf-t">VERNELYS</div>
+    <div class="cf-s">Vos réunions prennent vie, elles sont transcrites et transformées en comptes rendus structurés, prêts à partager.</div>
+    <div class="cf-eu"><svg class="eu-shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg>Hébergement UE · vos données ne quittent pas l'Union européenne</div>
+  </div>
+
+  <!-- ===== CARTON FIN ===== -->
+  <div class="card-full" id="outro">
+    <div class="cf-logo">V</div>
+    <div class="cf-t">Le compte rendu, prêt en un clic.</div>
+    <div class="cf-s">Ordre du jour, tâches, décisions, rapport, générés automatiquement depuis l'enregistrement.</div>
+    <div class="cf-eu"><svg class="eu-shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg>Hébergé en UE · vernelys.com</div>
+  </div>
+
+  <!-- ===== SOUS-TITRES (narration) ===== -->
+  <div class="sub" id="sub"><span id="subT"></span></div>
+
+  <div class="ring" id="ring"></div>
+  <div class="ptr" id="ptr">
+    <svg viewBox="0 0 24 24"><path d="M4 2 L4 20 L9 15 L12.5 22 L15 21 L11.5 14 L18 14 Z" fill="#fff" stroke="#111" stroke-width="1.2" stroke-linejoin="round"/></svg>
+  </div>
+</div>
+
+<button id="pauseBtn" type="button">⏸ Pause</button>
+
+<script src="script-rapide.js"></script>
+</body>
+</html>

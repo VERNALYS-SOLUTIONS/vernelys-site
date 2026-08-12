@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vernelys — Partie 2 : Recherche, Aperçu &amp; Extraction</title>
+<style>
+  :root{
+    --brand:#006039;
+    --brand-dark:#004a2c;
+    --brand-soft:#e3f0ea;
+    --grid:#e3e4e8;
+    --head:#f4f5f7;
+    --ink:#1f2430;
+    --muted:#6b7280;
+    --ext-blue:#4472C4;
+    --ext-fill:rgba(68,114,196,.20);
+    --ext-cell:rgba(68,114,196,.22);
+    --ext-pink:#D6336C;
+    --ext-pink-fill:rgba(214,51,108,.18);
+    --ext-pink-cell:rgba(214,51,108,.20);
+    --ext-green:#2F9E44;
+    --ext-green-fill:rgba(47,158,68,.18);
+    --ext-green-cell:rgba(47,158,68,.20);
+    --ext-orange:#CC8800;
+    --ext-orange-fill:rgba(204,136,0,.15);
+    --ext-orange-cell:rgba(204,136,0,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, #eaf3ff 0%, transparent 55%),
+      radial-gradient(1000px 700px at 112% 120%, #e7fbf0 0%, transparent 50%),
+      #f5f7fb;
+    color:var(--ink);display:flex;align-items:flex-start;justify-content:center;min-height:100%;
+  }
+  .viewport{width:100%;padding:22px;display:flex;justify-content:center}
+  .frame{position:relative;margin:0 auto}
+  .stage{position:relative;width:1220px;transform-origin:top left}
+  .camera{position:relative;transform-origin:50% 50%;will-change:transform}
+
+  .win{width:1220px;background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(20,30,60,.45), 0 8px 24px -12px rgba(20,30,60,.25);
+    border:1px solid rgba(20,30,60,.08)}
+  .titlebar{height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;
+    background:linear-gradient(180deg,#fbfbfd,#f1f2f6);border-bottom:1px solid #e7e8ee}
+  .dots{display:flex;gap:8px}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .doc-name{font-size:13px;color:var(--muted);margin-left:6px}
+  .doc-name b{color:var(--ink);font-weight:600}
+
+  .ribbon{background:#fff;border-bottom:1px solid #ececf1}
+  .tabs{display:flex;gap:2px;padding:6px 12px 0;font-size:12.5px}
+  .tab{padding:7px 11px;color:#59616e;border-radius:8px 8px 0 0;position:relative;white-space:nowrap}
+  .tab.addin{color:var(--brand);font-weight:700}
+  .tab.active::after{content:"";position:absolute;left:9px;right:9px;bottom:-1px;height:3px;border-radius:3px;background:var(--brand)}
+  .ribbon-body{display:flex;align-items:stretch;padding:7px 10px;min-height:74px;border-top:1px solid #f1f2f6}
+  .rgroup{display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #eef0f4}
+  .rgroup .items{display:flex;gap:2px;align-items:flex-start}
+  .rgroup .glabel{font-size:10px;color:var(--muted)}
+  .ritem{display:flex;flex-direction:column;align-items:center;gap:4px;width:55px;padding:4px 1px;border-radius:8px}
+  .ritem:hover{background:#f5f7f9}
+  .ritem .ic{height:28px;display:grid;place-items:center}
+  .ritem .ic img,.ritem .ic svg{width:26px;height:26px;object-fit:contain;image-rendering:auto}
+  .ritem .t{font-size:9px;line-height:1.1;text-align:center;color:#3f4756;width:53px;overflow-wrap:anywhere;hyphens:auto}
+
+  .formula{display:flex;align-items:center;gap:10px;padding:5px 14px;border-bottom:1px solid #ececf1;background:#fdfdfe}
+  .namebox{width:84px;font-size:12px;color:#374151;border:1px solid #e6e7ec;border-radius:6px;padding:4px 8px;background:#fff;text-align:center}
+  .fx{color:#9aa1ad;font-style:italic;font-size:13px}
+
+  .body{display:flex;height:452px}
+  .grid{flex:1;overflow:hidden;background:#fff}
+  table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
+  .colh th{background:var(--head);color:#8a90a0;font-weight:500;height:22px;border:1px solid var(--grid);text-align:center}
+  .rowh{background:var(--head);color:#9aa0ad;font-weight:500;text-align:center;border:1px solid var(--grid);width:36px;height:26px}
+  td.cell{border:1px solid var(--grid);height:26px;padding:0 4px;font-size:12px;position:relative}
+  .cell.sel{outline:2px solid var(--brand);outline-offset:-2px}
+
+  .pane{width:372px;border-left:1px solid #e7e8ee;background:#fff;position:relative;overflow:hidden}
+  .pane-state{padding:22px 20px;display:flex;flex-direction:column;height:100%;opacity:0;transform:translateY(8px)}
+  .pane-head{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:#20303f;margin-bottom:14px}
+  .pane-head .hi{width:26px;height:26px;border-radius:7px;background:var(--brand-soft);display:grid;place-items:center}
+  .pane-head .hi img{width:18px;height:18px}
+
+  .pdf-nav{display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:12px;color:var(--muted)}
+  .pdf-nav .arrow{width:22px;height:22px;border-radius:5px;border:1px solid #e0e2e8;background:#fff;display:grid;place-items:center;cursor:default;font-size:11px;color:#888}
+  .pdf-nav .arrow.press{background:#f0f1f5;transform:scale(.93)}
+  .pdf-nav .docname{flex:1;font-size:11.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pdf-nav .tools{display:flex;gap:3px}
+  .pdf-nav .tools span{width:20px;height:20px;border-radius:5px;display:grid;place-items:center;font-size:10px;color:#888}
+
+  .pdf-search{display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:6px 8px;border:1px solid #e0e2e8;border-radius:7px;background:#fafbfc}
+  .pdf-search .magnify{display:flex;align-items:center;color:#9aa1ad}
+  .pdf-search input{border:none;background:transparent;font-size:11.5px;flex:1;outline:none;color:var(--ink);min-width:0}
+  .pdf-search .srch-count{font-size:10px;color:var(--muted);white-space:nowrap}
+  .pdf-search .srch-btns{display:flex;gap:2px}
+  .pdf-search .srch-btns span{width:18px;height:18px;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#999}
+
+  .btn-sm{background:var(--brand);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;box-shadow:0 6px 14px -8px rgba(0,96,57,.9)}
+  .btn-sm.press{transform:translateY(1px) scale(.98)}
+
+  .pdf-shell{flex:1;border:1px solid #e6e8ec;border-radius:10px;overflow:hidden;background:#f3f4f6;display:flex;flex-direction:column}
+  .pdf-scroll{flex:1;overflow:hidden;padding:8px;position:relative}
+  .pdf-img-wrap{position:relative;width:100%}
+  .pdf-frame{width:100%;height:auto;border:0;border-radius:4px;background:#fff;box-shadow:0 8px 20px -10px rgba(0,0,0,.25);display:block}
+  .pdf-actions{display:flex;gap:8px;padding:12px;border-top:1px solid #e6e8ec;background:#fff}
+  .pdf-actions button{flex:1;border:1.5px solid var(--brand);color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;opacity:0;transform:translateY(6px);display:flex;align-items:center;justify-content:center;gap:6px;transition:border-color .2s,background .2s,color .2s}
+  .pdf-actions button.press{transform:translateY(7px) scale(.98)}
+  .pdf-actions button img{width:15px;height:15px}
+  .pdf-actions button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .pdf-actions button.active img{filter:brightness(0) invert(1)}
+
+  .pdf-hint{font-size:10.5px;color:var(--muted);text-align:center;padding:4px 0 2px;margin:0}
+
+  .pdf-validate{display:none;flex-direction:column;gap:6px;padding:6px 12px 4px}
+  .pv-text{font-size:10.5px;color:var(--muted)}
+  .pv-text.ok{color:var(--ext-green);font-weight:700}
+  .pv-btns{display:flex;gap:6px;justify-content:flex-end}
+  .pv-btn{display:flex;align-items:center;gap:4px;border-radius:6px;padding:4px 10px;font-size:10.5px;font-weight:700;cursor:pointer;border:1.5px solid transparent;background:none}
+  .pv-btn.valid{background:#e6f6ea;color:var(--ext-green);border-color:var(--ext-green)}
+  .pv-btn.refuse{background:#fdeceb;color:#e03131;border-color:#e03131}
+  .pv-btn.press{transform:scale(.93)}
+
+  /* Surlignage recherche (jaune) */
+  .search-highlight{position:absolute;background:rgba(255,220,0,.45);border:2px solid #e6a800;border-radius:2px;z-index:5;pointer-events:none;display:none}
+  /* Bouton "Extraire" à côté du surlignage recherche */
+  .search-extract-btn{position:absolute;display:none;align-items:center;gap:4px;background:var(--brand);color:#fff;border:none;font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;box-shadow:0 6px 14px -8px rgba(0,96,57,.9);white-space:nowrap;z-index:6;pointer-events:none}
+  .search-extract-btn img{width:10px;height:10px;filter:brightness(0) invert(1)}
+  /* Rectangle d'extraction (bleu) */
+  .extract-rect{position:absolute;border:2.5px solid var(--ext-blue);background:var(--ext-fill);border-radius:3px;z-index:5;pointer-events:none;opacity:0}
+
+  .statusbar{display:flex;align-items:center;gap:16px;height:28px;padding:0 16px;background:var(--brand);color:#eafff2;font-size:11px}
+  .statusbar .sp{flex:1}
+
+  .cursor{position:absolute;left:0;top:0;z-index:60;filter:drop-shadow(0 3px 5px rgba(0,0,0,.28));will-change:transform;pointer-events:none}
+  .callout{position:absolute;z-index:50;width:290px;background:#0f1b2d;color:#fff;padding:13px 15px;border-radius:13px;box-shadow:0 20px 40px -16px rgba(10,20,40,.6);opacity:0}
+  .callout .k{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;margin-bottom:3px}
+  .callout .k .spark{width:22px;height:22px;border-radius:7px;background:linear-gradient(160deg,#0c7a4c,var(--brand));display:grid;place-items:center;font-size:12px}
+  .callout p{margin:0;font-size:12.5px;line-height:1.45;color:#c7d0dd}
+  .callout p b{color:#fff}
+  .callout.up::after{content:"";position:absolute;left:30px;bottom:-8px;width:16px;height:16px;background:#0f1b2d;transform:rotate(45deg);border-radius:3px}
+
+  /* Badge + bulle de commentaire sur une sélection */
+  .comment-badge{position:absolute;z-index:55;width:20px;height:20px;border-radius:50%;background:var(--ext-blue);color:#fff;font-size:10.5px;font-weight:700;display:none;align-items:center;justify-content:center;box-shadow:0 4px 10px -4px rgba(0,0,0,.45);opacity:0;cursor:pointer}
+  .comment-pop{position:absolute;z-index:56;width:230px;background:#fff;border-radius:10px;box-shadow:0 20px 40px -16px rgba(10,20,40,.35);border:1px solid #e6e8ec;padding:10px 12px;opacity:0;display:none}
+  .cp-empty{font-size:11px;color:var(--muted);text-align:center;padding:6px 0;font-style:italic}
+  .cp-item{display:none}
+  .cp-head{font-size:11px;margin-bottom:3px;display:flex;gap:6px;align-items:baseline}
+  .cp-head b{color:var(--ink);font-weight:700}
+  .cp-head span{color:var(--muted);font-size:10px}
+  .cp-item p{margin:0;font-size:11.5px;color:var(--ink);line-height:1.4}
+  .cp-input-row{display:flex;gap:6px;margin-top:8px;align-items:center}
+  .cp-input-row input{flex:1;border:1px solid #e0e2e8;border-radius:16px;padding:5px 10px;font-size:10.5px;outline:none;color:var(--ink);background:#fafbfc;min-width:0}
+  .cp-send{width:24px;height:24px;border-radius:50%;background:var(--ext-blue);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:11px;padding:0}
+  .cp-send.press{transform:scale(.9)}
+
+  /* Toggles Colonnes / Lignes sur sélection tableau */
+  .tab-toggles{position:absolute;z-index:57;display:none;gap:4px;opacity:0}
+  .tt{padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid #e0e2e8;background:#fff;color:var(--muted)}
+  .tt.active{background:var(--ext-orange);color:#fff;border-color:var(--ext-orange)}
+
+  .replay{position:absolute;right:0;top:-14px;font-size:12px;color:var(--muted);background:#fff;border:1px solid #e4e6ec;border-radius:8px;padding:6px 12px;cursor:pointer;z-index:70}
+  .replay:hover{border-color:#cfd2da}
+</style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="frame" id="frame">
+      <button class="replay" id="replay">↻ Rejouer</button>
+      <div class="stage" id="stage">
+        <div class="camera" id="camera">
+        <div class="win">
+          <div class="titlebar">
+            <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+            <div class="doc-name"><b>Classeur d'audit.xlsx</b> — Excel</div>
+          </div>
+
+          <div class="ribbon">
+            <div class="tabs">
+              <div class="tab">Fichier</div><div class="tab">Accueil</div><div class="tab">Insertion</div>
+              <div class="tab">Données</div><div class="tab">Révision</div>
+              <div class="tab addin active">Outil Excel — Vernelys</div>
+            </div>
+            <div class="ribbon-body" id="ribbon-body"></div>
+          </div>
+
+          <div class="formula">
+            <div class="namebox" id="namebox">B3</div><div class="fx">fx</div>
+          </div>
+
+          <div class="body">
+            <div class="grid" id="grid"></div>
+            <aside class="pane" id="pane">
+              <div class="pane-state" id="st-apercu">
+                <div class="pane-head"><span class="hi"><img src="icones/icon-apercu-taskpane-32.png"></span> Aperçu des PDF</div>
+                <div class="pdf-nav">
+                  <span class="arrow" id="nav-prev">&lt;</span>
+                  <span class="arrow" id="nav-next">&gt;</span>
+                  <span class="docname" id="docname">RB Société Général factice.pdf</span>
+                  <span class="tools"><span>↻</span><span>⤢</span></span>
+                </div>
+                <div class="pdf-search" id="pdf-search-bar">
+                  <span class="magnify"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.3" y2="15.3"/></svg></span>
+                  <input type="text" id="search-input" placeholder="" readonly>
+                  <span class="srch-count" id="srch-count"></span>
+                  <span class="srch-btns"><span>∧</span><span>∨</span><span>✕</span></span>
+                </div>
+                <div class="pdf-shell">
+                  <div class="pdf-scroll" id="pdf-scroll">
+                    <div class="pdf-img-wrap" id="pdf-img-wrap">
+                      <img class="pdf-frame" id="pdf-img" alt="Aperçu document" src="Ressources/rb-societe-generale.webp">
+                      <div class="search-highlight" id="search-highlight"></div>
+                      <button class="search-extract-btn" id="search-extract-btn"><img src="icones/icon-text-clip-32.png">Extraire</button>
+                      <div class="extract-rect" id="extract-rect"></div>
+                    </div>
+                  </div>
+                  <div class="pdf-actions">
+                    <button class="pa" id="btn-texte"><img src="icones/icon-text-clip-32.png">Texte</button>
+                    <button class="pa" id="btn-somme"><img src="icones/icon-sum-clip-32.png">Somme</button>
+                    <button class="pa" id="btn-tableau"><img src="icones/icon-table-clip-32.png">Tableau</button>
+                  </div>
+                </div>
+                <p class="pdf-hint" id="pdf-hint">Cliquez sur une extraction pour voir ses informations</p>
+                <div class="pdf-validate" id="pdf-validate">
+                  <span class="pv-text" id="pv-text"></span>
+                  <div class="pv-btns" id="pv-btns">
+                    <button class="pv-btn valid" id="btn-valider">✓ Valider</button>
+                    <button class="pv-btn refuse" id="btn-refuser">✕ Refuser</button>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="statusbar">
+            <span>Prêt</span><span class="sp"></span>
+            <span>Vernelys v1.0</span>
+          </div>
+        </div>
+
+        <div class="callout" id="callout"><div class="k"><span class="spark">⚡</span> <span id="co-title"></span></div><p id="co-text"></p></div>
+        <div class="comment-badge" id="comment-badge"></div>
+        <div class="comment-pop" id="comment-pop">
+          <div class="cp-empty" id="cp-empty">Aucun commentaire</div>
+          <div class="cp-item" id="cp-item">
+            <div class="cp-head"><b>Etienne Pernelle</b><span id="cp-date"></span></div>
+            <p>Somme des charges sociales maladie</p>
+          </div>
+          <div class="cp-input-row">
+            <input type="text" id="cp-input" placeholder="Ajouter un commentaire..." readonly>
+            <button class="cp-send" id="cp-send">➤</button>
+          </div>
+        </div>
+        <div class="tab-toggles" id="tab-toggles"><span class="tt active" id="tt-col">Colonnes</span><span class="tt" id="tt-row">Lignes</span></div>
+        <div class="cursor" id="cursor">
+          <svg width="26" height="30" viewBox="0 0 26 30"><path d="M2 2 L2 22 L8 17 L12 26 L16 24 L12 15 L20 15 Z" fill="#fff" stroke="#1f2430" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const DESIGN_W = 1220;
+  const ic = f => `icones/${encodeURIComponent(f)}`;
+  new Image().src = 'Ressources/facture-orange.webp';
+  new Image().src = 'Ressources/etat-charges-sociales.webp';
+  new Image().src = 'Ressources/exemple-cr.webp';
+
+  const ribbon = [
+    {label:"Outils principaux", items:[["si-erreur-0-32 (1).png","Si erreur"],["Supprimer_Espace_32.png","Suppr espace"],["Audit_formule_32.png","Audit formule"]]},
+    {label:"Documents", items:[["icon-importer.png","Importer"],["icon-text-clip-32.png","Texte"],["icon-sum-clip-32.png","Somme"],["icon-table-clip-32.png","Tableau"],["clip-supp-red-32.png","Suppression"],["icon-apercu-taskpane-32.png","Aperçu"]]},
+    {label:"Raccourcis", items:[["gestionnaire-raccourcis-32.png","Gestionnaire"],["index-raccourcis-32.png","Index"]]},
+    {label:"Audit comptable", items:[["apps-icon-32.png","Application"]]},
+    {label:"IA", items:[["icon-assistant-ia-32.png","IA"]]},
+    {label:"Aide & Paramètres", items:[["documentation-32.png","Documentation"],["reference_b_32.png","Aide"],["parametre-32.png","Paramètre"]]},
+    {label:"Compte", items:[["logout-32px.png","Déconnexion"]]},
+  ];
+  const iconHtml = f => `<img src="${ic(f)}" alt="">`;
+  document.getElementById('ribbon-body').innerHTML = ribbon.map(g =>
+    `<div class="rgroup"><div class="items">`+
+    g.items.map(it=>`<div class="ritem"><div class="ic">${iconHtml(it[0])}</div><div class="t">${it[1]}</div></div>`).join('')+
+    `</div><div class="glabel">${g.label}</div></div>`
+  ).join('');
+
+  (function(){
+    const cols=11, rowsN=22;
+    let h='<table><colgroup><col style="width:36px">';
+    for(let c=0;c<cols;c++) h+=`<col id="col-${String.fromCharCode(65+c)}">`;
+    h+='</colgroup><thead><tr class="colh"><th></th>';
+    for(let c=0;c<cols;c++) h+=`<th>${String.fromCharCode(65+c)}</th>`;
+    h+='</tr></thead><tbody>';
+    for(let r=1;r<=rowsN;r++){
+      h+=`<tr><td class="rowh">${r}</td>`;
+      for(let c=0;c<cols;c++){
+        const id=`c${String.fromCharCode(65+c)}${r}`;
+        const sel=(r===3&&c===1)?' sel':'';
+        h+=`<td class="cell${sel}" id="${id}"></td>`;
+      }
+      h+='</tr>';
+    }
+    document.getElementById('grid').innerHTML=h+'</tbody></table>';
+  })();
+
+  const $=id=>document.getElementById(id);
+  const frame=$('frame'),stage=$('stage'),camera=$('camera'),cursor=$('cursor'),
+        callout=$('callout'),coTitle=$('co-title'),coText=$('co-text'),
+        stApercu=$('st-apercu'),namebox=$('namebox'),
+        pdfImg=$('pdf-img'),pdfImgWrap=$('pdf-img-wrap'),pdfScroll=$('pdf-scroll'),
+        searchInput=$('search-input'),srchCount=$('srch-count'),
+        searchHL=$('search-highlight'),searchExtractBtn=$('search-extract-btn'),extractRect=$('extract-rect'),
+        docnameEl=$('docname'),navNext=$('nav-next'),
+        btnTexte=$('btn-texte'),btnSomme=$('btn-somme'),btnTableau=$('btn-tableau'),
+        actionBtns=[btnTexte,btnSomme,btnTableau],
+        cellB2=$('cB2'),cellB3=$('cB3'),cellB4=$('cB4'),
+        pdfHint=$('pdf-hint'),pdfValidate=$('pdf-validate'),pvText=$('pv-text'),
+        pvBtns=$('pv-btns'),btnValider=$('btn-valider'),btnRefuser=$('btn-refuser'),
+        commentBadge=$('comment-badge'),commentPop=$('comment-pop'),
+        cpEmpty=$('cp-empty'),cpItem=$('cp-item'),cpDate=$('cp-date'),
+        cpInput=$('cp-input'),cpSend=$('cp-send'),
+        tabToggles=$('tab-toggles');
+
+  let scale=1;
+  // Mode "plein écran" (?full=1) : utilisé par compil.html pour remplir la fenêtre
+  // au lieu de plafonner à 1 et de laisser des marges.
+  const FULL=!!new URLSearchParams(location.search).get('full');
+  if(FULL){
+    document.documentElement.style.background='transparent';
+    document.body.style.background='transparent';
+    document.body.style.alignItems='center';
+    const _vp=document.querySelector('.viewport');
+    if(_vp){_vp.style.padding='0';_vp.style.background='transparent';}
+  }
+  function fit(){
+    const availW=Math.max(320,frame.parentElement.clientWidth-4);
+    const availH=Math.max(200,window.innerHeight-4);
+    const nat=stage.offsetHeight||900;
+    scale=Math.min(FULL?99:1, availW/DESIGN_W, availH/nat);
+    stage.style.transform=`scale(${scale})`;
+    frame.style.width=(DESIGN_W*scale)+'px';
+    frame.style.height=(stage.offsetHeight*scale)+'px';
+  }
+  window.addEventListener('resize',fit);
+
+  function rectOf(el){const a=el.getBoundingClientRect(),s=stage.getBoundingClientRect();
+    return {x:(a.left-s.left)/scale,y:(a.top-s.top)/scale,w:a.width/scale,h:a.height/scale};}
+  const centerOf=el=>{const r=rectOf(el);return {x:r.x+r.w/2,y:r.y+r.h/2};};
+
+  const SPEED=Number(new URLSearchParams(location.search).get('speed'))||1.25; // override via ?speed=X (compil.html), défaut 1.25
+
+  /* Pause/reprise pilotable depuis la page parente (recap-global, même origine).
+     delay() est sondé en rAF contre vnow(), une horloge qui se fige pendant la
+     pause : un setTimeout, lui, ne peut pas être suspendu. Les animations en
+     cours (WAAPI et transitions CSS) sont mises en pause telles quelles, et on
+     ne relance que celles qu'on a nous-mêmes figées — rejouer une animation
+     déjà terminée la ferait repartir de zéro. */
+  let pausedAccum=0,pauseStartedAt=null,pausedAnims=[];
+  const vnow=()=>(pauseStartedAt!==null?pauseStartedAt:performance.now())-pausedAccum;
+  function setPaused(p){
+    if(p){
+      if(pauseStartedAt!==null)return;
+      pauseStartedAt=performance.now();
+      pausedAnims=document.getAnimations().filter(a=>a.playState==='running');
+      pausedAnims.forEach(a=>a.pause());
+    }else{
+      if(pauseStartedAt===null)return;
+      pausedAccum+=performance.now()-pauseStartedAt;pauseStartedAt=null;
+      pausedAnims.forEach(a=>{try{a.play()}catch(e){}});pausedAnims=[];
+    }
+  }
+  window.__setPaused=setPaused;
+
+  const delay=ms=>new Promise(res=>{
+    const t0=vnow(),total=ms/SPEED;
+    (function step(){vnow()-t0>=total?res():requestAnimationFrame(step)})();
+  });
+  // commitStyles()+cancel() : évite qu'une animation "fill:forwards" non annulée (notamment les
+  // anim() "fire-and-forget" non attendues) ne reste accrochée à l'élément et ne pollue le rendu
+  // d'une propriété partiellement animée par une PROCHAINE boucle (ex. top/left du rectangle
+  // d'extraction hérités d'une phase précédente).
+  function anim(el,fr,o){
+    const opts={...o};
+    if(opts.duration!=null)opts.duration/=SPEED;
+    if(opts.delay!=null)opts.delay/=SPEED;
+    const a=el.animate(fr,{fill:'forwards',...opts});
+    return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();},()=>{});
+  }
+  const EASE='cubic-bezier(.22,1,.36,1)';
+
+  let cx=DESIGN_W-140,cy=430;
+  const placeCursor=(x,y)=>{cx=x;cy=y;cursor.style.transform=`translate(${x}px,${y}px)`;};
+  function moveCursor(x,y,ms=800){
+    const a=cursor.animate([{transform:`translate(${cx}px,${cy}px)`},{transform:`translate(${x}px,${y}px)`}],{duration:ms/SPEED,easing:EASE,fill:'forwards'});
+    cx=x;cy=y;
+    return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();},()=>{});
+  }
+  const clickAt=async(el,ms)=>{const c=centerOf(el);await moveCursor(c.x,c.y,ms||700);};
+  function pressPulse(el){el.classList.add('press');setTimeout(()=>el.classList.remove('press'),150);}
+
+  // Caméra virtuelle : léger zoom sur un élément-clé, et "respiration" discrète
+  // aux transitions entre features (ne pas appeler zoomTo/rectOf pendant un zoom actif).
+  // ?nozoom : neutralise la caméra virtuelle. Utilisé par recap-global, qui joue
+  // cette démo dans un cadre plus étroit où les zooms recadrent trop fort.
+  const NOZOOM=new URLSearchParams(location.search).has('nozoom');
+  let camScale=1;
+  function camTo(scale,origin,duration){
+    if(NOZOOM) return Promise.resolve();
+    if(origin) camera.style.transformOrigin=`${origin.x}px ${origin.y}px`;
+    const from=`scale(${camScale})`;camScale=scale;
+    return anim(camera,[{transform:from},{transform:`scale(${scale})`}],{duration,easing:EASE});
+  }
+  const zoomTo=(el,s,duration)=>camTo(s||1.15,centerOf(el),duration||800);
+  const zoomToPoint=(pt,s,duration)=>camTo(s||1.15,pt,duration||800);
+  const zoomReset=(duration)=>camTo(1,null,duration||800);
+  // beat() est la « respiration » de la caméra (léger creux d'échelle) : elle est
+  // coupée par ?nozoom au même titre que les zooms, c'est le même effet caméra.
+  const beat=(duration)=>NOZOOM?Promise.resolve():anim(camera,[{transform:'scale(1)'},{transform:'scale(.985)'},{transform:'scale(1)'}],{duration:duration||380,easing:'ease-in-out'});
+
+  // Position du surlignage recherche sur le relevé bancaire (mot "ORANGE FRANCE")
+  const SEARCH_HL_TOP = '41.8%';
+  const SEARCH_HL_LEFT = '39%';
+  const SEARCH_HL_W = '16%';
+  const SEARCH_HL_H = '1.2%';
+
+  // Bouton "Extraire" juste à droite du surlignage (centré verticalement dessus)
+  const SEARCH_BTN_TOP = '42.4%';
+  const SEARCH_BTN_LEFT = '56%';
+
+  // Position du rectangle d'extraction sur la facture Orange
+  const RECT_TOP='4.2%', RECT_LEFT='73%', RECT_W='17%', RECT_H='4%';
+  const EXTRACTED_TEXT='Numéro : 21374657491   Date : 04/03/2010';
+
+  // Position du rectangle d'extraction sur l'état des charges sociales (colonne "Montant Patronal", lignes 2000 à 2068)
+  const RECT2_TOP='17.7%', RECT2_LEFT='76.7%', RECT2_W='9.7%', RECT2_H='21.1%';
+  const SUM_TEXT='=66548,05+1963,08+243,3+455,89+262,65+80125,5+671,18+297,17+556,85+320,82+19203,54+566,48';
+
+  // Position du rectangle une fois déplacé sur la colonne "Base" (mêmes lignes)
+  const RECT3_TOP='17.7%', RECT3_LEFT='37.8%', RECT3_W='10%', RECT3_H='21.1%';
+  const SUM_TEXT2='=950684,09+28044+3475,49+6512,71+3752,18+937139,55+7850+3475,49+6512,71+3752,18+950684,09+28044';
+
+  // Tableau extraction on Exemple CR
+  const RECT_TAB_TOP='10%',RECT_TAB_LEFT='1%',RECT_TAB_W='98%',RECT_TAB_H='20%';
+  const TAB_COLS=['B','C','D','E','F'];
+  const TAB_DATA=[
+    ['','N','N-1','en €','en %'],
+    ['CAPITAUX PROPRES'],
+    ['Capital social ou individuel (dont versé: 8400240 )','8400240','8400240'],
+    ['10130000 Capital','8400240','8400240'],
+    ['Primes d\'émission, de fusion, d\'apport','11709709,65','11709709,65'],
+    ['10420000 Prime de fusion','11019176,58','11019176,58'],
+    ['10430000 Primes d\'apport','690533,07','690533,07'],
+    ['Réserve légale','840023,99','840023,99'],
+    ['10610000 Réserve légale','840023,99','840023,99'],
+    ['Autres réserves','5879943,49','5879943,49'],
+    ['10680000 Autres réserves','5879943,49','5879943,49'],
+    ['Report à nouveau','7785448,82','8127236,29','-341787,47','-4,21'],
+    ['11000000 Report à nouveau (sc)','7785448,82','8127236,29','-341787,47','-4,21'],
+    ['Résultat de l\'exercice (bénéfice ou perte)','-115013,78','2178284,53','-2293298,31','-105,28']
+  ];
+
+  function reset(){
+    placeCursor(DESIGN_W-140,430);
+    camera.getAnimations().forEach(a=>a.cancel());
+    camera.style.transform='scale(1)';camScale=1;
+    callout.getAnimations().forEach(a=>a.cancel());
+    callout.style.opacity='0';
+
+    stApercu.getAnimations().forEach(a=>a.cancel());
+    stApercu.style.transition='none';stApercu.style.opacity='0';stApercu.style.transform='translateY(8px)';
+    actionBtns.forEach(b=>{b.getAnimations().forEach(a=>a.cancel());b.style.transition='none';b.style.opacity='0';b.style.transform='translateY(6px)';b.classList.remove('active');});
+
+    // Reset image to bank statement
+    pdfImg.src='Ressources/rb-societe-generale.webp';
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.transform='translateY(0)';
+    pdfImgWrap.style.opacity='1';
+    docnameEl.textContent='RB Société Général factice.pdf';
+
+    // Reset search
+    searchInput.value='';
+    srchCount.textContent='';
+    searchHL.style.display='none';
+    searchHL.style.top=SEARCH_HL_TOP;searchHL.style.left=SEARCH_HL_LEFT;
+    searchHL.style.width=SEARCH_HL_W;searchHL.style.height=SEARCH_HL_H;
+    searchExtractBtn.getAnimations().forEach(a=>a.cancel());
+    searchExtractBtn.style.display='none';
+    searchExtractBtn.style.opacity='0';
+    searchExtractBtn.style.top=SEARCH_BTN_TOP;searchExtractBtn.style.left=SEARCH_BTN_LEFT;
+    searchExtractBtn.style.transform='translateY(-50%)';
+
+    // Reset extraction
+    extractRect.getAnimations().forEach(a=>a.cancel());
+    extractRect.style.display='none';
+    extractRect.style.opacity='0';
+    extractRect.style.borderColor='';extractRect.style.background='';
+    extractRect.style.top=RECT_TOP;extractRect.style.left=RECT_LEFT;
+    extractRect.style.width='0';extractRect.style.height='0';
+
+    cellB2.textContent='';cellB2.style.background='';cellB2.style.whiteSpace='';cellB2.style.overflow='';cellB2.style.color='';
+    cellB2.classList.remove('sel');
+    cellB4.textContent='';cellB4.style.background='';cellB4.style.whiteSpace='';cellB4.style.overflow='';cellB4.style.color='';
+    cellB4.classList.remove('sel');
+    cellB3.classList.add('sel');
+    namebox.textContent='B3';
+
+    // Reset validation
+    pdfValidate.getAnimations().forEach(a=>a.cancel());
+    pdfValidate.style.display='none';
+    pdfValidate.style.opacity='0';
+    pdfHint.style.display='';
+    pvText.textContent='';
+    pvText.classList.remove('ok');
+    pvBtns.getAnimations().forEach(a=>a.cancel());
+    pvBtns.style.display='';
+    pvBtns.style.opacity='1';
+
+    // Reset commentaire
+    commentBadge.getAnimations().forEach(a=>a.cancel());
+    commentBadge.style.display='none';
+    commentBadge.style.opacity='0';
+    commentBadge.textContent='';
+    commentPop.getAnimations().forEach(a=>a.cancel());
+    commentPop.style.display='none';
+    commentPop.style.opacity='0';
+    cpEmpty.style.display='';
+    cpItem.style.display='none';
+    cpInput.value='';
+
+    // Reset tableau toggles
+    tabToggles.getAnimations().forEach(a=>a.cancel());
+    tabToggles.style.display='none';
+    tabToggles.style.opacity='0';
+
+    // Reset table columns and cells
+    ['col-B','col-C','col-D','col-E','col-F'].forEach(id=>{$(id).style.width='';});
+    for(let r=1;r<=TAB_DATA.length;r++){
+      for(let c=0;c<TAB_COLS.length;c++){
+        const cell=$('c'+TAB_COLS[c]+r);
+        if(cell){cell.textContent='';cell.style.background='';cell.style.whiteSpace='';cell.style.overflow='';cell.style.textOverflow='';cell.style.fontSize='';}
+      }
+    }
+  }
+
+  async function run(){
+    fit();reset();await delay(650);
+
+    // ═══════ PHASE A : Recherche dans le relevé bancaire ═══════
+
+    // A1 — Volet Aperçu apparaît (relevé bancaire)
+    await anim(stApercu,[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:480,easing:EASE});
+    await delay(600);
+
+    // A2 — Curseur va vers la barre de recherche
+    await clickAt(searchInput, 700);
+    await delay(250);
+
+    // A3 — Tape "Orange" lettre par lettre
+    const word='Orange';
+    for(let i=0;i<word.length;i++){
+      searchInput.value=word.substring(0,i+1);
+      await delay(90);
+    }
+    await delay(400);
+
+    // A4 — Compteur "1/1" apparaît
+    srchCount.textContent='1/1';
+    await delay(350);
+
+    // A5 — Image défile vers le résultat
+    const imgH=pdfImg.offsetHeight;
+    const containerH=pdfScroll.clientHeight-16;
+    const matchY=imgH*0.424;
+    const scrollTarget=-(matchY - containerH*0.4);
+    await anim(pdfImgWrap,[
+      {transform:'translateY(0)'},
+      {transform:`translateY(${scrollTarget}px)`}
+    ],{duration:1200,easing:EASE});
+    await delay(350);
+
+    // A6 — Zoom avant : le surlignage et le bouton "Extraire" apparaissent pendant que la caméra est resserrée
+    searchHL.style.display='block';
+    searchHL.style.opacity='0';
+    await zoomTo(searchHL,1.35,900);
+    await anim(searchHL,[{opacity:0},{opacity:1}],{duration:300});
+
+    // A7 — Bouton "Extraire" apparaît à côté du surlignage
+    searchExtractBtn.style.display='flex';
+    await anim(searchExtractBtn,[{opacity:0},{opacity:1}],{duration:300});
+    await delay(900);
+    await zoomReset(900);
+    await delay(300);
+
+    // ═══════ PHASE B : Navigation vers la facture Orange ═══════
+
+    // B1 — Clic sur flèche ">"
+    await clickAt(navNext,600);
+    pressPulse(navNext);
+    await beat(400);
+    await delay(250);
+
+    // B2 — Fondu sortant
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='1';
+    pdfImgWrap.style.transform=`translateY(${scrollTarget}px)`;
+    await anim(pdfImgWrap,[{opacity:1},{opacity:0}],{duration:300});
+
+    // B3 — Swap document
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='0';
+    pdfImg.src='Ressources/facture-orange.webp';
+    pdfImgWrap.style.transform='translateY(0)';
+    searchHL.style.display='none';
+    searchExtractBtn.style.display='none';
+    docnameEl.textContent='626200 ORANGE 20250214 95.00€.pdf';
+    searchInput.value='';
+    srchCount.textContent='';
+
+    // B4 — Fondu entrant (attendre le chargement de l'image)
+    await new Promise(r=>{if(pdfImg.complete)r();else pdfImg.onload=r;});
+    await delay(100);
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='0';
+    await anim(pdfImgWrap,[{opacity:0},{opacity:1}],{duration:400,easing:EASE});
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='1';
+    await delay(500);
+
+    // ═══════ PHASE C : Extraction texte ═══════
+
+    // C1 — Boutons d'extraction apparaissent
+    for(let i=0;i<actionBtns.length;i++){
+      anim(actionBtns[i],[{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:360,delay:i*90,easing:EASE});
+    }
+    await delay(500);
+
+    // C2 — Clic sur "Texte"
+    await clickAt(btnTexte,700);
+    pressPulse(btnTexte);
+    await delay(150);
+    btnTexte.classList.add('active');
+    await delay(400);
+
+    // C3 — Curseur va au coin supérieur-gauche de la zone à extraire
+    const imgR=rectOf(pdfImg);
+    const rxLeft=imgR.x+imgR.w*0.73;
+    const ryTop=imgR.y+imgR.h*0.042;
+    const rxRight=imgR.x+imgR.w*0.90;
+    const ryBot=imgR.y+imgR.h*0.082;
+    await moveCursor(rxLeft,ryTop,800);
+    await delay(200);
+
+    // C4 — Zoom avant sur la zone à extraire, puis le rectangle se dessine pendant que la caméra est resserrée
+    await zoomToPoint({x:(rxLeft+rxRight)/2,y:(ryTop+ryBot)/2},1.5,800);
+    extractRect.style.display='';
+    extractRect.style.opacity='1';
+    const drawDuration=600;
+    anim(extractRect,[
+      {width:'0',height:'0',opacity:.6},
+      {width:RECT_W,height:RECT_H,opacity:1}
+    ],{duration:drawDuration,easing:EASE});
+    await moveCursor(rxRight,ryBot,drawDuration);
+    await delay(700);
+    await zoomReset(800);
+    await delay(300);
+
+    // C5 — Texte apparaît dans B2
+    cellB3.classList.remove('sel');
+    cellB2.classList.add('sel');
+    namebox.textContent='B2';
+    cellB2.style.whiteSpace='nowrap';
+    cellB2.style.overflow='visible';
+    cellB2.style.background='var(--ext-cell)';
+    cellB2.style.color='var(--ink)';
+    cellB2.textContent=EXTRACTED_TEXT;
+    await anim(cellB2,[
+      {opacity:0,transform:'scale(.97)'},{opacity:1,transform:'none'}
+    ],{duration:350,easing:EASE});
+    await delay(700);
+
+    // C6 — Curseur revient sur la grille
+    const cellCenter=centerOf(cellB2);
+    await moveCursor(cellCenter.x+20,cellCenter.y,700);
+    await delay(900);
+
+    // ═══════ PHASE D : Navigation vers l'état des charges sociales + extraction Somme ═══════
+
+    // D1 — Clic sur flèche ">"
+    btnTexte.classList.remove('active');
+    await clickAt(navNext,600);
+    pressPulse(navNext);
+    await delay(250);
+
+    // D2 — Fondu sortant
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='1';
+    pdfImgWrap.style.transform='translateY(0)';
+    await anim(pdfImgWrap,[{opacity:1},{opacity:0}],{duration:300});
+
+    // D3 — Swap document
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='0';
+    pdfImg.src='Ressources/etat-charges-sociales.webp';
+    pdfImgWrap.style.transform='translateY(0)';
+    extractRect.getAnimations().forEach(a=>a.cancel());
+    extractRect.style.display='none';
+    extractRect.style.opacity='0';
+    extractRect.style.borderColor='';extractRect.style.background='';
+    extractRect.style.top=RECT2_TOP;extractRect.style.left=RECT2_LEFT;
+    extractRect.style.width='0';extractRect.style.height='0';
+    docnameEl.textContent='Etat des charges sociales.pdf';
+
+    // D4 — Fondu entrant (attendre le chargement de l'image)
+    await new Promise(r=>{if(pdfImg.complete)r();else pdfImg.onload=r;});
+    await delay(100);
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='0';
+    await anim(pdfImgWrap,[{opacity:0},{opacity:1}],{duration:400,easing:EASE});
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.opacity='1';
+    await delay(500);
+
+    // D5 — Clic sur "Somme"
+    await clickAt(btnSomme,700);
+    pressPulse(btnSomme);
+    await delay(150);
+    btnSomme.classList.add('active');
+    await delay(400);
+
+    // D6 — Curseur va au coin supérieur-gauche de la colonne "Montant Patronal"
+    const imgR2=rectOf(pdfImg);
+    const sxLeft=imgR2.x+imgR2.w*0.767;
+    const syTop=imgR2.y+imgR2.h*0.177;
+    const sxRight=imgR2.x+imgR2.w*0.864;
+    const syBot=imgR2.y+imgR2.h*0.388;
+    await moveCursor(sxLeft,syTop,800);
+    await delay(200);
+
+    // D7 — Dessine le rectangle rose
+    extractRect.style.borderColor='var(--ext-pink)';
+    extractRect.style.background='var(--ext-pink-fill)';
+    extractRect.style.display='';
+    extractRect.style.opacity='1';
+    const drawDuration2=700;
+    anim(extractRect,[
+      {width:'0',height:'0',opacity:.6},
+      {width:RECT2_W,height:RECT2_H,opacity:1}
+    ],{duration:drawDuration2,easing:EASE});
+    await moveCursor(sxRight,syBot,drawDuration2);
+    await delay(500);
+
+    // D8 — Résultat (somme) apparaît dans B4
+    cellB2.classList.remove('sel');
+    cellB4.classList.add('sel');
+    namebox.textContent='B4';
+    cellB4.style.whiteSpace='nowrap';
+    cellB4.style.overflow='visible';
+    cellB4.style.background='var(--ext-pink-cell)';
+    cellB4.style.color='var(--ink)';
+    cellB4.textContent=SUM_TEXT;
+    await anim(cellB4,[
+      {opacity:0,transform:'scale(.97)'},{opacity:1,transform:'none'}
+    ],{duration:350,easing:EASE});
+    await delay(900);
+
+    // ═══════ PHASE E : Déplacement de la sélection → la cellule se met à jour ═══════
+
+    // E1 — Curseur se place sur le rectangle pour le déplacer
+    const rectCenterOld=centerOf(extractRect);
+    await moveCursor(rectCenterOld.x,rectCenterOld.y,600);
+    await delay(200);
+
+    // E2 — Glisse le rectangle vers la colonne "Base" (mêmes lignes)
+    extractRect.getAnimations().forEach(a=>a.cancel());
+    extractRect.style.top=RECT2_TOP;extractRect.style.left=RECT2_LEFT;
+    extractRect.style.width=RECT2_W;extractRect.style.height=RECT2_H;
+    extractRect.style.opacity='1';
+    const dragDuration=900;
+    anim(extractRect,[
+      {top:RECT2_TOP,left:RECT2_LEFT,width:RECT2_W,height:RECT2_H},
+      {top:RECT3_TOP,left:RECT3_LEFT,width:RECT3_W,height:RECT3_H}
+    ],{duration:dragDuration,easing:EASE});
+    const imgR3=rectOf(pdfImg);
+    const newCx=imgR3.x+imgR3.w*(0.378+0.10/2);
+    const newCy=imgR3.y+imgR3.h*(0.177+0.211/2);
+    await moveCursor(newCx,newCy,dragDuration);
+    await delay(300);
+
+    // E3 — La valeur de la cellule se met à jour
+    cellB4.textContent=SUM_TEXT2;
+    await anim(cellB4,[
+      {opacity:1,transform:'scale(1)'},{opacity:.35,transform:'scale(.97)'},{opacity:1,transform:'scale(1)'}
+    ],{duration:420,easing:EASE});
+    await delay(1200);
+
+    // E4 — Curseur revient sur la grille
+    const cellCenter2=centerOf(cellB4);
+    await moveCursor(cellCenter2.x+20,cellCenter2.y,700);
+    await delay(600);
+
+    // ═══════ PHASE F : Validation de l'extraction ═══════
+
+    // F1 — Le pied de page affiche "Extrait par ..." avec les boutons Valider / Refuser
+    pdfHint.style.display='none';
+    pdfValidate.style.display='flex';
+    pdfValidate.style.opacity='0';
+    pvText.textContent='Extrait par Etienne Pernelle le 18/07/2026 21:26';
+    await anim(pdfValidate,[{opacity:0},{opacity:1}],{duration:300,easing:EASE});
+    await delay(900);
+
+    // F2 — Zoom avant, puis clic sur "Valider" pendant que la caméra est resserrée
+    await zoomTo(btnValider,1.3,800);
+    await clickAt(btnValider,700);
+    pressPulse(btnValider);
+    await delay(200);
+
+    // F3 — La sélection et la cellule passent en vert pendant le zoom, le texte se met à jour
+    extractRect.style.borderColor='var(--ext-green)';
+    extractRect.style.background='var(--ext-green-fill)';
+    cellB4.style.background='var(--ext-green-cell)';
+    pvText.textContent='✓ Validé par Etienne Pernelle le 18/07/2026 22:04';
+    pvText.classList.add('ok');
+    await anim(pvBtns,[{opacity:1},{opacity:0}],{duration:250,easing:EASE});
+    pvBtns.style.display='none';
+    await delay(900);
+    await zoomReset(800);
+    await delay(300);
+
+    // F4 — Curseur revient sur la grille
+    const cellCenter3=centerOf(cellB4);
+    await moveCursor(cellCenter3.x+20,cellCenter3.y,700);
+    await delay(1200);
+
+    // ═══════ PHASE G : Commentaire sur la sélection ═══════
+
+    // G1 — Badge apparaît au coin supérieur droit du rectangle
+    const rPos=rectOf(extractRect);
+    commentBadge.textContent='0';
+    commentBadge.style.left=(rPos.x+rPos.w-10)+'px';
+    commentBadge.style.top=(rPos.y-10)+'px';
+    commentBadge.style.display='flex';
+    await anim(commentBadge,[
+      {opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1)'}
+    ],{duration:350,easing:EASE});
+    await delay(600);
+
+    // G2 — Curseur clique sur le badge
+    await clickAt(commentBadge,700);
+    pressPulse(commentBadge);
+    await delay(200);
+
+    // G3 — La popup s'ouvre en dessous du badge
+    commentPop.style.left=(rPos.x+rPos.w-20)+'px';
+    commentPop.style.top=(rPos.y+14)+'px';
+    commentPop.style.display='block';
+    cpEmpty.style.display='';
+    cpItem.style.display='none';
+    await anim(commentPop,[
+      {opacity:0,transform:'translateY(-6px) scale(.96)'},{opacity:1,transform:'translateY(0) scale(1)'}
+    ],{duration:300,easing:EASE});
+    await delay(600);
+
+    // G4 — Curseur va dans l'input et tape le commentaire
+    await clickAt(cpInput,500);
+    await delay(200);
+    const commentText='Somme des charges sociales maladie';
+    for(let i=0;i<commentText.length;i++){
+      cpInput.value=commentText.substring(0,i+1);
+      await delay(50);
+    }
+    await delay(400);
+
+    // G5 — Curseur clique sur le bouton envoi
+    await clickAt(cpSend,400);
+    pressPulse(cpSend);
+    await delay(250);
+
+    // G6 — Le commentaire apparaît, "Aucun commentaire" disparaît
+    cpEmpty.style.display='none';
+    cpItem.style.display='block';
+    cpDate.textContent='18/07/2026 22:19';
+    cpInput.value='';
+    commentBadge.textContent='1';
+    await anim(cpItem,[
+      {opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0)'}
+    ],{duration:300,easing:EASE});
+    await delay(2500);
+
+    // G7 — Fermer la popup et fin
+    await anim(commentPop,[
+      {opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.96)'}
+    ],{duration:250,easing:EASE});
+    commentPop.style.display='none';
+    await delay(1000);
+
+    // Phase H : Extraction de tableau
+
+    // H1 - nettoyage
+    commentBadge.getAnimations().forEach(a=>a.cancel());
+    commentBadge.style.display='none';
+    extractRect.getAnimations().forEach(a=>a.cancel());
+    extractRect.style.display='none';
+    pdfValidate.style.display='none';
+    pdfHint.style.display='';
+    pvText.textContent='';pvText.classList.remove('ok');
+    pvBtns.style.display='';pvBtns.style.opacity='1';
+    cellB2.textContent='';cellB2.style.background='';cellB2.style.whiteSpace='';cellB2.style.overflow='';cellB2.style.color='';
+    cellB4.textContent='';cellB4.style.background='';cellB4.style.whiteSpace='';cellB4.style.overflow='';cellB4.style.color='';
+    cellB4.classList.remove('sel');
+    cellB3.classList.remove('sel');
+    namebox.textContent='B3';
+    btnSomme.classList.remove('active');
+
+    // H2 - masquer la bulle si visible
+    callout.getAnimations().forEach(a=>a.cancel());
+    callout.style.opacity='0';
+
+    // H3 - naviguer vers Exemple CR.pdf
+    await clickAt(navNext,700);
+    pressPulse(navNext);
+    await delay(200);
+    pdfImgWrap.getAnimations().forEach(a=>a.cancel());
+    pdfImgWrap.style.transform='translateY(0)';
+    pdfImg.src='Ressources/exemple-cr.webp';
+    pdfImgWrap.style.opacity='0';
+    await anim(pdfImgWrap,[{opacity:0},{opacity:1}],{duration:500,easing:EASE});
+    docnameEl.textContent='Exemple CR.pdf';
+    await delay(400);
+
+    // H4 - clic sur Tableau
+    await clickAt(btnTableau,700);
+    pressPulse(btnTableau);
+    await beat(400);
+    btnTableau.classList.add('active');
+    await delay(300);
+
+    // H5 - tracer le rectangle de selection
+    extractRect.style.borderColor='var(--ext-orange)';
+    extractRect.style.background='var(--ext-orange-fill)';
+    extractRect.style.display='block';
+    extractRect.style.top=RECT_TAB_TOP;extractRect.style.left=RECT_TAB_LEFT;
+    extractRect.style.width='0';extractRect.style.height='0';
+    extractRect.style.opacity='1';
+    await anim(extractRect,[
+      {top:RECT_TAB_TOP,left:RECT_TAB_LEFT,width:'0',height:'0'},
+      {top:RECT_TAB_TOP,left:RECT_TAB_LEFT,width:RECT_TAB_W,height:RECT_TAB_H}
+    ],{duration:600,easing:EASE});
+    await delay(300);
+
+    // H5b - toggles Colonnes / Lignes
+    const rTabPos=rectOf(extractRect);
+    tabToggles.style.left=(rTabPos.x+5)+'px';
+    tabToggles.style.top=(rTabPos.y-26)+'px';
+    tabToggles.style.display='flex';
+    await anim(tabToggles,[{opacity:0},{opacity:1}],{duration:250,easing:EASE});
+    await delay(600);
+
+    // H6 - ajuster les largeurs de colonnes
+    var colB=$('col-B'),colC=$('col-C'),colD=$('col-D'),colE=$('col-E'),colF=$('col-F');
+    colB.style.width='280px';colC.style.width='90px';colD.style.width='90px';colE.style.width='85px';colF.style.width='60px';
+
+    // H6b - le tableau se remplit ligne par ligne
+    for(var r=0;r<TAB_DATA.length;r++){
+      var row=TAB_DATA[r];
+      for(var c=0;c<row.length;c++){
+        var cell=$('c'+TAB_COLS[c]+(r+1));
+        if(cell&&row[c]){
+          cell.textContent=row[c];
+          cell.style.whiteSpace='nowrap';cell.style.overflow='hidden';cell.style.textOverflow='ellipsis';
+          cell.style.background='var(--ext-orange-cell)';
+        }
+      }
+      await delay(80);
+    }
+    await delay(800);
+
+    // H7 - pied de page validation
+    pdfHint.style.display='none';
+    pdfValidate.style.display='flex';
+    pdfValidate.style.opacity='0';
+    pvText.textContent='Extrait par Etienne Pernelle le 19/07/2026 09:12';
+    await anim(pdfValidate,[{opacity:0},{opacity:1}],{duration:300,easing:EASE});
+    await delay(2500);
+  }
+
+  let running=true;
+  (async function loop(){while(running){await run();}})();
+  $('replay').addEventListener('click',()=>location.reload());
+  window.addEventListener('load',fit);fit();
+})();
+</script>
+<script>/* Masque le bouton Rejouer quand l'animation est embarquée (iframe : carrousel / compil). */
+if(window.self!==window.top){var _r=document.getElementById("replay");if(_r)_r.style.display="none";}</script>
+</body>
+</html>

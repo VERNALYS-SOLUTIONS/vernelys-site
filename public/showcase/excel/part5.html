@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vernelys — Partie 5 : Assistant IA</title>
+<!-- Base : classeur vierge + ouverture du volet "Assistant IA" (chatbot) -->
+<style>
+  :root{
+    --brand:#006039;
+    --brand-dark:#004a2c;
+    --brand-soft:#e3f0ea;
+    --grid:#e3e4e8;
+    --head:#f4f5f7;
+    --ink:#1f2430;
+    --muted:#6b7280;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, #eaf3ff 0%, transparent 55%),
+      radial-gradient(1000px 700px at 112% 120%, #e7fbf0 0%, transparent 50%),
+      #f5f7fb;
+    color:var(--ink);display:flex;align-items:flex-start;justify-content:center;min-height:100%;
+  }
+  .viewport{width:100%;padding:22px;display:flex;justify-content:center}
+  .frame{position:relative;margin:0 auto}
+  .stage{position:relative;width:1220px;transform-origin:top left;cursor:none}
+  .camera{position:relative;transform-origin:50% 50%;will-change:transform}
+
+  .win{width:1220px;background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(20,30,60,.45), 0 8px 24px -12px rgba(20,30,60,.25);
+    border:1px solid rgba(20,30,60,.08)}
+  .titlebar{height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;
+    background:linear-gradient(180deg,#fbfbfd,#f1f2f6);border-bottom:1px solid #e7e8ee}
+  .dots{display:flex;gap:8px}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .doc-name{font-size:13px;color:var(--muted);margin-left:6px}
+  .doc-name b{color:var(--ink);font-weight:600}
+
+  .ribbon{background:#fff;border-bottom:1px solid #ececf1}
+  .tabs{display:flex;gap:2px;padding:6px 12px 0;font-size:12.5px}
+  .tab{padding:7px 11px;color:#59616e;border-radius:8px 8px 0 0;position:relative;white-space:nowrap}
+  .tab.addin{color:var(--brand);font-weight:700}
+  .tab.active::after{content:"";position:absolute;left:9px;right:9px;bottom:-1px;height:3px;border-radius:3px;background:var(--brand)}
+  .ribbon-body{display:flex;align-items:stretch;padding:7px 10px;min-height:74px;border-top:1px solid #f1f2f6}
+  .rgroup{display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #eef0f4}
+  .rgroup .items{display:flex;gap:2px;align-items:flex-start}
+  .rgroup .glabel{font-size:10px;color:var(--muted)}
+  .ritem{display:flex;flex-direction:column;align-items:center;gap:4px;width:55px;padding:4px 1px;border-radius:8px}
+  .ritem:hover{background:#f5f7f9}
+  .ritem.press{background:#eef0f4;transform:scale(.96)}
+  .ritem.active{background:var(--brand-soft)}
+  .ritem .ic{height:28px;display:grid;place-items:center}
+  .ritem .ic img,.ritem .ic svg{width:26px;height:26px;object-fit:contain;image-rendering:auto}
+  .ritem .t{font-size:9px;line-height:1.1;text-align:center;color:#3f4756;width:53px;overflow-wrap:anywhere;hyphens:auto}
+
+  .formula{display:flex;align-items:center;gap:10px;padding:5px 14px;border-bottom:1px solid #ececf1;background:#fdfdfe}
+  .namebox{width:84px;font-size:12px;color:#374151;border:1px solid #e6e7ec;border-radius:6px;padding:4px 8px;background:#fff;text-align:center}
+  .fx{color:#9aa1ad;font-style:italic;font-size:13px}
+
+  .body{display:flex;height:452px}
+  .grid-wrap{flex:1;position:relative;overflow:hidden;display:flex}
+  .grid{flex:1;overflow:auto;background:#fff}
+  table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
+  .colh th{background:var(--head);color:#8a90a0;font-weight:500;height:22px;border:1px solid var(--grid);text-align:center}
+  .rowh{background:var(--head);color:#9aa0ad;font-weight:500;text-align:center;border:1px solid var(--grid);width:36px;height:26px}
+  td.cell{border:1px solid var(--grid);height:26px;padding:0 4px;font-size:12px;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cell.sel{outline:2px solid var(--brand);outline-offset:-2px}
+  .cell.rc-head{background:var(--head);font-weight:600;color:#374151;font-size:10.5px}
+
+  /* ── Graphique inséré sur la feuille ── */
+  .chart-obj{position:absolute;background:#fff;border:1px solid #e2e4e9;border-radius:10px;box-shadow:0 22px 48px -18px rgba(15,23,42,.35);padding:11px 14px 6px;opacity:0;z-index:40}
+  .chart-obj.sel{outline:2px solid var(--brand);outline-offset:2px}
+  .chart-title{font-size:12px;font-weight:700;color:#20303f;margin-bottom:4px}
+  .chart-obj svg rect{transform-box:fill-box;transform-origin:center bottom}
+  .chart-obj svg .ctrend{fill:none;stroke:#e07b1a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 4}
+  .chart-obj svg .ctrend-dot{fill:#e07b1a}
+
+  /* ── Fenêtre "Microsoft Visual Basic pour Applications" ── */
+  .vbe-win{position:absolute;background:#ece9d8;border-radius:6px;overflow:hidden;
+    box-shadow:0 34px 80px -20px rgba(15,23,42,.5), 0 10px 26px -12px rgba(15,23,42,.3);
+    border:1px solid #b8b8ac;opacity:0;transform:scale(.97);z-index:60;display:flex;flex-direction:column;visibility:hidden}
+  .vbe-win.show{visibility:visible}
+  .vbe-titlebar{height:26px;flex:none;display:flex;align-items:center;padding:0 8px;background:linear-gradient(180deg,#2a5ea8,#1f4d8f);color:#fff;font-size:11px;gap:8px}
+  .vbe-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vbe-wc{margin-left:auto;display:flex;gap:4px;flex:none}
+  .vbe-wc span{width:16px;height:14px;background:rgba(255,255,255,.15);border-radius:2px;display:grid;place-items:center;font-size:9px}
+  .vbe-menubar{flex:none;height:21px;display:flex;align-items:center;gap:13px;padding:0 10px;background:#ece9d8;border-bottom:1px solid #c8c6ba;font-size:10.5px;color:#333;overflow:hidden;white-space:nowrap}
+  .vbe-toolbar{flex:none;height:24px;display:flex;align-items:center;gap:5px;padding:0 8px;background:#ece9d8;border-bottom:1px solid #c8c6ba}
+  .vbe-toolbar span{width:19px;height:17px;border-radius:3px;display:grid;place-items:center;font-size:10px;color:#555;background:#f4f2e8;border:1px solid #d9d7c9}
+  .vbe-body{flex:1;display:flex;overflow:hidden}
+  .vbe-left{width:210px;flex:none;display:flex;flex-direction:column;border-right:1px solid #c8c6ba;background:#ece9d8}
+  .vbe-project{flex:1;display:flex;flex-direction:column;border-bottom:1px solid #c8c6ba;overflow:hidden}
+  .vbe-project-head{flex:none;font-size:10px;padding:4px 8px;background:#dcd9c8;border-bottom:1px solid #c8c6ba;color:#333}
+  .vbe-tree{flex:1;background:#fff;overflow-y:auto;font-size:10.5px;color:#1a1a1a;padding:4px 0}
+  .vbe-tnode{padding:2px 8px;white-space:nowrap}
+  .vbe-tnode.lvl1{padding-left:20px}
+  .vbe-tnode.lvl2{padding-left:32px}
+  .vbe-tnode.sel{background:#316ac5;color:#fff}
+  .vbe-props{height:130px;flex:none;display:flex;flex-direction:column}
+  .vbe-props-head{flex:none;font-size:10px;padding:4px 8px;background:#dcd9c8;border-bottom:1px solid #c8c6ba;color:#333}
+  .vbe-props-row{display:flex;font-size:10.5px;padding:3px 8px;border-bottom:1px solid #eceae0;background:#fff;color:#1a1a1a}
+  .vbe-props-row span:first-child{width:80px;color:#333}
+  .vbe-code-wrap{flex:1;display:flex;flex-direction:column;background:#fff;overflow:hidden}
+  .vbe-code-bar{flex:none;display:flex;font-size:10.5px;color:#333}
+  .vbe-code-bar span{padding:3px 10px;background:#f4f2e8;border-right:1px solid #c8c6ba;border-bottom:1px solid #c8c6ba}
+  .vbe-code{flex:1;overflow-y:auto;background:#fff;padding:10px 14px;font-family:Consolas,"Courier New",monospace;font-size:12px;line-height:1.55;color:#1a1a1a}
+  .vbe-code div{min-height:1.55em}
+  .vbe-kw{color:#00007f;font-weight:600}
+  .vbe-str{color:#800000}
+  .vbe-caret{display:inline-block;width:1px;height:12px;background:#1a1a1a;vertical-align:middle;animation:vbeBlink 1s step-end infinite}
+  @keyframes vbeBlink{50%{opacity:0}}
+  .vbe-immediate{flex:none;height:96px;border-top:1px solid #c8c6ba;display:flex;flex-direction:column;background:#fff}
+  .vbe-imm-head{flex:none;font-size:10px;padding:3px 8px;background:#dcd9c8;border-bottom:1px solid #c8c6ba;color:#333;display:flex}
+  .vbe-imm-x{margin-left:auto}
+
+  .sheettabs{display:flex;align-items:center;gap:2px;height:30px;padding:0 8px;background:#f4f5f7;border-top:1px solid #e3e4e8;border-bottom:1px solid #e3e4e8;font-size:11.5px;flex-shrink:0}
+  .stab-nav{display:flex;gap:2px;margin-right:6px}
+  .stab-nav span{width:18px;height:18px;display:grid;place-items:center;color:#8a90a0;font-size:11px}
+  .sheet-tab{padding:5px 14px;color:#6b7280;cursor:default;position:relative}
+  .sheet-tab.active{color:var(--ink);font-weight:600;background:#fff;border-radius:4px 4px 0 0;box-shadow:inset 0 -2px 0 var(--brand)}
+  .stab-add{width:20px;height:20px;display:grid;place-items:center;color:#6b7280;margin-left:4px;font-size:14px}
+
+  .statusbar{display:flex;align-items:center;gap:16px;height:28px;padding:0 16px;background:var(--brand);color:#eafff2;font-size:11px}
+  .statusbar .sp{flex:1}
+
+  .cursor{position:absolute;left:0;top:0;z-index:100;filter:drop-shadow(0 3px 5px rgba(0,0,0,.28));will-change:transform;pointer-events:none}
+
+  .replay{position:absolute;right:0;top:-14px;font-size:12px;color:var(--muted);background:#fff;border:1px solid #e4e6ec;border-radius:8px;padding:6px 12px;cursor:pointer;z-index:70}
+  .replay:hover{border-color:#cfd2da}
+
+  /* ── Volet "Assistant IA" ── */
+  .pane{width:0;border-left:0 solid #e7e8ee;background:#fff;position:relative;overflow:hidden;opacity:0}
+  .ia-pane{display:flex;flex-direction:column;height:100%;width:372px}
+
+  .ia-head{display:flex;align-items:center;gap:10px;padding:16px 18px 14px;border-bottom:1px solid #eef0f4;flex:none}
+  .ia-head b{font-size:14px;color:#20303f;font-weight:700;white-space:nowrap}
+  .ia-head-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .ia-action-newchat{font-size:11.5px;color:var(--brand);font-weight:700;cursor:default;white-space:nowrap}
+  .ia-switch{display:flex;align-items:center;gap:6px}
+  .ia-switch-track{width:26px;height:15px;border-radius:8px;background:#e3e5eb;display:flex;align-items:center;padding:2px;flex:none;transition:background .25s}
+  .ia-switch-track.on{background:var(--brand)}
+  .ia-switch-thumb{width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .25s}
+  .ia-switch-track.on .ia-switch-thumb{transform:translateX(11px)}
+  .ia-switch-label{font-size:11px;color:var(--muted);white-space:nowrap;transition:color .25s}
+  .ia-switch-label.dev{color:#3ddc84;font-weight:700}
+  .ia-icon-btn{width:22px;height:22px;display:grid;place-items:center;color:#9aa1ad;font-size:12px;border-radius:6px;flex:none}
+
+  /* ── Mode Développeur (thème sombre du volet) ── */
+  .ia-pane.dark{background:#0c1110;transition:background .3s}
+  .ia-pane.dark .ia-head{border-bottom-color:#1e2624}
+  .ia-pane.dark .ia-head b{color:#fff}
+  .ia-pane.dark .ia-icon-btn{color:#7d857f}
+  .ia-pane.dark .ia-greet{color:#fff}
+  .ia-pane.dark .ia-hint{color:#8a9189}
+  .ia-pane.dark .ia-inputbar{background:#151b19;border-color:#232b28}
+  .ia-pane.dark .ia-input-ph{color:#69716b}
+  .ia-pane.dark .ia-input-ph.typed{color:#eef1ef}
+  .ia-pane.dark .ia-msg.bot{background:#151b19;color:#eef1ef}
+  .ia-pane.dark .ia-typing{background:#151b19}
+
+  .ia-content{flex:1;position:relative;min-width:372px;min-height:0}
+  .ia-body{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:14px 22px 0;gap:14px;visibility:hidden}
+  .ia-body.show{visibility:visible}
+  .ia-badge{width:38px;height:38px;border-radius:11px;overflow:hidden;box-shadow:0 6px 14px -6px rgba(0,96,57,.5);flex:none}
+  .ia-badge img{width:100%;height:100%;display:block}
+  .ia-greet{margin:0;font-size:21px;line-height:1.32;font-weight:700;color:#1f2430}
+  .ia-greet .accent{color:var(--brand)}
+  .ia-hint{margin:0;font-size:12px;color:var(--muted);line-height:1.5;max-width:300px}
+
+  .ia-inputbar{flex:none;margin:14px 16px 18px;display:flex;align-items:center;gap:8px;border:1.5px solid #e3e5eb;border-radius:14px;padding:11px 10px 11px 14px;background:#fff;min-width:340px}
+  .ia-input-ph{flex:1;font-size:12.5px;color:#a7acb8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ia-input-ph.typed{color:var(--ink)}
+  .ia-send{width:30px;height:30px;border-radius:50%;background:var(--brand);border:none;display:grid;place-items:center;flex:none}
+  .ia-send.press{transform:scale(.9)}
+
+  /* ── Fil de conversation ── */
+  .ia-thread{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:16px 18px;overflow-y:auto;visibility:hidden}
+  .ia-thread.show{visibility:visible}
+  .ia-msg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:12.5px;line-height:1.45;opacity:0}
+  .ia-msg.in{opacity:1}
+  .ia-msg.user{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
+  .ia-msg.bot{align-self:flex-start;background:#f3f4f7;color:#20303f;border-bottom-left-radius:4px}
+  .ia-typing{align-self:flex-start;display:flex;gap:4px;background:#f3f4f7;padding:11px 14px;border-radius:14px;border-bottom-left-radius:4px;opacity:0}
+  .ia-typing.in{opacity:1}
+  .ia-typing span{width:6px;height:6px;border-radius:50%;background:#aab0bb;animation:iaDot 1.2s infinite ease-in-out}
+  .ia-typing span:nth-child(2){animation-delay:.15s}
+  .ia-typing span:nth-child(3){animation-delay:.3s}
+  @keyframes iaDot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+</style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="frame" id="frame">
+      <button class="replay" id="replay">↻ Rejouer</button>
+      <div class="stage" id="stage">
+        <div class="camera" id="camera">
+        <div class="win" id="excelwin">
+          <div class="titlebar">
+            <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+            <div class="doc-name"><b>Classeur1.xlsx</b> — Excel</div>
+          </div>
+
+          <div class="ribbon">
+            <div class="tabs">
+              <div class="tab">Fichier</div><div class="tab">Accueil</div><div class="tab">Insertion</div>
+              <div class="tab">Données</div><div class="tab">Révision</div>
+              <div class="tab addin active">Outil Excel — Vernelys</div>
+            </div>
+            <div class="ribbon-body" id="ribbon-body"></div>
+          </div>
+
+          <div class="formula">
+            <div class="namebox" id="namebox">A1</div><div class="fx">fx</div>
+          </div>
+
+          <div class="body">
+            <div class="grid-wrap" id="grid-wrap">
+              <div class="grid" id="grid"></div>
+              <div class="chart-obj" id="chart-obj"></div>
+            </div>
+            <aside class="pane" id="pane">
+              <div class="ia-pane" id="st-ia">
+                <div class="ia-head">
+                  <b>Assistant IA</b>
+                  <div class="ia-head-actions">
+                    <span class="ia-action-newchat">+ Nouveau chat</span>
+                    <span class="ia-switch" id="ia-switch"><span class="ia-switch-track" id="ia-switch-track"><span class="ia-switch-thumb"></span></span><span class="ia-switch-label" id="ia-switch-label">Classique</span></span>
+                    <span class="ia-icon-btn">⤢</span>
+                    <span class="ia-icon-btn">✕</span>
+                  </div>
+                </div>
+                <div class="ia-content" id="ia-content">
+                  <div class="ia-body show" id="ia-welcome">
+                    <div class="ia-badge"><img src="icones/vernalys-logo.svg" alt=""></div>
+                    <h2 class="ia-greet">Bonjour.<br>Comment puis-je vous <span class="accent">aider</span> aujourd'hui ?</h2>
+                    <p class="ia-hint">Choisissez une cible, puis posez votre question ou demandez une analyse.</p>
+                  </div>
+                  <div class="ia-thread" id="ia-thread"></div>
+                </div>
+                <div class="ia-inputbar" id="ia-inputbar">
+                  <span class="ia-input-ph" id="ia-input-ph">Posez votre question...</span>
+                  <button class="ia-send" id="ia-send">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="sheettabs" id="sheettabs">
+            <span class="stab-nav"><span>‹</span><span>›</span></span>
+            <div class="sheet-tab active" id="tab-feuil1">Feuil1</div>
+            <span class="stab-add">+</span>
+          </div>
+
+          <div class="statusbar">
+            <span>Prêt</span><span class="sp"></span>
+            <span>Vernelys v1.0</span>
+          </div>
+        </div>
+
+        <div class="vbe-win" id="vbe-win">
+          <div class="vbe-titlebar">
+            <span class="vbe-title">Microsoft Visual Basic pour Applications - Classeur1.xlsm - [Module1 (Code)]</span>
+            <span class="vbe-wc"><span>—</span><span>▢</span><span>✕</span></span>
+          </div>
+          <div class="vbe-menubar">
+            <span>Fichier</span><span>Edition</span><span>Affichage</span><span>Insertion</span><span>Format</span><span>Débogage</span><span>Exécution</span><span>Outils</span><span>Compléments</span><span>Fenêtre</span><span>?</span>
+          </div>
+          <div class="vbe-toolbar">
+            <span>▤</span><span>▶</span><span>❚❚</span><span>■</span><span>↺</span>
+          </div>
+          <div class="vbe-body">
+            <div class="vbe-left">
+              <div class="vbe-project">
+                <div class="vbe-project-head">Projet - VBAProject</div>
+                <div class="vbe-tree">
+                  <div class="vbe-tnode lvl0">▾ VBAProject (Classeur1)</div>
+                  <div class="vbe-tnode lvl1">▾ Microsoft Excel Objets</div>
+                  <div class="vbe-tnode lvl2">📄 Feuil1 (Feuil1)</div>
+                  <div class="vbe-tnode lvl2">📄 ThisWorkbook</div>
+                  <div class="vbe-tnode lvl1">▾ Modules</div>
+                  <div class="vbe-tnode lvl2 sel">📦 Module1</div>
+                </div>
+              </div>
+              <div class="vbe-props">
+                <div class="vbe-props-head">Propriétés - Module1</div>
+                <div class="vbe-props-row"><span>(Name)</span><span>Module1</span></div>
+              </div>
+            </div>
+            <div class="vbe-code-wrap">
+              <div class="vbe-code-bar"><span>(Général)</span><span>(Déclarations)</span></div>
+              <div class="vbe-code" id="vbe-code"></div>
+            </div>
+          </div>
+          <div class="vbe-immediate">
+            <div class="vbe-imm-head">Exécution<span class="vbe-imm-x">✕</span></div>
+          </div>
+        </div>
+
+        <div class="cursor" id="cursor">
+          <svg width="26" height="30" viewBox="0 0 26 30"><path d="M2 2 L2 22 L8 17 L12 26 L16 24 L12 15 L20 15 Z" fill="#fff" stroke="#1f2430" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const DESIGN_W = 1220;
+  const ic = f => `icones/${encodeURIComponent(f)}`;
+  const slug = s => 'rb-' + s.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+
+  const ribbon = [
+    {label:"Outils principaux", items:[["si-erreur-0-32 (1).png","Si erreur"],["Supprimer_Espace_32.png","Suppr espace"],["Audit_formule_32.png","Audit formule"]]},
+    {label:"Documents", items:[["icon-importer.png","Importer"],["icon-text-clip-32.png","Texte"],["icon-sum-clip-32.png","Somme"],["icon-table-clip-32.png","Tableau"],["clip-supp-red-32.png","Suppression"],["icon-apercu-taskpane-32.png","Aperçu"]]},
+    {label:"Raccourcis", items:[["gestionnaire-raccourcis-32.png","Gestionnaire"],["index-raccourcis-32.png","Index"]]},
+    {label:"Audit comptable", items:[["apps-icon-32.png","Aide Audit"]]},
+    {label:"IA", items:[["icon-assistant-ia-32.png","IA"]]},
+    {label:"Aide & Paramètres", items:[["documentation-32.png","Documentation"],["reference_b_32.png","Aide"],["parametre-32.png","Paramètre"]]},
+    {label:"Compte", items:[["logout-32px.png","Déconnexion"]]},
+  ];
+  const iconHtml = f => `<img src="${ic(f)}" alt="">`;
+  document.getElementById('ribbon-body').innerHTML = ribbon.map(g =>
+    `<div class="rgroup"><div class="items">`+
+    g.items.map(it=>`<div class="ritem" id="${slug(it[1])}"><div class="ic">${iconHtml(it[0])}</div><div class="t">${it[1]}</div></div>`).join('')+
+    `</div><div class="glabel">${g.label}</div></div>`
+  ).join('');
+
+  (function(){
+    const cols=11, rowsN=22;
+    let h='<table><colgroup><col style="width:36px">';
+    for(let c=0;c<cols;c++) h+=`<col id="col-${String.fromCharCode(65+c)}">`;
+    h+='</colgroup><thead><tr class="colh"><th></th>';
+    for(let c=0;c<cols;c++) h+=`<th>${String.fromCharCode(65+c)}</th>`;
+    h+='</tr></thead><tbody>';
+    for(let r=1;r<=rowsN;r++){
+      h+=`<tr><td class="rowh">${r}</td>`;
+      for(let c=0;c<cols;c++){
+        const id=`c${String.fromCharCode(65+c)}${r}`;
+        h+=`<td class="cell" id="${id}"></td>`;
+      }
+      h+='</tr>';
+    }
+    document.getElementById('grid').innerHTML=h+'</tbody></table>';
+  })();
+
+  // ── Données de base : Mois / CA (K€) ──
+  const DATA = [
+    {m:'janv-26',v:128},{m:'févr-26',v:161},{m:'mars-26',v:119},{m:'avr-26',v:174},
+    {m:'mai-26',v:138},{m:'juin-26',v:183},{m:'juil-26',v:149},{m:'août-26',v:196},
+    {m:'sept-26',v:162},{m:'oct-26',v:205},
+  ];
+  (function fillData(){
+    const set=(id,txt,head)=>{const el=document.getElementById(id);el.textContent=txt;if(head)el.classList.add('rc-head');};
+    set('cA1','Mois',true);set('cB1','CA (K€)',true);
+    DATA.forEach((d,i)=>{
+      const r=i+2;
+      set('cA'+r,d.m);
+      const bEl=document.getElementById('cB'+r);
+      bEl.textContent=d.v.toLocaleString('fr-FR');
+      bEl.style.textAlign='right';
+    });
+  })();
+
+  function movingAverage(vals,window){
+    return vals.map((_,i)=>{
+      const half=Math.floor(window/2);
+      const start=Math.max(0,i-half), end=Math.min(vals.length-1,i+half);
+      let sum=0,count=0;
+      for(let k=start;k<=end;k++){sum+=vals[k];count++;}
+      return sum/count;
+    });
+  }
+  function smoothPath(points){
+    if(points.length<2) return '';
+    let d=`M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)}`;
+    for(let i=0;i<points.length-1;i++){
+      const p0=points[i===0?i:i-1], p1=points[i], p2=points[i+1], p3=points[Math.min(i+2,points.length-1)];
+      const cp1x=p1[0]+(p2[0]-p0[0])/6, cp1y=p1[1]+(p2[1]-p0[1])/6;
+      const cp2x=p2[0]-(p3[0]-p1[0])/6, cp2y=p2[1]-(p3[1]-p1[1])/6;
+      d+=` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    return d;
+  }
+
+  function chartSvg(){
+    const w=520,h=150,padL=30,padB=18,padT=8,padR=6;
+    const innerW=w-padL-padR, innerH=h-padT-padB;
+    const max=Math.ceil(Math.max(...DATA.map(d=>d.v))/20)*20;
+    const gap=innerW/DATA.length, barW=gap*0.55;
+    let grid='',bars='',labels='';
+    const centers=[];
+    for(let g=0;g<=2;g++){
+      const gy=padT+innerH-(innerH*(g/2));
+      grid+=`<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${w-padR}" y2="${gy.toFixed(1)}" stroke="#eceef2" stroke-width="1"/>`;
+    }
+    DATA.forEach((d,i)=>{
+      const bh=(d.v/max)*innerH;
+      const x=padL+i*gap+(gap-barW)/2, y=padT+innerH-bh;
+      centers.push(x+barW/2);
+      bars+=`<rect class="cbar" data-i="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="#006039" style="opacity:0;transform:scaleY(0)"/>`;
+      labels+=`<text x="${(x+barW/2).toFixed(1)}" y="${h-5}" font-size="8" fill="#8a90a0" text-anchor="middle">${d.m.split('-')[0]}</text>`;
+    });
+    const smoothed=movingAverage(DATA.map(d=>d.v),3);
+    const trendPts=smoothed.map((tv,i)=>[centers[i], padT+innerH-(tv/max)*innerH]);
+    const trendPath=smoothPath(trendPts);
+    const trendDots=trendPts.map(p=>`<circle class="ctrend-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" style="opacity:0"/>`).join('');
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}">${grid}${bars}${labels}<line x1="${padL}" y1="${(padT+innerH).toFixed(1)}" x2="${w-padR}" y2="${(padT+innerH).toFixed(1)}" stroke="#d8dae0"/><path class="ctrend" id="ctrend-path" d="${trendPath}" style="opacity:0"/>${trendDots}</svg>`;
+  }
+
+  const $=id=>document.getElementById(id);
+  const frame=$('frame'),stage=$('stage'),camera=$('camera'),cursor=$('cursor'),namebox=$('namebox'),
+        pane=$('pane'),stIa=$('st-ia'),
+        rbIa=$('rb-ia'),
+        iaWelcome=$('ia-welcome'),iaThread=$('ia-thread'),
+        iaInputbar=$('ia-inputbar'),iaInputPh=$('ia-input-ph'),iaSend=$('ia-send'),
+        gridWrap=$('grid-wrap'),chartObj=$('chart-obj'),
+        excelwin=$('excelwin'),iaPaneEl=$('st-ia'),
+        iaSwitch=$('ia-switch'),iaSwitchTrack=$('ia-switch-track'),iaSwitchLabel=$('ia-switch-label'),
+        vbeWin=$('vbe-win'),vbeCode=$('vbe-code');
+
+  let scale=1;
+  // Mode "plein écran" (?full=1) : utilisé par compil.html pour remplir la fenêtre
+  // au lieu de plafonner à 1 et de laisser des marges.
+  const FULL=!!new URLSearchParams(location.search).get('full');
+  if(FULL){
+    document.documentElement.style.background='transparent';
+    document.body.style.background='transparent';
+    document.body.style.alignItems='center';
+    const _vp=document.querySelector('.viewport');
+    if(_vp){_vp.style.padding='0';_vp.style.background='transparent';}
+  }
+  function fit(){
+    const availW=Math.max(320,frame.parentElement.clientWidth-4);
+    const availH=Math.max(200,window.innerHeight-4);
+    const nat=stage.offsetHeight||900;
+    scale=Math.min(FULL?99:1, availW/DESIGN_W, availH/nat);
+    stage.style.transform=scale!==1?`scale(${scale})`:'none';
+    frame.style.width=(DESIGN_W*scale)+'px';
+    frame.style.height=(stage.offsetHeight*scale)+'px';
+  }
+  window.addEventListener('resize',fit);
+
+  function rectOf(el){const a=el.getBoundingClientRect(),s=stage.getBoundingClientRect();
+    return {x:(a.left-s.left)/scale,y:(a.top-s.top)/scale,w:a.width/scale,h:a.height/scale};}
+  const centerOf=el=>{const r=rectOf(el);return {x:r.x+r.w/2,y:r.y+r.h/2};};
+
+  const SPEED=Number(new URLSearchParams(location.search).get('speed'))||1.25; // override via ?speed=X (compil.html), défaut 1.25
+
+  /* Pause/reprise pilotable depuis la page parente (recap-global, même origine).
+     delay() est sondé en rAF contre vnow(), une horloge qui se fige pendant la
+     pause : un setTimeout, lui, ne peut pas être suspendu. Les animations en
+     cours (WAAPI et transitions CSS) sont mises en pause telles quelles, et on
+     ne relance que celles qu'on a nous-mêmes figées — rejouer une animation
+     déjà terminée la ferait repartir de zéro. */
+  let pausedAccum=0,pauseStartedAt=null,pausedAnims=[];
+  const vnow=()=>(pauseStartedAt!==null?pauseStartedAt:performance.now())-pausedAccum;
+  function setPaused(p){
+    if(p){
+      if(pauseStartedAt!==null)return;
+      pauseStartedAt=performance.now();
+      pausedAnims=document.getAnimations().filter(a=>a.playState==='running');
+      pausedAnims.forEach(a=>a.pause());
+    }else{
+      if(pauseStartedAt===null)return;
+      pausedAccum+=performance.now()-pauseStartedAt;pauseStartedAt=null;
+      pausedAnims.forEach(a=>{try{a.play()}catch(e){}});pausedAnims=[];
+    }
+  }
+  window.__setPaused=setPaused;
+
+  const delay=ms=>new Promise(res=>{
+    const t0=vnow(),total=ms/SPEED;
+    (function step(){vnow()-t0>=total?res():requestAnimationFrame(step)})();
+  });
+  function anim(el,fr,o){
+    const opts={...o};
+    if(opts.duration!=null)opts.duration/=SPEED;
+    if(opts.delay!=null)opts.delay/=SPEED;
+    const a=el.animate(fr,{fill:'forwards',...opts});
+    return a.finished.then(()=>{
+      try{a.commitStyles();}catch(e){}
+      a.cancel();
+    },()=>{});
+  }
+  const EASE='cubic-bezier(.22,1,.36,1)';
+
+  let cx=DESIGN_W-140,cy=430;
+  const placeCursor=(x,y)=>{cx=x;cy=y;cursor.style.transform=`translate(${x}px,${y}px)`;};
+  function moveCursor(x,y,ms=800){
+    const a=cursor.animate([{transform:`translate(${cx}px,${cy}px)`},{transform:`translate(${x}px,${y}px)`}],{duration:ms/SPEED,easing:EASE,fill:'forwards'});
+    cx=x;cy=y;
+    return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();},()=>{});
+  }
+  const clickAt=async(el,ms)=>{const c=centerOf(el);await moveCursor(c.x,c.y,ms||700);};
+  function pressPulse(el){el.classList.add('press');setTimeout(()=>el.classList.remove('press'),150);}
+
+  // Caméra virtuelle : léger zoom sur un élément-clé, et "respiration" discrète
+  // aux transitions entre features (ne pas appeler zoomTo/rectOf pendant un zoom actif).
+  // ?nozoom : neutralise la caméra virtuelle. Utilisé par recap-global, qui joue
+  // cette démo dans un cadre plus étroit où les zooms recadrent trop fort.
+  const NOZOOM=new URLSearchParams(location.search).has('nozoom');
+  let camScale=1;
+  function camTo(scale,origin,duration){
+    if(NOZOOM) return Promise.resolve();
+    if(origin) camera.style.transformOrigin=`${origin.x}px ${origin.y}px`;
+    const from=`scale(${camScale})`;camScale=scale;
+    return anim(camera,[{transform:from},{transform:`scale(${scale})`}],{duration,easing:EASE});
+  }
+  const zoomTo=(el,s,duration)=>camTo(s||1.15,centerOf(el),duration||800);
+  const zoomReset=(duration)=>camTo(1,null,duration||800);
+  // beat() est la « respiration » de la caméra (léger creux d'échelle) : elle est
+  // coupée par ?nozoom au même titre que les zooms, c'est le même effet caméra.
+  const beat=(duration)=>NOZOOM?Promise.resolve():anim(camera,[{transform:'scale(1)'},{transform:'scale(.985)'},{transform:'scale(1)'}],{duration:duration||380,easing:'ease-in-out'});
+
+  async function typeText(el,text,msPerChar){
+    el.textContent='';
+    el.classList.add('typed');
+    for(let i=0;i<text.length;i++){
+      el.textContent+=text[i];
+      await delay(msPerChar);
+    }
+  }
+  function addMsg(text,role){
+    const div=document.createElement('div');
+    div.className='ia-msg '+role;
+    div.textContent=text;
+    iaThread.appendChild(div);
+    void div.offsetHeight;
+    div.classList.add('in');
+    iaThread.scrollTop=iaThread.scrollHeight;
+    return div;
+  }
+  function addTyping(){
+    const div=document.createElement('div');
+    div.className='ia-typing';
+    div.innerHTML='<span></span><span></span><span></span>';
+    iaThread.appendChild(div);
+    void div.offsetHeight;
+    div.classList.add('in');
+    iaThread.scrollTop=iaThread.scrollHeight;
+    return div;
+  }
+  async function growChart(){
+    const bars=[...chartObj.querySelectorAll('.cbar')];
+    const anims=bars.map((bar,i)=>{
+      const a=bar.animate(
+        [{opacity:0,transform:'scaleY(0)'},{opacity:1,transform:'scaleY(1)'}],
+        {duration:420/SPEED,delay:i*70/SPEED,easing:EASE,fill:'forwards'}
+      );
+      return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();});
+    });
+    await Promise.all(anims);
+  }
+
+  async function revealTrend(){
+    const path=chartObj.querySelector('#ctrend-path');
+    if(!path) return;
+    const len=path.getTotalLength();
+    path.style.strokeDasharray=len+' '+len;
+    path.style.strokeDashoffset=len;
+    path.style.opacity='1';
+    await anim(path,[{strokeDashoffset:len},{strokeDashoffset:0}],{duration:700,easing:'ease-out'});
+    const dots=[...chartObj.querySelectorAll('.ctrend-dot')];
+    await Promise.all(dots.map(d=>{
+      const a=d.animate([{opacity:0},{opacity:1}],{duration:200/SPEED,fill:'forwards'});
+      return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();});
+    }));
+  }
+
+  const VBA_LINES = [
+    '<span class="vbe-kw">Sub</span> FormatTableauCA()',
+    '    <span class="vbe-kw">Dim</span> ws <span class="vbe-kw">As</span> Worksheet',
+    '    <span class="vbe-kw">Set</span> ws = ThisWorkbook.Sheets(<span class="vbe-str">"Feuil1"</span>)',
+    '',
+    '    <span class="vbe-kw">With</span> ws.Range(<span class="vbe-str">"A1:B11"</span>)',
+    '        .Borders.LineStyle = xlContinuous',
+    '        .Font.Name = <span class="vbe-str">"Segoe UI"</span>',
+    '    <span class="vbe-kw">End With</span>',
+    '',
+    '    <span class="vbe-kw">With</span> ws.Range(<span class="vbe-str">"A1:B1"</span>)',
+    '        .Interior.Color = RGB(0, 96, 57)',
+    '        .Font.Color = RGB(255, 255, 255)',
+    '        .Font.Bold = <span class="vbe-kw">True</span>',
+    '    <span class="vbe-kw">End With</span>',
+    '',
+    '    ws.Range(<span class="vbe-str">"B2:B11"</span>).NumberFormat = <span class="vbe-str">"# ##0 ""K€"""</span>',
+    '<span class="vbe-kw">End Sub</span>',
+  ];
+  async function typeCode(lines,msPerLine){
+    vbeCode.innerHTML='';
+    const caret=document.createElement('span');
+    caret.className='vbe-caret';
+    vbeCode.appendChild(caret);
+    for(const line of lines){
+      const lineEl=document.createElement('div');
+      lineEl.innerHTML=line||'&nbsp;';
+      vbeCode.insertBefore(lineEl,caret);
+      vbeCode.scrollTop=vbeCode.scrollHeight;
+      await delay(msPerLine);
+    }
+    await delay(500);
+    caret.remove();
+  }
+
+  function reset(){
+    placeCursor(DESIGN_W-140,430);
+    camera.getAnimations().forEach(a=>a.cancel());
+    camera.style.transform='scale(1)';camScale=1;
+    namebox.textContent='A1';
+
+    rbIa.classList.remove('active');
+
+    pane.getAnimations().forEach(a=>a.cancel());
+    pane.style.width='0px';pane.style.opacity='0';
+
+    stIa.getAnimations().forEach(a=>a.cancel());
+    stIa.style.transition='none';stIa.style.opacity='0';stIa.style.transform='translateY(8px)';
+    void stIa.offsetHeight;
+    stIa.style.transition='';
+
+    iaWelcome.getAnimations().forEach(a=>a.cancel());iaWelcome.style.opacity='1';iaWelcome.classList.add('show');
+    iaThread.getAnimations().forEach(a=>a.cancel());iaThread.classList.remove('show');iaThread.innerHTML='';
+
+    iaInputPh.textContent='Posez votre question...';
+    iaInputPh.classList.remove('typed');
+    iaSend.classList.remove('press');
+
+    chartObj.getAnimations().forEach(a=>a.cancel());
+    chartObj.style.opacity='0';chartObj.style.transform='none';chartObj.classList.remove('sel');
+    chartObj.innerHTML='';
+
+    iaPaneEl.classList.remove('dark');
+    iaSwitchTrack.classList.remove('on');
+    iaSwitchLabel.textContent='Classique';
+    iaSwitchLabel.classList.remove('dev');
+
+    vbeWin.getAnimations().forEach(a=>a.cancel());
+    vbeWin.classList.remove('show');
+    vbeWin.style.opacity='0';vbeWin.style.transform='scale(.97)';
+    vbeCode.innerHTML='';
+  }
+
+  async function run(){
+    fit();reset();await delay(700);
+
+    // ═══════ Ouverture du volet "Assistant IA" ═══════
+    await clickAt(rbIa,800);
+    pressPulse(rbIa);
+    rbIa.classList.add('active');
+    await delay(150);
+
+    await anim(pane,[{width:'0px',opacity:0},{width:'372px',opacity:1}],{duration:420,easing:EASE});
+    await anim(stIa,[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,easing:EASE});
+    await delay(1200);
+
+    // ═══════ Question posée dans le chat ═══════
+    await clickAt(iaInputbar,700);
+    await delay(250);
+    await typeText(iaInputPh,"Crée un graphique de l'évolution du CA",34);
+    await delay(550);
+
+    await clickAt(iaSend,600);
+    pressPulse(iaSend);
+    await delay(200);
+
+    // Bascule de l'écran d'accueil vers le fil de discussion
+    await anim(iaWelcome,[{opacity:1},{opacity:0}],{duration:200,easing:'ease-in'});
+    iaWelcome.classList.remove('show');
+    iaThread.classList.add('show');
+    iaInputPh.textContent='Posez votre question...';
+    iaInputPh.classList.remove('typed');
+
+    addMsg("Crée un graphique de l'évolution du CA",'user');
+    await delay(500);
+
+    const typing=addTyping();
+    await delay(1500);
+    typing.remove();
+    addMsg("Voici le graphique de l'évolution du chiffre d'affaires 2026 :",'bot');
+    await delay(500);
+
+    // ═══════ Insertion du graphique sur la feuille ═══════
+    const anchor=rectOf($('cD1')),gw=rectOf(gridWrap);
+    chartObj.style.left=anchor.x+'px';
+    chartObj.style.top=(gw.y+2)+'px';
+    chartObj.style.width=(gw.x+gw.w-anchor.x-18)+'px';
+    chartObj.innerHTML=`<div class="chart-title">Chiffre d'affaires 2026 (K€)</div>${chartSvg()}`;
+    chartObj.classList.add('sel');
+    await anim(chartObj,[{opacity:0,transform:'translateY(10px) scale(.97)'},{opacity:1,transform:'none'}],{duration:380,easing:EASE});
+    await growChart();
+    await revealTrend();
+    await delay(300);
+
+    // Zoom sur le graphique terminé (tendance incluse)
+    await zoomTo(chartObj,1.22,700);
+    await delay(700);
+    await zoomReset(700);
+
+    chartObj.classList.remove('sel');
+    await delay(400);
+
+    addMsg('Graphique ajouté à la feuille « Feuil1 ».','bot');
+    await delay(1400);
+    await beat(400);
+
+    // ═══════ Bascule en mode « Développeur » ═══════
+    await clickAt(iaSwitch,700);
+    iaSwitchTrack.classList.add('on');
+    iaSwitchLabel.textContent='Développeur';
+    iaSwitchLabel.classList.add('dev');
+    iaPaneEl.classList.add('dark');
+    await delay(200);
+
+    // Zoom discret sur le bouton pour souligner le changement de mode
+    await zoomTo(iaSwitch,1.4,850);
+    await delay(1100);
+    await zoomReset(850);
+
+    await anim(iaThread,[{opacity:1},{opacity:0}],{duration:200,easing:'ease-in'});
+    iaThread.classList.remove('show');iaThread.innerHTML='';iaThread.style.opacity='1';
+    iaWelcome.style.opacity='0';iaWelcome.classList.add('show');
+    await anim(iaWelcome,[{opacity:0},{opacity:1}],{duration:280,easing:EASE});
+    await delay(1200);
+
+    // ═══════ Question : générer une macro VBA ═══════
+    await clickAt(iaInputbar,700);
+    await delay(250);
+    await typeText(iaInputPh,"Crée une macro qui met en forme le tableau CA",34);
+    await delay(550);
+
+    await clickAt(iaSend,600);
+    pressPulse(iaSend);
+    await delay(200);
+
+    await anim(iaWelcome,[{opacity:1},{opacity:0}],{duration:200,easing:'ease-in'});
+    iaWelcome.classList.remove('show');
+    iaThread.classList.add('show');
+    iaInputPh.textContent='Posez votre question...';
+    iaInputPh.classList.remove('typed');
+
+    addMsg('Crée une macro qui met en forme le tableau CA','user');
+    await delay(500);
+
+    const typing2=addTyping();
+    await delay(1500);
+    typing2.remove();
+    addMsg('Voici la macro VBA. Ouverture de Module1 :','bot');
+    await delay(300);
+    await beat(400);
+
+    // ═══════ Ouverture de l'éditeur VBA et écriture du code ═══════
+    const winR=rectOf(excelwin),paneR=rectOf(pane);
+    vbeWin.style.left=winR.x+'px';
+    vbeWin.style.top=winR.y+'px';
+    vbeWin.style.width=(paneR.x-winR.x)+'px';
+    vbeWin.style.height=winR.h+'px';
+    vbeWin.classList.add('show');
+    await anim(vbeWin,[{opacity:0,transform:'scale(.97)'},{opacity:1,transform:'none'}],{duration:380,easing:EASE});
+    await delay(400);
+
+    await typeCode(VBA_LINES,170);
+    await delay(300);
+
+    // Zoom sur le code généré
+    await zoomTo(vbeCode,1.25,700);
+    await delay(700);
+    await zoomReset(700);
+
+    // Fermeture de l'éditeur VBA
+    await anim(vbeWin,[{opacity:1,transform:'none'},{opacity:0,transform:'scale(.98)'}],{duration:300,easing:'ease-in'});
+    vbeWin.classList.remove('show');
+    await delay(400);
+
+    addMsg('Macro « FormatTableauCA » ajoutée au module Module1.','bot');
+    await delay(2600);
+  }
+
+  let running=true;
+  (async function loop(){while(running){await run();}})();
+  $('replay').addEventListener('click',()=>location.reload());
+  window.addEventListener('load',fit);fit();
+})();
+</script>
+<script>/* Masque le bouton Rejouer quand l'animation est embarquée (iframe : carrousel / compil). */
+if(window.self!==window.top){var _r=document.getElementById("replay");if(_r)_r.style.display="none";}</script>
+</body>
+</html>

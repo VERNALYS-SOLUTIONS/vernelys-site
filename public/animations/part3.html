@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vernelys — Partie 3 : Raccourcis clavier</title>
+<!-- Scène 1 : création d'un raccourci Ctrl+J = remplissage jaune (B5)
+     Scène 2 : modification d'un raccourci Ctrl+Alt+F → Ctrl+Alt+Q = format comptabilité (B6)
+     Scène 3 : consultation du Catalogue (index) avec filtre catégorie + recherche -->
+<style>
+  :root{
+    --brand:#006039;
+    --brand-dark:#004a2c;
+    --brand-soft:#e3f0ea;
+    --grid:#e3e4e8;
+    --head:#f4f5f7;
+    --ink:#1f2430;
+    --muted:#6b7280;
+    --ok:#2F9E44;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, #eaf3ff 0%, transparent 55%),
+      radial-gradient(1000px 700px at 112% 120%, #e7fbf0 0%, transparent 50%),
+      #f5f7fb;
+    color:var(--ink);display:flex;align-items:flex-start;justify-content:center;min-height:100%;
+  }
+  .viewport{width:100%;padding:22px;display:flex;justify-content:center}
+  .frame{position:relative;margin:0 auto}
+  .stage{position:relative;width:1220px;transform-origin:top left;cursor:none}
+  .camera{position:relative;transform-origin:50% 50%;will-change:transform}
+
+  .win{width:1220px;background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 40px 90px -30px rgba(20,30,60,.45), 0 8px 24px -12px rgba(20,30,60,.25);
+    border:1px solid rgba(20,30,60,.08)}
+  .titlebar{height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;
+    background:linear-gradient(180deg,#fbfbfd,#f1f2f6);border-bottom:1px solid #e7e8ee}
+  .dots{display:flex;gap:8px}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .doc-name{font-size:13px;color:var(--muted);margin-left:6px}
+  .doc-name b{color:var(--ink);font-weight:600}
+
+  .ribbon{background:#fff;border-bottom:1px solid #ececf1}
+  .tabs{display:flex;gap:2px;padding:6px 12px 0;font-size:12.5px}
+  .tab{padding:7px 11px;color:#59616e;border-radius:8px 8px 0 0;position:relative;white-space:nowrap}
+  .tab.addin{color:var(--brand);font-weight:700}
+  .tab.active::after{content:"";position:absolute;left:9px;right:9px;bottom:-1px;height:3px;border-radius:3px;background:var(--brand)}
+  .ribbon-body{display:flex;align-items:stretch;padding:7px 10px;min-height:74px;border-top:1px solid #f1f2f6}
+  .rgroup{display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:5px;padding:0 10px;border-right:1px solid #eef0f4}
+  .rgroup .items{display:flex;gap:2px;align-items:flex-start}
+  .rgroup .glabel{font-size:10px;color:var(--muted)}
+  .ritem{display:flex;flex-direction:column;align-items:center;gap:4px;width:55px;padding:4px 1px;border-radius:8px}
+  .ritem:hover{background:#f5f7f9}
+  .ritem.press{background:#eef0f4;transform:scale(.96)}
+  .ritem .ic{height:28px;display:grid;place-items:center}
+  .ritem .ic img,.ritem .ic svg{width:26px;height:26px;object-fit:contain;image-rendering:auto}
+  .ritem .t{font-size:9px;line-height:1.1;text-align:center;color:#3f4756;width:53px;overflow-wrap:anywhere;hyphens:auto}
+
+  .formula{display:flex;align-items:center;gap:10px;padding:5px 14px;border-bottom:1px solid #ececf1;background:#fdfdfe}
+  .namebox{width:84px;font-size:12px;color:#374151;border:1px solid #e6e7ec;border-radius:6px;padding:4px 8px;background:#fff;text-align:center}
+  .fx{color:#9aa1ad;font-style:italic;font-size:13px}
+
+  .body{display:flex;height:452px}
+  .grid{flex:1;overflow:hidden;background:#fff}
+  table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12.5px}
+  .colh th{background:var(--head);color:#8a90a0;font-weight:500;height:22px;border:1px solid var(--grid);text-align:center}
+  .rowh{background:var(--head);color:#9aa0ad;font-weight:500;text-align:center;border:1px solid var(--grid);width:36px;height:26px}
+  td.cell{border:1px solid var(--grid);height:26px;padding:0 4px;font-size:12px;position:relative;transition:background-color .25s}
+  .cell.sel{outline:2px solid var(--brand);outline-offset:-2px}
+
+  .statusbar{display:flex;align-items:center;gap:16px;height:28px;padding:0 16px;background:var(--brand);color:#eafff2;font-size:11px}
+  .statusbar .sp{flex:1}
+
+  .cursor{position:absolute;left:0;top:0;z-index:90;filter:drop-shadow(0 3px 5px rgba(0,0,0,.28));will-change:transform;pointer-events:none}
+
+  .replay{position:absolute;right:0;top:-14px;font-size:12px;color:var(--muted);background:#fff;border:1px solid #e4e6ec;border-radius:8px;padding:6px 12px;cursor:pointer;z-index:95}
+  .replay:hover{border-color:#cfd2da}
+
+  /* ── Modal Gestionnaire de raccourcis ── */
+  .modal-backdrop{position:absolute;inset:0;background:rgba(15,20,30,.35);z-index:80;opacity:0;pointer-events:none}
+  .modal{position:absolute;inset:0;margin:auto;width:430px;height:fit-content;background:#fff;border-radius:14px;box-shadow:0 30px 60px -20px rgba(10,20,40,.45);padding:20px 22px 18px;opacity:0;transform:translateY(10px) scale(.97)}
+
+  .modal-head{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+  .modal-head .mi{width:28px;height:28px;border-radius:8px;background:var(--brand-soft);display:grid;place-items:center;flex-shrink:0}
+  .modal-head .mi img{width:18px;height:18px}
+  .modal-head h3{flex:1;font-size:15px;margin:0;color:#20303f}
+  .modal-close{width:24px;height:24px;border:none;background:none;color:#9aa1ad;font-size:14px;cursor:default;border-radius:6px}
+
+  .modal-tabs{display:flex;gap:18px;margin:12px 0 14px;border-bottom:1px solid #eceef2}
+  .mtab{font-size:13px;color:#8a90a0;padding-bottom:8px;position:relative}
+  .mtab.active{color:var(--brand);font-weight:700}
+  .mtab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--brand);border-radius:2px}
+
+  .modal-desc{font-size:12px;color:var(--muted);margin:0 0 14px}
+  .modal-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px}
+
+  .mselect{position:relative;display:flex;align-items:center;justify-content:space-between;border:1px solid #e0e2e8;border-radius:8px;padding:9px 12px;font-size:12.5px;color:#374151;margin-bottom:16px;background:#fff}
+  .mselect.press{border-color:var(--brand)}
+  .mselect .mselect-caret{color:#9aa1ad;font-size:11px}
+  .mselect-list{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #e6e8ec;border-radius:10px;box-shadow:0 16px 30px -12px rgba(10,20,40,.25);z-index:5;overflow:hidden;opacity:0;display:none}
+  .mopt{padding:9px 12px;font-size:12.5px;color:#374151}
+  .mopt.press{background:#eef6f1}
+
+  .color-section{margin-bottom:0;overflow:hidden;opacity:0;height:0}
+  .swatches{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;padding-top:2px}
+  .swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;position:relative;box-shadow:0 0 0 1px rgba(0,0,0,.06) inset}
+  .swatch.sel{border-color:var(--brand)}
+  .swatch.press{transform:scale(.85)}
+  .swatch.add{background:#fff;border:1.5px dashed #c9cdd6;color:#9aa1ad;display:grid;place-items:center;font-size:13px}
+  .swatch.none{background:#fff;border:1.5px solid #d7dae0}
+  .swatch-caption{font-size:11px;color:var(--muted);margin:0 0 14px}
+
+  .combo-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .key-pill{background:#f4f5f7;border:1px solid #e6e7ec;border-radius:6px;padding:7px 12px;font-size:12px;color:#374151;font-weight:600}
+  .combo-row .plus{color:#9aa1ad;font-size:12px}
+  .key-dropdown{background:#fff;border:1px solid #e0e2e8;border-radius:6px;padding:7px 14px;font-size:12px;color:#9aa1ad;min-width:40px;text-align:center}
+  .key-input{width:56px;border:1px solid #e0e2e8;border-radius:6px;padding:7px 10px;font-size:12px;color:var(--ink);text-align:center;outline:none;background:#fff}
+  .key-input.focus{border-color:var(--brand)}
+  .combo-status{font-size:11.5px;color:var(--ok);font-weight:700;margin:0 0 16px;opacity:0;transition:opacity .25s}
+
+  .modal-actions{display:flex;justify-content:flex-end;align-items:center;gap:10px}
+  .modal-actions.split{justify-content:space-between}
+  .actions-right{display:flex;gap:10px;align-items:center}
+  .mbtn{border-radius:8px;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:default;border:1.5px solid transparent}
+  .mbtn.ghost{background:#fff;border-color:#e0e2e8;color:#374151}
+  .mbtn.solid{background:var(--brand);color:#fff;box-shadow:0 8px 16px -8px rgba(0,96,57,.9)}
+  .mbtn.del{background:none;border:none;color:#6b7280;font-weight:600;padding:9px 12px;display:none}
+  .mbtn.press{transform:scale(.96)}
+
+  .modal-success{position:absolute;inset:0;background:#fff;border-radius:14px;display:flex;flex-direction:column;padding:20px 22px 18px;opacity:0;pointer-events:none;transition:opacity .3s}
+  .modal-success .success-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:10px 0 22px}
+  .success-check{width:46px;height:46px;border-radius:50%;background:#e6f6ea;color:var(--ok);display:grid;place-items:center;font-size:22px;font-weight:700}
+  .modal-success p{margin:0;font-size:13px;color:var(--ink);text-align:center}
+  .modal-actions.single{justify-content:center}
+
+  .key-hint{position:absolute;z-index:65;display:none;align-items:center;gap:5px;background:#0f1b2d;color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;box-shadow:0 10px 20px -10px rgba(0,0,0,.4);opacity:0;transform:translate(-50%,calc(-100% - 10px))}
+  .key-hint .kh-key{background:rgba(255,255,255,.16);padding:2px 6px;border-radius:4px}
+
+  /* ── Modal Catalogue (Index) ── */
+  .modal.modal-index{width:820px;padding:18px 20px 0;height:600px;display:flex;flex-direction:column}
+  .modal-index .modal-head{margin-bottom:12px}
+  .modal-index .modal-head h3{flex:1}
+  .modal-index .head-count{font-size:11.5px;color:var(--muted);margin-right:6px}
+
+  .index-search{position:relative;margin-bottom:12px}
+  .index-search input{width:100%;border:1px solid #e0e2e8;border-radius:8px;padding:9px 34px 9px 12px;font-size:12.5px;color:var(--ink);background:#fff;outline:none}
+  .index-search input.focus{border-color:var(--brand)}
+  .index-search .search-ic{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#9aa1ad;display:flex}
+
+  .index-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .ifilter{padding:5px 12px;border-radius:16px;font-size:11.5px;color:#374151;background:#fff;border:1px solid #e0e2e8}
+  .ifilter.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .ifilter.press{transform:scale(.94)}
+
+  .index-body{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding-right:2px;min-height:0}
+  .index-scroll{flex:1;overflow-y:auto;padding-right:6px;display:flex;flex-direction:column;gap:14px}
+  .isect-title{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin:2px 0 8px;text-transform:uppercase}
+  .isect-title .cnt{color:var(--muted);font-weight:700}
+  .isect-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .isect-grid.single-col{grid-template-columns:1fr}
+
+  .srow{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #eef0f4;border-radius:8px;background:#fff;font-size:12px;color:var(--ink)}
+  .srow .sname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .srow .sname .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:8px;box-shadow:0 0 0 1px rgba(0,0,0,.06) inset}
+  .srow .skeys{display:flex;align-items:center;gap:4px;flex-shrink:0}
+  .srow .kb{padding:3px 7px;border-radius:5px;font-size:10.5px;font-weight:600;color:#374151;background:#f4f5f7;border:1px solid #e6e7ec}
+  .srow .kb-user{padding:3px 8px;border:1px solid #e6e7ec;background:#fff;color:var(--ink);border-radius:5px;font-size:10.5px}
+  .srow .ksep{color:#9aa1ad;font-size:11px}
+
+  .index-footer{display:flex;align-items:center;padding:14px 0 16px;border-top:1px solid #eef0f4;margin-top:10px;flex-shrink:0}
+  .index-footer .hint{flex:1;font-size:11px;color:var(--muted)}
+
+  .isect-empty{padding:0}
+</style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="frame" id="frame">
+      <button class="replay" id="replay">↻ Rejouer</button>
+      <div class="stage" id="stage">
+        <div class="camera" id="camera">
+        <div class="win">
+          <div class="titlebar">
+            <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+            <div class="doc-name"><b>Classeur d'audit.xlsx</b> — Excel</div>
+          </div>
+
+          <div class="ribbon">
+            <div class="tabs">
+              <div class="tab">Fichier</div><div class="tab">Accueil</div><div class="tab">Insertion</div>
+              <div class="tab">Données</div><div class="tab">Révision</div>
+              <div class="tab addin active">Outil Excel — Vernelys</div>
+            </div>
+            <div class="ribbon-body" id="ribbon-body"></div>
+          </div>
+
+          <div class="formula">
+            <div class="namebox" id="namebox"></div><div class="fx">fx</div>
+          </div>
+
+          <div class="body">
+            <div class="grid" id="grid"></div>
+          </div>
+
+          <div class="statusbar">
+            <span>Prêt</span><span class="sp"></span>
+            <span>Vernelys v1.0</span>
+          </div>
+
+          <div class="modal-backdrop" id="modal-backdrop">
+            <div class="modal modal-index" id="modal-index" style="display:none">
+              <div class="modal-head">
+                <span class="mi"><img src="icones/index-raccourcis-32.png"></span>
+                <h3>Raccourcis clavier</h3>
+                <span class="head-count" id="idx-count">44 raccourcis</span>
+                <button class="modal-close">✕</button>
+              </div>
+              <div class="index-search">
+                <input type="text" id="idx-search" placeholder="Recherche ..." readonly>
+                <span class="search-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.3" y2="15.3"/></svg></span>
+              </div>
+              <div class="index-filters" id="idx-filters"></div>
+              <div class="index-body">
+                <div class="index-scroll" id="idx-scroll">
+                  <div class="index-section" id="idx-native-sec">
+                    <div class="isect-title">Raccourcis Excel natifs · <span class="cnt" id="idx-native-count">44</span></div>
+                    <div class="isect-grid" id="idx-native-grid"></div>
+                  </div>
+                  <div class="index-section" id="idx-user-sec">
+                    <div class="isect-title">Mes raccourcis · <span class="cnt" id="idx-user-count">6</span></div>
+                    <div class="isect-grid single-col" id="idx-user-grid"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="index-footer">
+                <span class="hint">Tapez pour filtrer · les raccourcis natifs ne sont pas modifiables.</span>
+                <button class="mbtn ghost" id="idx-fermer">Fermer</button>
+              </div>
+            </div>
+
+            <div class="modal" id="modal-shortcut">
+              <div class="modal-head">
+                <span class="mi"><img src="icones/gestionnaire-raccourcis-32.png"></span>
+                <h3>Gestionnaire de raccourcis clavier</h3>
+                <button class="modal-close">✕</button>
+              </div>
+              <div class="modal-tabs">
+                <div class="mtab active" id="tab-creer">Créer</div>
+                <div class="mtab" id="tab-gerer">Gérer</div>
+              </div>
+              <p class="modal-desc">Définissez ou modifiez un raccourci en quelques secondes.</p>
+
+              <label class="modal-label">Type de raccourci</label>
+              <div class="mselect" id="type-select">
+                <span id="type-select-value">Sélectionnez un type...</span><span class="mselect-caret">⌄</span>
+                <div class="mselect-list" id="type-select-list">
+                  <div class="mopt" id="opt-remplissage" data-val="Remplissage de cellule">Remplissage de cellule</div>
+                  <div class="mopt">Couleur de police</div>
+                  <div class="mopt">Format de cellule</div>
+                  <div class="mopt">Bordures de cellule</div>
+                  <div class="mopt">Autres raccourcis</div>
+                </div>
+              </div>
+
+              <div class="color-section" id="color-section">
+                <label class="modal-label">Couleur appliquée</label>
+                <div class="swatches" id="swatches">
+                  <span class="swatch" style="background:#4472C4"></span>
+                  <span class="swatch" style="background:#FFC107"></span>
+                  <span class="swatch" style="background:#E03131"></span>
+                  <span class="swatch" style="background:#2F9E44"></span>
+                  <span class="swatch" style="background:#9C36B5"></span>
+                  <span class="swatch" style="background:#CC8800"></span>
+                  <span class="swatch" style="background:#1f2430"></span>
+                  <span class="swatch add">+</span>
+                  <span class="swatch none"></span>
+                </div>
+                <p class="swatch-caption">Le raccourci appliquera cette couleur à la sélection.</p>
+              </div>
+
+              <label class="modal-label">Combinaison de touches</label>
+              <div class="combo-row">
+                <span class="key-pill">Ctrl</span><span class="plus">+</span>
+                <span class="key-dropdown" id="mid-key">—</span><span class="plus">+</span>
+                <input type="text" class="key-input" id="key-input" readonly>
+              </div>
+              <p class="combo-status" id="combo-status">✓ Combinaison disponible</p>
+
+              <div class="modal-actions" id="modal-actions">
+                <button class="mbtn del" id="btn-supprimer">🗑 Supprimer</button>
+                <div class="actions-right">
+                  <button class="mbtn ghost" id="btn-annuler">Annuler</button>
+                  <button class="mbtn solid" id="btn-creer">+ Créer le raccourci</button>
+                </div>
+              </div>
+
+              <div class="modal-success" id="modal-success">
+                <div class="modal-head">
+                  <h3 id="success-title">Création de raccourci</h3>
+                  <button class="modal-close">✕</button>
+                </div>
+                <div class="success-body">
+                  <div class="success-check">✓</div>
+                  <p><b id="success-body-text">Le raccourci a été créé.</b></p>
+                </div>
+                <div class="modal-actions single">
+                  <button class="mbtn ghost" id="btn-fermer">Fermer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="key-hint" id="key-hint"></div>
+        <div class="cursor" id="cursor">
+          <svg width="26" height="30" viewBox="0 0 26 30"><path d="M2 2 L2 22 L8 17 L12 26 L16 24 L12 15 L20 15 Z" fill="#fff" stroke="#1f2430" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const DESIGN_W = 1220;
+  const ic = f => `icones/${encodeURIComponent(f)}`;
+  const slug = s => 'rb-' + s.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+
+  const ribbon = [
+    {label:"Outils principaux", items:[["si-erreur-0-32 (1).png","Si erreur"],["Supprimer_Espace_32.png","Suppr espace"],["Audit_formule_32.png","Audit formule"]]},
+    {label:"Documents", items:[["icon-importer.png","Importer"],["icon-text-clip-32.png","Texte"],["icon-sum-clip-32.png","Somme"],["icon-table-clip-32.png","Tableau"],["clip-supp-red-32.png","Suppression"],["icon-apercu-taskpane-32.png","Aperçu"]]},
+    {label:"Raccourcis", items:[["gestionnaire-raccourcis-32.png","Gestionnaire"],["index-raccourcis-32.png","Index"]]},
+    {label:"Audit comptable", items:[["apps-icon-32.png","Application"]]},
+    {label:"IA", items:[["icon-assistant-ia-32.png","IA"]]},
+    {label:"Aide & Paramètres", items:[["documentation-32.png","Documentation"],["reference_b_32.png","Aide"],["parametre-32.png","Paramètre"]]},
+    {label:"Compte", items:[["logout-32px.png","Déconnexion"]]},
+  ];
+  const iconHtml = f => `<img src="${ic(f)}" alt="">`;
+  document.getElementById('ribbon-body').innerHTML = ribbon.map(g =>
+    `<div class="rgroup"><div class="items">`+
+    g.items.map(it=>`<div class="ritem" id="${slug(it[1])}"><div class="ic">${iconHtml(it[0])}</div><div class="t">${it[1]}</div></div>`).join('')+
+    `</div><div class="glabel">${g.label}</div></div>`
+  ).join('');
+
+  // ── Catalogue de raccourcis (scène 3) ──
+  const CATEGORIES = [
+    {id:'all', label:'Tous'},
+    {id:'navigation', label:'Navigation'},
+    {id:'selection', label:'Sélection'},
+    {id:'edition', label:'Édition'},
+    {id:'formules', label:'Formules'},
+    {id:'mef', label:'Mise en forme'},
+    {id:'donnees', label:'Données'},
+    {id:'fichier', label:'Fichier'},
+  ];
+  const NATIVE_SC = [
+    {name:"Se déplacer en fin de plage de données", keys:["CTRL","FLÈCHES"], cat:"navigation"},
+    {name:"Sélectionner toutes les données de la feuille", keys:["CTRL","A"], cat:"selection"},
+    {name:"Basculer entre les feuilles du classeur", keys:["CTRL","DEBUT","/","FIN"], cat:"navigation"},
+    {name:"Sélection de toute la colonne", keys:["CTRL","ESPACE"], cat:"selection"},
+    {name:"Sélectionner toute la ligne de la cellule", keys:["MAJ","ESPACE"], cat:"selection"},
+    {name:"Sélectionner un bloc de données", keys:["CTRL","MAJ","FLÈCHE"], cat:"selection"},
+    {name:"Bascule d'une fenêtre à l'autre", keys:["ALT","TAB"], cat:"navigation"},
+    {name:"Bascule sur le prochain classeur", keys:["CTRL","F6"], cat:"navigation"},
+    {name:"Grouper des lignes ou des colonnes", keys:["ALT","MAJ","FLÈCHE"], cat:"edition"},
+    {name:"Insérer la date du jour", keys:["CTRL",";"], cat:"edition"},
+    {name:"Insérer une somme automatique", keys:["ALT","="], cat:"formules"},
+    {name:"Coller en valeurs", keys:["CTRL","MAJ","V"], cat:"edition"},
+    {name:"Ouvrir un classeur", keys:["CTRL","O"], cat:"fichier"},
+    {name:"Enregistrer le classeur", keys:["CTRL","S"], cat:"fichier"},
+  ];
+  const USER_SC = [
+    {name:"Réinitialisation des filtres", keys:["Ctrl","Alt","R"], cat:"donnees"},
+    {name:"Bordures inférieures", keys:["Ctrl","Alt","B"], cat:"mef"},
+    {name:"Remplissage de cellule", keys:["Ctrl","J"], color:"#FFC107", cat:"mef"},
+    {name:"Format comptabilité", keys:["Ctrl","Alt","Q"], cat:"mef"},
+    {name:"Couleur de police rouge", keys:["Ctrl","Alt","V"], color:"#E03131", cat:"mef"},
+    {name:"Bordures épaisses", keys:["Ctrl","Maj","J"], cat:"mef"},
+  ];
+
+  const shortcutRowHtml = (s, isUser) => {
+    const dot = s.color ? `<span class="dot" style="background:${s.color}"></span>` : '';
+    const keyCls = isUser ? 'kb-user' : 'kb';
+    const keys = s.keys.map(k => k==='/' ? `<span class="ksep">/</span>` : `<span class="${keyCls}">${k}</span>`).join('');
+    return `<div class="srow" data-cat="${s.cat}" data-name="${s.name.toLowerCase()}"><span class="sname">${dot}${s.name}</span><span class="skeys">${keys}</span></div>`;
+  };
+  const renderIndex = () => {
+    document.getElementById('idx-native-grid').innerHTML = NATIVE_SC.map(s=>shortcutRowHtml(s,false)).join('');
+    document.getElementById('idx-user-grid').innerHTML = USER_SC.map(s=>shortcutRowHtml(s,true)).join('');
+    document.getElementById('idx-filters').innerHTML = CATEGORIES.map(c=>
+      `<span class="ifilter${c.id==='all'?' active':''}" id="if-${c.id}" data-cat="${c.id}">${c.label}</span>`
+    ).join('');
+    document.getElementById('idx-count').textContent = `${NATIVE_SC.length + USER_SC.length} raccourcis`;
+    document.getElementById('idx-native-count').textContent = NATIVE_SC.length;
+    document.getElementById('idx-user-count').textContent = USER_SC.length;
+  };
+  renderIndex();
+
+  (function(){
+    const cols=11, rowsN=22;
+    let h='<table><colgroup><col style="width:36px">';
+    for(let c=0;c<cols;c++) h+=`<col id="col-${String.fromCharCode(65+c)}">`;
+    h+='</colgroup><thead><tr class="colh"><th></th>';
+    for(let c=0;c<cols;c++) h+=`<th>${String.fromCharCode(65+c)}</th>`;
+    h+='</tr></thead><tbody>';
+    for(let r=1;r<=rowsN;r++){
+      h+=`<tr><td class="rowh">${r}</td>`;
+      for(let c=0;c<cols;c++){
+        const id=`c${String.fromCharCode(65+c)}${r}`;
+        h+=`<td class="cell" id="${id}"></td>`;
+      }
+      h+='</tr>';
+    }
+    document.getElementById('grid').innerHTML=h+'</tbody></table>';
+  })();
+
+  const $=id=>document.getElementById(id);
+  const frame=$('frame'),stage=$('stage'),camera=$('camera'),cursor=$('cursor'),namebox=$('namebox'),
+        cellB5=$('cB5'),cellB6=$('cB6'),
+        backdrop=$('modal-backdrop'),modal=$('modal-shortcut'),
+        tabCreer=$('tab-creer'),tabGerer=$('tab-gerer'),
+        typeSelect=$('type-select'),typeSelectValue=$('type-select-value'),typeList=$('type-select-list'),
+        optRemplissage=$('opt-remplissage'),
+        colorSection=$('color-section'),swatches=[...document.querySelectorAll('#swatches .swatch:not(.add):not(.none)')],
+        midKey=$('mid-key'),keyInput=$('key-input'),comboStatus=$('combo-status'),
+        modalActions=$('modal-actions'),btnSupprimer=$('btn-supprimer'),
+        btnCreer=$('btn-creer'),modalSuccess=$('modal-success'),btnFermer=$('btn-fermer'),
+        successTitle=$('success-title'),successBodyText=$('success-body-text'),
+        keyHint=$('key-hint'),
+        rbGestionnaire=$('rb-gestionnaire'),rbIndex=$('rb-index'),
+        modalIndex=$('modal-index'),idxSearch=$('idx-search'),
+        idxScroll=$('idx-scroll'),idxNativeSec=$('idx-native-sec'),idxUserSec=$('idx-user-sec'),
+        idxNativeCount=$('idx-native-count'),idxUserCount=$('idx-user-count'),idxTotal=$('idx-count'),
+        ifAll=$('if-all'),ifNav=$('if-navigation'),ifFormules=$('if-formules'),
+        idxFermer=$('idx-fermer');
+
+  function applyIndexFilter(cat, query){
+    query=(query||'').toLowerCase().trim();
+    let nativeShown=0, userShown=0;
+    document.querySelectorAll('#idx-native-grid .srow').forEach(el=>{
+      const ok=(cat==='all'||el.dataset.cat===cat)&&(!query||el.dataset.name.includes(query));
+      el.style.display=ok?'':'none';
+      if(ok)nativeShown++;
+    });
+    document.querySelectorAll('#idx-user-grid .srow').forEach(el=>{
+      const ok=(cat==='all'||el.dataset.cat===cat)&&(!query||el.dataset.name.includes(query));
+      el.style.display=ok?'':'none';
+      if(ok)userShown++;
+    });
+    idxNativeCount.textContent=nativeShown;
+    idxUserCount.textContent=userShown;
+    idxNativeSec.style.display=nativeShown?'':'none';
+    idxUserSec.style.display=userShown?'':'none';
+  }
+  function selectFilter(cat){
+    document.querySelectorAll('.ifilter').forEach(el=>el.classList.toggle('active', el.dataset.cat===cat));
+  }
+
+  const setKeyHint=(...keys)=>{
+    keyHint.innerHTML=keys.map((k,i)=>(i>0?'<span>+</span>':'')+`<span class="kh-key">${k}</span>`).join('');
+  };
+
+  let scale=1;
+  // Mode "plein écran" (?full=1) : utilisé par compil.html pour remplir la fenêtre
+  // au lieu de plafonner à 1 et de laisser des marges.
+  const FULL=!!new URLSearchParams(location.search).get('full');
+  if(FULL){
+    document.documentElement.style.background='transparent';
+    document.body.style.background='transparent';
+    document.body.style.alignItems='center';
+    const _vp=document.querySelector('.viewport');
+    if(_vp){_vp.style.padding='0';_vp.style.background='transparent';}
+  }
+  function fit(){
+    const availW=Math.max(320,frame.parentElement.clientWidth-4);
+    const availH=Math.max(200,window.innerHeight-4);
+    const nat=stage.offsetHeight||900;
+    scale=Math.min(FULL?99:1, availW/DESIGN_W, availH/nat);
+    stage.style.transform=`scale(${scale})`;
+    frame.style.width=(DESIGN_W*scale)+'px';
+    frame.style.height=(stage.offsetHeight*scale)+'px';
+  }
+  window.addEventListener('resize',fit);
+
+  function rectOf(el){const a=el.getBoundingClientRect(),s=stage.getBoundingClientRect();
+    return {x:(a.left-s.left)/scale,y:(a.top-s.top)/scale,w:a.width/scale,h:a.height/scale};}
+  const centerOf=el=>{const r=rectOf(el);return {x:r.x+r.w/2,y:r.y+r.h/2};};
+
+  const SPEED=Number(new URLSearchParams(location.search).get('speed'))||1.5; // override via ?speed=X (compil.html), défaut 1.5
+  const delay=ms=>new Promise(r=>setTimeout(r,ms/SPEED));
+  // commitStyles()+cancel() : évite qu'une animation "fill:forwards" non annulée (notamment les
+  // anim() "fire-and-forget" non attendues) ne reste accrochée à l'élément et ne pollue le rendu
+  // d'une propriété partiellement animée par une PROCHAINE boucle.
+  function anim(el,fr,o){
+    const opts={...o};
+    if(opts.duration!=null)opts.duration/=SPEED;
+    if(opts.delay!=null)opts.delay/=SPEED;
+    const a=el.animate(fr,{fill:'forwards',...opts});
+    return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();},()=>{});
+  }
+  const EASE='cubic-bezier(.22,1,.36,1)';
+
+  let cx=DESIGN_W-140,cy=430;
+  const placeCursor=(x,y)=>{cx=x;cy=y;cursor.style.transform=`translate(${x}px,${y}px)`;};
+  function moveCursor(x,y,ms=800){
+    const a=cursor.animate([{transform:`translate(${cx}px,${cy}px)`},{transform:`translate(${x}px,${y}px)`}],{duration:ms/SPEED,easing:EASE,fill:'forwards'});
+    cx=x;cy=y;
+    return a.finished.then(()=>{try{a.commitStyles();}catch(e){} a.cancel();},()=>{});
+  }
+  const clickAt=async(el,ms)=>{const c=centerOf(el);await moveCursor(c.x,c.y,ms||700);};
+  function pressPulse(el){el.classList.add('press');setTimeout(()=>el.classList.remove('press'),150);}
+
+  // Caméra virtuelle : "respiration" discrète (secousse) synchronisée sur certains clics.
+  // Pas de zoom dans cette partie — juste ce petit à-coup pour ponctuer un changement de feature.
+  const beat=(duration)=>anim(camera,[{transform:'scale(1)'},{transform:'scale(.985)'},{transform:'scale(1)'}],{duration:duration||380,easing:'ease-in-out'});
+
+  function reset(){
+    placeCursor(DESIGN_W-140,430);
+    camera.getAnimations().forEach(a=>a.cancel());
+    camera.style.transform='scale(1)';
+
+    document.querySelectorAll('.cell.sel').forEach(c=>c.classList.remove('sel'));
+    [cellB5,cellB6].forEach(cell=>{
+      cell.getAnimations().forEach(a=>a.cancel());
+      cell.style.transition='none';
+      cell.style.backgroundColor='';
+      cell.style.opacity='';
+      cell.textContent='';
+      cell.style.textAlign='';
+      void cell.offsetHeight;
+      cell.style.transition='';
+    });
+    namebox.textContent='';
+
+    backdrop.getAnimations().forEach(a=>a.cancel());
+    backdrop.style.opacity='0';backdrop.style.pointerEvents='none';
+
+    modal.getAnimations().forEach(a=>a.cancel());
+    modal.style.opacity='0';modal.style.transform='translateY(10px) scale(.97)';
+
+    tabCreer.classList.add('active');
+    tabGerer.classList.remove('active');
+
+    typeSelectValue.textContent='Sélectionnez un type...';
+    typeList.getAnimations().forEach(a=>a.cancel());
+    typeList.style.display='none';typeList.style.opacity='0';
+
+    colorSection.getAnimations().forEach(a=>a.cancel());
+    colorSection.style.height='0px';colorSection.style.opacity='0';
+
+    swatches.forEach(s=>s.classList.remove('sel'));
+
+    midKey.textContent='—';
+    keyInput.value='';keyInput.classList.remove('focus');
+    comboStatus.getAnimations().forEach(a=>a.cancel());
+    comboStatus.style.transition='none';
+    comboStatus.style.opacity='0';
+    void comboStatus.offsetHeight;
+    comboStatus.style.transition='';
+
+    modalActions.classList.remove('split');
+    btnSupprimer.style.display='none';
+    btnCreer.innerHTML='+ Créer le raccourci';
+
+    modalSuccess.getAnimations().forEach(a=>a.cancel());
+    modalSuccess.style.transition='none';
+    modalSuccess.style.opacity='0';modalSuccess.style.pointerEvents='none';
+    void modalSuccess.offsetHeight;
+    modalSuccess.style.transition='';
+    successTitle.textContent='Création de raccourci';
+    successBodyText.textContent='Le raccourci a été créé.';
+
+    keyHint.getAnimations().forEach(a=>a.cancel());
+    keyHint.style.display='none';keyHint.style.opacity='0';
+
+    // Reset modal Index
+    modalIndex.getAnimations().forEach(a=>a.cancel());
+    modalIndex.style.opacity='0';modalIndex.style.transform='translateY(10px) scale(.97)';
+    modalIndex.style.display='none';
+    idxSearch.value='';idxSearch.classList.remove('focus');
+    selectFilter('all');
+    applyIndexFilter('all','');
+    idxScroll.scrollTop=0;
+  }
+
+  async function run(){
+    fit();reset();await delay(650);
+
+    // ═══════ Étape 1 : sélection de la cellule B5 ═══════
+    await clickAt(cellB5,700);
+    cellB5.classList.add('sel');
+    namebox.textContent='B5';
+    await delay(500);
+
+    // ═══════ Étape 2 : ouverture du Gestionnaire de raccourcis ═══════
+    await clickAt(rbGestionnaire,800);
+    pressPulse(rbGestionnaire);
+    await delay(200);
+
+    backdrop.style.pointerEvents='auto';
+    await anim(backdrop,[{opacity:0},{opacity:1}],{duration:250,easing:EASE});
+    await anim(modal,[{opacity:0,transform:'translateY(10px) scale(.97)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:320,easing:EASE});
+    await delay(600);
+
+    // ═══════ Étape 3 : choix du type de raccourci ═══════
+    await clickAt(typeSelect,700);
+    pressPulse(typeSelect);
+    typeList.style.display='block';
+    await anim(typeList,[{opacity:0,transform:'translateY(-4px)'},{opacity:1,transform:'translateY(0)'}],{duration:250,easing:EASE});
+    await delay(600);
+
+    await clickAt(optRemplissage,600);
+    pressPulse(optRemplissage);
+    await delay(150);
+    typeSelectValue.textContent='Remplissage de cellule';
+    await anim(typeList,[{opacity:1},{opacity:0}],{duration:180,easing:EASE});
+    typeList.style.display='none';
+
+    colorSection.style.height='auto';
+    const colorH=colorSection.scrollHeight;
+    colorSection.style.height='0px';
+    await anim(colorSection,[{height:'0px',opacity:0},{height:colorH+'px',opacity:1}],{duration:380,easing:EASE});
+    colorSection.style.height='auto';
+    await delay(500);
+
+    // ═══════ Étape 4 : sélection de la couleur jaune ═══════
+    const yellowSwatch=swatches[1];
+    await clickAt(yellowSwatch,600);
+    pressPulse(yellowSwatch);
+    yellowSwatch.classList.add('sel');
+    await delay(600);
+
+    // ═══════ Étape 5 : saisie du raccourci Ctrl + J ═══════
+    await clickAt(keyInput,600);
+    keyInput.classList.add('focus');
+    await delay(250);
+    keyInput.value='J';
+    await delay(350);
+    comboStatus.style.opacity='1';
+    await delay(250);
+    await delay(800);
+
+    // ═══════ Étape 6 : création du raccourci ═══════
+    await clickAt(btnCreer,700);
+    pressPulse(btnCreer);
+    await delay(250);
+
+    modalSuccess.style.pointerEvents='auto';
+    modalSuccess.style.opacity='1';
+    await delay(300);
+    await delay(1500);
+
+    // ═══════ Étape 7 : fermeture ═══════
+    await clickAt(btnFermer,600);
+    pressPulse(btnFermer);
+    await delay(200);
+
+    await anim(modal,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(8px) scale(.97)'}],{duration:280,easing:EASE});
+    await anim(backdrop,[{opacity:1},{opacity:0}],{duration:220,easing:EASE});
+    backdrop.style.pointerEvents='none';
+    await delay(500);
+
+    // ═══════ Étape 8 : démonstration du raccourci sur B5 ═══════
+    const c=centerOf(cellB5);
+    await moveCursor(c.x,c.y,600);
+    await delay(300);
+
+    const cr=rectOf(cellB5);
+    setKeyHint('Ctrl','J');
+    keyHint.style.left=(cr.x+cr.w/2)+'px';
+    keyHint.style.top=cr.y+'px';
+    keyHint.style.display='flex';
+    await anim(keyHint,[{opacity:0},{opacity:1}],{duration:250,easing:EASE});
+    await delay(500);
+
+    cellB5.style.backgroundColor='#FFC107';
+    await delay(700);
+
+    await anim(keyHint,[{opacity:1},{opacity:0}],{duration:250,easing:EASE});
+    keyHint.style.display='none';
+    await delay(1000);
+
+    // ═══════════════════════════════════════════════════════════
+    // SCÈNE 2 — Modification d'un raccourci existant
+    // Ctrl + Alt + F  →  Ctrl + Alt + Q  (Format comptabilité, B6)
+    // ═══════════════════════════════════════════════════════════
+
+    // Reset de l'état interne du modal entre les deux scènes
+    // (le contenu des cellules et le curseur restent en place)
+    modalSuccess.getAnimations().forEach(a=>a.cancel());
+    modalSuccess.style.transition='none';
+    modalSuccess.style.opacity='0';modalSuccess.style.pointerEvents='none';
+    void modalSuccess.offsetHeight;
+    modalSuccess.style.transition='';
+    successTitle.textContent='Création de raccourci';
+    successBodyText.textContent='Le raccourci a été créé.';
+    colorSection.getAnimations().forEach(a=>a.cancel());
+    colorSection.style.height='0px';colorSection.style.opacity='0';
+    swatches.forEach(s=>s.classList.remove('sel'));
+    keyInput.value='';keyInput.classList.remove('focus');
+    comboStatus.getAnimations().forEach(a=>a.cancel());
+    comboStatus.style.transition='none';
+    comboStatus.style.opacity='0';
+    void comboStatus.offsetHeight;
+    comboStatus.style.transition='';
+    typeSelectValue.textContent='Sélectionnez un type...';
+
+    // S2-1 : déselection B5, saisie et sélection de B6
+    cellB5.classList.remove('sel');
+    cellB6.textContent='12252,52';
+    cellB6.style.textAlign='right';
+    await clickAt(cellB6,700);
+    cellB6.classList.add('sel');
+    namebox.textContent='B6';
+    await delay(500);
+
+    // S2-2 : ouverture du Gestionnaire
+    await clickAt(rbGestionnaire,700);
+    pressPulse(rbGestionnaire);
+    await beat(400);
+    await delay(200);
+    backdrop.style.pointerEvents='auto';
+    await anim(backdrop,[{opacity:0},{opacity:1}],{duration:250,easing:EASE});
+    await anim(modal,[{opacity:0,transform:'translateY(10px) scale(.97)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:320,easing:EASE});
+    await delay(500);
+
+    // S2-3 : bascule sur l'onglet "Gérer" → pré-remplissage d'un raccourci existant
+    await clickAt(tabGerer,600);
+    pressPulse(tabGerer);
+    tabCreer.classList.remove('active');
+    tabGerer.classList.add('active');
+    typeSelectValue.textContent='Format ooo';
+    midKey.textContent='Alt';
+    keyInput.value='F';
+    modalActions.classList.add('split');
+    btnSupprimer.style.display='inline-block';
+    btnCreer.innerHTML='✓ Enregistrer';
+    await delay(800);
+
+    // S2-4 : clic dans le champ de touche pour changer F → Q
+    await clickAt(keyInput,600);
+    keyInput.classList.add('focus');
+    await delay(250);
+    keyInput.value='';
+    await delay(150);
+    keyInput.value='Q';
+    await delay(400);
+    comboStatus.style.opacity='1';
+    await delay(250);
+    await delay(800);
+
+    // S2-5 : clic sur "Enregistrer"
+    await clickAt(btnCreer,700);
+    pressPulse(btnCreer);
+    await delay(250);
+    successTitle.textContent='Modification de raccourci';
+    successBodyText.textContent='Le raccourci a été modifié.';
+    modalSuccess.style.pointerEvents='auto';
+    modalSuccess.style.opacity='1';
+    await delay(300);
+    await delay(1500);
+
+    // S2-6 : fermeture
+    await clickAt(btnFermer,600);
+    pressPulse(btnFermer);
+    await delay(200);
+    await anim(modal,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(8px) scale(.97)'}],{duration:280,easing:EASE});
+    await anim(backdrop,[{opacity:1},{opacity:0}],{duration:220,easing:EASE});
+    backdrop.style.pointerEvents='none';
+    await delay(500);
+
+    // S2-7 : démonstration du raccourci sur B6 → format comptabilité
+    const c2=centerOf(cellB6);
+    await moveCursor(c2.x,c2.y,600);
+    await delay(300);
+
+    const cr2=rectOf(cellB6);
+    setKeyHint('Ctrl','Alt','Q');
+    keyHint.style.left=(cr2.x+cr2.w/2)+'px';
+    keyHint.style.top=cr2.y+'px';
+    keyHint.style.display='flex';
+    await anim(keyHint,[{opacity:0},{opacity:1}],{duration:250,easing:EASE});
+    await delay(500);
+
+    // Le contenu se reformate en style comptabilité (espace fine comme séparateur de milliers)
+    await anim(cellB6,[{opacity:1},{opacity:.4},{opacity:1}],{duration:400,easing:EASE});
+    cellB6.textContent='12 252,52';
+    await delay(700);
+
+    await anim(keyHint,[{opacity:1},{opacity:0}],{duration:250,easing:EASE});
+    keyHint.style.display='none';
+    await delay(1000);
+
+    // ═══════════════════════════════════════════════════════════
+    // SCÈNE 3 — Consultation du Catalogue de raccourcis (Index)
+    // ═══════════════════════════════════════════════════════════
+
+    cellB6.classList.remove('sel');
+    namebox.textContent='';
+
+    // S3-1 : clic sur l'icône Index du ruban
+    await clickAt(rbIndex,800);
+    pressPulse(rbIndex);
+    await beat(400);
+    await delay(200);
+
+    // S3-2 : ouverture du modal Catalogue
+    modalIndex.style.display='flex';
+    backdrop.style.pointerEvents='auto';
+    await anim(backdrop,[{opacity:0},{opacity:1}],{duration:250,easing:EASE});
+    await anim(modalIndex,[{opacity:0,transform:'translateY(10px) scale(.97)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:320,easing:EASE});
+    await delay(900);
+
+    // S3-3 : clic sur le filtre "Navigation"
+    await clickAt(ifNav,700);
+    pressPulse(ifNav);
+    selectFilter('navigation');
+    applyIndexFilter('navigation','');
+    await delay(1400);
+
+    // S3-4 : retour sur "Tous"
+    await clickAt(ifAll,600);
+    pressPulse(ifAll);
+    selectFilter('all');
+    applyIndexFilter('all','');
+    await delay(700);
+
+    // S3-4b : défilement dans la liste pour révéler "Mes raccourcis"
+    // (les premières lignes des raccourcis natifs disparaissent du cadre
+    //  à mesure que les raccourcis créés par l'utilisateur apparaissent)
+    const scrollTarget=idxScroll.scrollHeight-idxScroll.clientHeight;
+    const scrollCenter=centerOf(idxScroll);
+    await moveCursor(scrollCenter.x,scrollCenter.y,500);
+    await new Promise(resolve=>{
+      const startTop=idxScroll.scrollTop, dist=scrollTarget-startTop, dur=900/SPEED, t0=performance.now();
+      function step(now){
+        const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3);
+        idxScroll.scrollTop=startTop+dist*e;
+        if(p<1) requestAnimationFrame(step); else resolve();
+      }
+      requestAnimationFrame(step);
+    });
+    await delay(1800);
+
+    // S3-4c : retour en haut de la liste
+    await new Promise(resolve=>{
+      const startTop=idxScroll.scrollTop, dist=0-startTop, dur=700/SPEED, t0=performance.now();
+      function step(now){
+        const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3);
+        idxScroll.scrollTop=startTop+dist*e;
+        if(p<1) requestAnimationFrame(step); else resolve();
+      }
+      requestAnimationFrame(step);
+    });
+    await delay(500);
+
+    // S3-5 : clic dans la barre de recherche
+    await clickAt(idxSearch,700);
+    idxSearch.classList.add('focus');
+    await delay(250);
+
+    // S3-6 : saisie "group" lettre par lettre → filtrage en direct
+    const q='group';
+    for(let i=0;i<q.length;i++){
+      idxSearch.value=q.substring(0,i+1);
+      applyIndexFilter('all',idxSearch.value);
+      await delay(120);
+    }
+    await delay(1500);
+
+    // S3-7 : effacement + retour à la liste complète
+    idxSearch.value='';
+    idxSearch.classList.remove('focus');
+    applyIndexFilter('all','');
+    await delay(800);
+
+    // S3-8 : fermeture
+    await clickAt(idxFermer,700);
+    pressPulse(idxFermer);
+    await delay(200);
+    await anim(modalIndex,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(8px) scale(.97)'}],{duration:280,easing:EASE});
+    await anim(backdrop,[{opacity:1},{opacity:0}],{duration:220,easing:EASE});
+    backdrop.style.pointerEvents='none';
+    modalIndex.style.display='none';
+    await delay(1500);
+  }
+
+  let running=true;
+  (async function loop(){while(running){await run();}})();
+  $('replay').addEventListener('click',()=>location.reload());
+  window.addEventListener('load',fit);fit();
+})();
+</script>
+<script>/* Masque le bouton Rejouer quand l'animation est embarquée (iframe : carrousel / compil). */
+if(window.self!==window.top){var _r=document.getElementById("replay");if(_r)_r.style.display="none";}</script>
+</body>
+</html>

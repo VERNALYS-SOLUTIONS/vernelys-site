@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!-- COPIE. Source : depot Video, fichier recap-global/index.html.
+     Seule difference : les chemins des clips sont prefixes /showcase (demos
+     plateforme) et /showcase/excel (demos du complement). Ne pas editer ici :
+     modifier la source, puis recopier en reappliquant ce prefixe. -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Vernelys — Récap global (plateforme + complément Excel)</title>
+<style>
+  :root{
+    --green:#0a5c38; --green-txt:#0d6b45; --green-soft:#eef7f1; --green-bd:#cde5d8;
+    --ink:#1a2430; --muted:#8b97a3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#c9d1d6;
+    height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .stage{position:relative;width:1600px;height:900px;flex:0 0 auto;background:#fff;overflow:hidden;
+    border-radius:10px;box-shadow:0 26px 70px rgba(0,0,0,.3);transform-origin:center}
+
+  /* Les démos : aucune surimpression, aucun voile. Une seule est visible à la fois,
+     et le changement se fait pendant que le carton titre est opaque — donc invisible.
+     Même principe que V5, étendu aux démos du complément Excel (part*.html). */
+  .clip{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;
+    opacity:0;pointer-events:none;transition:opacity .45s ease}
+  .clip.show{opacity:1}
+
+  /* Carton titre : langage visuel des cartons d'intro/fin des vidéos
+     (fond blanc, pastille verte, titre gras, sous-titre gris). Simple fondu.
+     Seul ajout par rapport à V5 : un sur-titre discret qui indique de quel
+     produit on parle — c'est ce qui structure une vidéo à deux produits.
+     Deux fondus distincts : le carton entier pour passer d'une démo au carton
+     et inversement (durée pilotée en JS via transitionDuration), et son seul
+     contenu quand on enchaîne carton → carton, pour que le fond blanc ne
+     clignote pas entre deux titres. */
+  .card{position:absolute;inset:0;z-index:60;background:#fff;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .65s cubic-bezier(.4,0,.2,1)}
+  .card.on{opacity:1}
+  .cf-in{display:flex;flex-direction:column;align-items:center;text-align:center;
+    transition:opacity .45s ease}
+  .card.swap .cf-in{opacity:0}
+  .cf-logo{width:104px;height:104px;border-radius:24px;background:var(--green);color:#fff;
+    font-weight:800;font-size:58px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 20px 50px rgba(10,92,56,.28)}
+  .cf-k{font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--green-txt);margin-top:30px}
+  .cf-k:empty{display:none}
+  .cf-t{font-size:40px;font-weight:800;letter-spacing:-.02em;margin-top:14px}
+  .cf-s{font-size:17px;color:var(--muted);margin-top:14px;max-width:620px;line-height:1.55}
+  .cf-eu{margin-top:26px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--green-txt);
+    background:var(--green-soft);border:1px solid var(--green-bd);border-radius:20px;padding:8px 16px}
+  .cf-eu .eu-shield{flex:0 0 auto}
+  .cf-duo{margin-top:30px;display:flex;gap:12px}
+  .cf-duo span{font-size:14px;font-weight:600;color:var(--ink);background:#f4f7f9;
+    border:1px solid #e2e8ee;border-radius:22px;padding:10px 20px}
+
+  /* Même bouton que sur les démos V1-V6 : hors du .stage, donc jamais capturé
+     dans le cadrage de la vidéo. */
+  #pauseBtn{position:fixed;top:16px;right:16px;z-index:9999;
+    background:rgba(20,30,26,.82);color:#fff;border:1px solid rgba(255,255,255,.25);
+    border-radius:8px;padding:9px 16px;font:600 13px/1 "Inter","Segoe UI",system-ui,sans-serif;
+    cursor:pointer;backdrop-filter:blur(4px)}
+  #pauseBtn:hover{background:rgba(20,30,26,.95)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <iframe class="clip" data-i="0" title="V1-question"></iframe>
+  <iframe class="clip" data-i="1" title="V1-reponse"></iframe>
+  <iframe class="clip" data-i="2" title="V6-agents"></iframe>
+  <iframe class="clip" data-i="3" title="V2-transcription"></iframe>
+  <iframe class="clip" data-i="4" title="V3-pv"></iframe>
+  <iframe class="clip" data-i="5" title="Excel-extraction"></iframe>
+  <iframe class="clip" data-i="6" title="Excel-audit"></iframe>
+  <iframe class="clip" data-i="7" title="Excel-IA"></iframe>
+
+  <div class="card" id="card">
+    <div class="cf-in">
+      <div class="cf-logo">V</div>
+      <div class="cf-k" id="cardK"></div>
+      <div class="cf-t" id="cardT"></div>
+      <div class="cf-s" id="cardS"></div>
+      <div class="cf-duo" id="cardDuo" style="display:none">
+        <span>Plateforme web</span><span>Complément Excel</span>
+      </div>
+      <div class="cf-eu" id="cardEu" style="display:none">
+        <svg class="eu-shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg>
+        <span id="cardEuT"></span>
+      </div>
+    </div>
+  </div>
+</div>
+<button id="pauseBtn" type="button">⏸ Pause</button>
+
+<script>
+const $=id=>document.getElementById(id);
+const stage=$('stage'),card=$('card'),cardK=$('cardK'),cardT=$('cardT'),cardS=$('cardS'),
+      cardEu=$('cardEu'),cardEuT=$('cardEuT'),cardDuo=$('cardDuo'),pauseBtn=$('pauseBtn');
+const RENDER=new URLSearchParams(location.search).has('render');
+
+function fit(){
+  const s=Math.min(innerWidth/1600,innerHeight/900)*.98;
+  stage.style.transform=`scale(${s})`;
+}
+addEventListener('resize',fit);fit();
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Deux familles de clips, un seul mécanisme :
+
+   • Les démos de la PLATEFORME (V1/V2/V3/V6) acceptent ?render=1 : elles
+     n'autoplayent pas et exposent window.__play(), qu'on déclenche au load.
+     On leur passe &nointro : le carton VERNELYS de chaque démo ferait doublon
+     avec le carton titre du récap, qui joue déjà ce rôle. Seules V1 et V6
+     l'implémentent réellement ; sur V2 et V3 le paramètre est ignoré, mais
+     leur carton d'intro se joue derrière le carton titre encore opaque, donc
+     il ne se voit pas davantage (les hold en tiennent compte).
+
+   • Les démos du COMPLÉMENT EXCEL (part2/4/5) n'ont pas de mode render :
+     elles démarrent seules dès le parse et bouclent. Pas grave — le carton
+     titre est opaque pendant CARD_HOLD, donc le début de lecture est masqué
+     exactement comme pour les autres.
+     On ne leur passe PAS &full=1 (contrairement à compil.html) : leurs bulles
+     d'explication sont dessinées HORS du cadre 1220px (jusqu'à ~170px à
+     gauche), et compil.html ne s'en sortait que parce qu'il tournait en
+     1920px de large. Dans un cadre 1600x900, full=1 porte l'échelle à ~1.29 :
+     il ne reste que 10px de marge et les bulles sont tronquées. Sans full=1
+     l'échelle est plafonnée à 1, soit 190px de marge de chaque côté — le
+     rendu exact que ces démos ont en autonome. On recentre juste
+     verticalement à la volée (même origine HTTP, donc contentDocument
+     accessible) : leur mise en page normale colle le cadre en haut.
+
+   « hold » = durée VISIBLE du clip, après la disparition du carton. La démo
+   tourne donc depuis hold+CARD_HOLD quand le segment se termine : c'est cet
+   instant-là qu'on cale sur un moment fort (cf. vérif par captures).
+   ───────────────────────────────────────────────────────────────────────── */
+const V='/showcase';
+const PARTS=[
+  /* ── Produit 1 : la plateforme ─────────────────────────────────────────────
+     Rythme resserré (2e passe), UNIFIÉ (3e passe) puis RALENTI à 1.5 (4e) : le
+     débit de l'assistant IA et de la transcription était trop rapide à 1.8, et
+     la vitesse commune reste le principe. Les hold sont recalculés à chaque
+     changement de vitesse pour retomber sur les MÊMES images fortes.
+     ─────────────────────────────────────────────────────────────────────── */
+  {src:V+'/V1/index.html', speed:1.5, hold:5640, nointro:true,
+   k:"La plateforme Vernelys", t:"L'assistant IA",
+   s:"Posez votre question au cabinet, l'assistant répond et cite ses sources."},
+
+  {src:V+'/V1/index.html', speed:1.5, hold:2880, noCard:true, skipto:'answer'},
+
+  {src:V+'/V6/vernalys-applications-agents-avec-soustitres.html', speed:1.5, hold:9180, nointro:true,
+   k:"La plateforme Vernelys", t:"Applications & agents métier",
+   s:"Des agents spécialisés, activés et pilotés par le cabinet."},
+
+  /* skipto=onglets : le compte rendu s'ouvre déjà renseigné. On veut le
+     parcours des onglets (ordre du jour, tâches, décisions, rapport), pas la
+     saisie du dossier client et de la nature de la réunion. */
+  {src:V+'/V2/index-rapide.html', speed:1.5, hold:17880, nointro:true, skipto:'onglets',
+   k:"La plateforme Vernelys", t:"Transcription & comptes rendus",
+   s:"Vos réunions transcrites et transformées en comptes rendus structurés."},
+
+  /* « 2 secondes de plus » sur le juridique : obtenues en ralentissant (1.8 →
+     1.5), pas en allongeant le hold — la démo se termine peu après, un hold
+     plus long tomberait sur son propre carton de fin. */
+  {src:V+'/V3/vernalys-pv-juridique.html', speed:1.5, hold:10380, nointro:true,
+   k:"La plateforme Vernelys", t:"PV juridique",
+   s:"Vos assemblées et décisions, extraites et classées automatiquement."},
+
+  /* ── Produit 2 : le complément Excel ───────────────────────────────────────
+     part1 (import des justificatifs) a été retirée : le sujet est l'extraction.
+     Toutes reçoivent &nozoom, qui coupe la caméra virtuelle : les zooms, qui
+     recadraient trop dans ce cadre, et la « respiration » (beat), la secousse
+     d'échelle que le récap ne veut pas. Débit légèrement ralenti (4e passe).
+     ─────────────────────────────────────────────────────────────────────── */
+  {src:'/showcase/excel/part2.html', excel:true, speed:2.1, hold:14100,
+   k:"Le complément Excel", t:"Extraction des données",
+   s:"Texte, sommes et tableaux extraits de vos PDF, directement dans la feuille."},
+
+  {src:'/showcase/excel/part4.html', excel:true, speed:2.4, hold:21400,
+   k:"Le complément Excel", t:"Aide à l'audit",
+   s:"Récap TVA, factures rapprochées, contrôles menés directement dans la feuille."},
+
+  {src:'/showcase/excel/part5.html', excel:true, speed:1.8, hold:16150,
+   k:"Le complément Excel", t:"L'assistant IA dans Excel",
+   s:"Graphiques, analyses et macros VBA générés à partir d'une simple demande."},
+];
+
+/* Cartons d'ouverture et de fin du récap global (hors segments). */
+const OPEN={t:"Vernelys", s:"Deux produits pour un même cabinet.", duo:true, hold:4000};
+const END ={t:"Vernelys", s:"La plateforme et le complément Excel, au service du cabinet.",
+            eu:"Hébergé en UE · vos données ne quittent pas l'Union européenne", hold:4500};
+
+/* Durées des fondus. CARD_HOLD reste mesuré depuis le CHARGEMENT du clip, pas
+   depuis la fin du fondu : le clip est lancé au début du fondu entrant (il est
+   encore invisible), donc allonger celui-ci n'avance ni ne retarde l'image
+   d'atterrissage de chaque segment. */
+const CARD_IN  =650;   // démo → carton
+const CARD_OUT =800;   // carton → démo (le dévoilement)
+const TEXT_FADE=450;   // carton → carton : seul le contenu est remplacé
+const TEXT_LEAD=280;   // avance du contenu sur le fond, au dévoilement
+const CARD_HOLD=2400;  // temps total pendant lequel le carton masque le clip
+
+const clips=[...document.querySelectorAll('.clip')];
+const url=p=>{
+  if(p.excel)return `${p.src}?speed=${p.speed}&nozoom`;
+  let u=`${p.src}?render=1&speed=${p.speed}&nosub`;
+  if(p.nointro)u+='&nointro';
+  if(p.skipto)u+='&skipto='+p.skipto;
+  return u;
+};
+/* ─────────────── pause / reprise (bouton + barre d'espace) ───────────────
+   Trois horloges à figer, pas une : celle du récap (l'enchaînement des
+   segments), celle des démos V1-V6 (leur propre vnow(), exposée par leur
+   setPaused() même en mode render où le bouton est masqué) et celle des démos
+   Excel (window.__setPaused, ajouté pour l'occasion — elles n'avaient aucun
+   mécanisme de pause). Comme tout est servi sous la même origine, la page
+   parente peut appeler ces fonctions directement dans les iframes.
+   Ici comme dans les démos : wait() est sondé en rAF contre vnow() plutôt que
+   posé en setTimeout, qui ne serait pas suspendable. */
+let pausedAccum=0,pauseStartedAt=null,pausedAnims=[];
+const vnow=()=>(pauseStartedAt!==null?pauseStartedAt:performance.now())-pausedAccum;
+const isPaused=()=>pauseStartedAt!==null;
+
+const wait=ms=>new Promise(res=>{
+  const t0=vnow();
+  (function step(){vnow()-t0>=ms?res():requestAnimationFrame(step)})();
+});
+
+function framePaused(c,p){
+  try{
+    const w=c.contentWindow;if(!w)return;
+    if(typeof w.setPaused==='function')w.setPaused(p);            // démos V1-V6
+    else if(typeof w.__setPaused==='function')w.__setPaused(p);   // démos Excel
+  }catch(e){}
+}
+function setPaused(p){
+  if(p){
+    if(isPaused())return;
+    pauseStartedAt=performance.now();
+    // seulement celles qui tournent : rejouer une animation déjà terminée
+    // la relancerait depuis le début.
+    pausedAnims=document.getAnimations().filter(a=>a.playState==='running');
+    pausedAnims.forEach(a=>a.pause());
+    pauseBtn.textContent='▶ Reprendre';
+  }else{
+    if(!isPaused())return;
+    pausedAccum+=performance.now()-pauseStartedAt;pauseStartedAt=null;
+    pausedAnims.forEach(a=>{try{a.play()}catch(e){}});pausedAnims=[];
+    pauseBtn.textContent='⏸ Pause';
+  }
+  clips.forEach(c=>framePaused(c,p));
+}
+const togglePause=()=>setPaused(!isPaused());
+const onKey=e=>{if(e.code==='Space'){e.preventDefault();togglePause()}};
+if(RENDER){pauseBtn.style.display='none'}
+else{
+  pauseBtn.addEventListener('click',togglePause);
+  addEventListener('keydown',onKey);
+}
+
+clips.forEach(c=>c.addEventListener('load',()=>{
+  try{c.contentWindow.__play&&c.contentWindow.__play()}catch(e){}
+  try{                                   // démos Excel : recentrage vertical
+    const d=c.contentDocument;
+    if(d&&d.querySelector('.viewport')){
+      d.documentElement.style.height='100%';
+      d.body.style.minHeight='100vh';
+      d.body.style.alignItems='center';
+    }
+    // la barre d'espace doit marcher même si le clic a donné le focus à l'iframe
+    if(d&&!RENDER)d.addEventListener('keydown',onKey);
+  }catch(e){}
+  // un clip qui se charge pendant une pause doit naître en pause
+  if(isPaused())framePaused(c,true);
+}));
+
+/* Remplit le carton. Le texte doit être posé pendant que le contenu est
+   transparent, sinon le titre suivant apparaît d'un coup par-dessus l'ancien. */
+function setCard({k='',t='',s='',eu='',duo=false}){
+  cardK.textContent=k;cardT.textContent=t;cardS.textContent=s;
+  cardEu.style.display=eu?'':'none';cardEuT.textContent=eu;
+  cardDuo.style.display=duo?'':'none';
+}
+const cardOn=()=>card.classList.contains('on');
+function fadeCard(on,ms){
+  card.style.transitionDuration=ms+'ms';
+  card.classList.toggle('on',on);
+}
+/* Amène le carton p à l'écran, en choisissant le fondu adapté :
+     - depuis une démo : le carton entier monte en opacité ;
+     - depuis un autre carton (ouverture → 1er segment, fin → rebouclage) :
+       seul le contenu est remplacé, le fond blanc ne bouge pas — un fondu du
+       carton entier ferait réapparaître la démo derrière pendant la bascule. */
+async function toCard(p){
+  const t0=vnow();
+  if(cardOn()){
+    card.classList.add('swap');
+    await wait(TEXT_FADE);
+    setCard(p);
+    card.classList.remove('swap');
+    await wait(TEXT_FADE);
+  }else{
+    setCard(p);
+    card.classList.remove('swap');
+    fadeCard(true,CARD_IN);
+    await wait(CARD_IN);
+  }
+  return vnow()-t0;                // durée réelle, pour la déduire de CARD_HOLD
+}
+
+/* Dévoilement en deux temps : le contenu du carton s'efface d'abord, le fond
+   blanc ne se lève qu'ensuite. En fondu simultané, le logo du carton et celui
+   de la démo qui apparaît se superposaient à deux endroits de l'écran. */
+async function fromCard(){
+  card.classList.add('swap');
+  await wait(TEXT_LEAD);
+  fadeCard(false,CARD_OUT);
+}
+
+window.__seg=-1;window.__lap=0;
+
+async function runSegment(i){
+  const p=PARTS[i];
+  window.__seg=i;
+
+  if(p.noCard){
+    clips[i].setAttribute('src',url(p));
+    await new Promise(r=>clips[i].addEventListener('load',r,{once:true}));
+    await wait(50);
+    clips.forEach((c,k)=>c.classList.toggle('show',k===i));
+    await wait(p.hold);
+  }else{
+    // le clip démarre AVANT le fondu entrant : il est encore invisible, donc
+    // le carton finit de couvrir bien avant qu'il n'ait quoi que ce soit à
+    // montrer, et le temps masqué total reste CARD_HOLD.
+    clips[i].setAttribute('src',url(p));
+    const spent=await toCard(p);
+    clips.forEach((c,k)=>c.classList.toggle('show',k===i));
+    await wait(Math.max(0,CARD_HOLD-spent));
+    await fromCard();              // dévoilement (consomme TEXT_LEAD)
+    await wait(p.hold-TEXT_LEAD);  // déduit, pour ne pas décaler l'image de fin
+  }
+}
+
+async function play(){
+  for(;;){
+    clips.forEach(c=>{c.classList.remove('show');c.removeAttribute('src');});
+    await toCard(OPEN);
+    await wait(OPEN.hold);
+    for(let i=0;i<PARTS.length;i++)await runSegment(i);
+    await toCard(END);
+    await wait(END.hold);
+    window.__lap++;
+  }
+}
+addEventListener('load',play);
+</script>
+</body>
+</html>

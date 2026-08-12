@@ -1,0 +1,6 @@
+# Politique de divulgation responsable — VERNALYS SOLUTIONS (RFC 9116)
+Contact: mailto:contact@vernelys.com
+Expires: 2027-08-02T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://vernelys.com/.well-known/security.txt
+Policy: https://vernelys.com/confidentialite#securite

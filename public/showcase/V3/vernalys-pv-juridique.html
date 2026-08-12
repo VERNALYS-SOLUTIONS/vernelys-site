@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Vernelys Animation V3 · Gestionnaire PV Juridique</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   Vernelys Animation V3 · Gestionnaire PV Juridique
+   Palette, typographie et gabarit repris des V1/V2 pour que les
+   vidéos se raccordent : stage 1600x900, top bar 46px, sidebar 200px.
+   ══════════════════════════════════════════════════════════════ */
+
+:root{
+  --green:#0a5c38; --green-txt:#0d6b45; --green-pill:#e7f2ea; --green-pill-b:#cfe4d7;
+  --green-soft:#eef7f1; --green-bd:#cde5d8;
+  --ink:#1a2430; --ink-2:#41505f; --muted:#8b97a3;
+  --line:#e8eaec; --mono:"SFMono-Regular",Consolas,monospace;
+  --amber:#96682a; --amber-bg:#fdf4e6; --amber-bd:#f0e0c4; --amber-bar:#e0a53c;
+  --red:#c0392b; --blue:#2b5f8e; --blue-bg:#e9f0f7; --blue-bd:#d5e2ef;
+  --violet:#6b4a8c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#c9d1d6;
+  height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+/* flex-shrink:0 is essential as a flex item the stage would otherwise
+   collapse to the viewport width and squash the layout horizontally */
+.stage{position:relative;width:1600px;height:900px;flex:0 0 auto;background:#fff;overflow:hidden;
+  border-radius:10px;box-shadow:0 26px 70px rgba(0,0,0,.3);transform-origin:center}
+
+/* ==================== TOP BAR (persistante) ==================== */
+.top{height:46px;display:flex;align-items:center;gap:14px;padding:0 15px;
+  border-bottom:1px solid var(--line);background:#fff;position:relative;z-index:8}
+.logoT{width:27px;height:27px;border-radius:7px;background:var(--green);color:#fff;font-weight:800;
+  font-size:16px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.nameT{font-size:13.5px;font-weight:800;letter-spacing:.15em}
+.appsT{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+  border:1px solid var(--line);border-radius:8px;padding:7px 13px;background:#fbfcfc;margin-left:14px;
+  transition:background .22s,border-color .22s,transform .12s}
+.appsT.hot{background:#f1f4f3;border-color:var(--green-bd)}
+.appsT.press{transform:scale(.97)}
+.gridi{display:grid;grid-template-columns:1fr 1fr;gap:2px;width:11px}
+.gridi i{width:4px;height:4px;border-radius:1px;background:#5b6b78}
+.gridi.g2{width:13px}.gridi.g2 i{width:5px;height:5px;background:var(--green)}
+/* le fil d'Ariane n'existe qu'une fois l'application ouverte */
+.crumb{font-size:12.5px;color:var(--ink-2);opacity:0;transform:translateX(-6px)}
+.crumb.in{opacity:1;transform:none;transition:opacity .4s ease,transform .4s ease}
+.srchT{flex:1;max-width:415px;margin:0 auto;display:flex;align-items:center;gap:9px;
+  border:1px solid var(--line);border-radius:9px;padding:8px 13px;font-size:12.5px;
+  color:var(--muted);background:#fbfcfc}
+.mag{width:11px;height:11px;border:1.5px solid var(--muted);border-radius:50%;position:relative;flex:0 0 auto}
+.mag:after{content:"";position:absolute;width:4.5px;height:1.5px;background:var(--muted);transform:rotate(45deg);right:-3px;bottom:0}
+.rightT{display:flex;align-items:center;gap:15px;font-size:12.5px;color:var(--ink-2)}
+.gauge{width:14px;height:14px;border-radius:50%;border:2.5px solid #e0a53c;border-right-color:var(--line);transform:rotate(-45deg)}
+.shield{color:#3d9c6d}
+.avT{width:27px;height:27px;border-radius:7px;background:var(--green);color:#fff;font-size:10.5px;
+  font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+
+.row{display:flex}
+
+/* ==================== SIDEBAR ==================== */
+/* la largeur est animable, pas le padding intérieur : le contenu est figé à
+   178px dans .sideIn pour qu'il glisse hors champ au lieu de se recomposer */
+.side{width:200px;flex:0 0 auto;border-right:1px solid var(--line);height:854px;
+  background:#fff;position:relative;z-index:7;overflow:hidden;
+  transition:width .5s cubic-bezier(.4,0,.2,1),opacity .32s ease}
+.side.hide{width:0;opacity:0;border-right-color:transparent}
+.sideIn{width:178px;height:100%;padding:11px 0 0;margin:0 11px;
+  display:flex;flex-direction:column}
+.filtS{position:relative;border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+  font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.filtS .pl{position:absolute;right:-5px;top:-5px;width:15px;height:15px;border:1px solid var(--line);
+  border-radius:5px;background:#fff;color:var(--ink-2);font-size:10px;display:flex;align-items:center;justify-content:center}
+.newS{margin-top:11px;background:var(--green);color:#fff;border-radius:8px;padding:10px;
+  text-align:center;font-size:12.5px;font-weight:600}
+.secS{margin-top:15px}
+.secH{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.12em;
+  color:var(--muted);font-weight:700;padding:0 3px 6px}
+/* nowrap : à 200px les libellés longs passeraient sur deux lignes et
+   déformeraient la hauteur des sections, alors que l'UI réelle les tronque */
+.itS{display:flex;align-items:center;gap:8px;padding:5px 5px;border-radius:6px;font-size:11.5px;
+  color:#2c3845;position:relative;white-space:nowrap;overflow:hidden}
+.bdg{width:17px;height:17px;border-radius:4px;font-size:7.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.b-g{background:#e3f0e8;color:#2b7a53}.b-b{background:#e3ecf5;color:#2b5f8e}
+.b-o{background:#f7ecdc;color:#96682a}.b-p{background:#efe6f5;color:#6b4a8c}
+.cnt{margin-left:auto;font-size:9.5px;color:var(--muted)}
+.fld{width:12px;height:10px;border:1.3px solid #94a1ac;border-radius:2px;flex:0 0 auto}
+.footS{margin-top:auto;border-top:1px solid var(--line);padding:10px 3px;display:flex;align-items:center;gap:9px}
+.footS .t1{font-size:11.5px;font-weight:600}
+.footS .t2{font-size:9.5px;color:var(--muted)}
+
+/* ==================== MAIN / PANES ==================== */
+.main{flex:1;position:relative;overflow:hidden;height:854px;min-width:0}
+.pane{position:absolute;inset:0;opacity:0;pointer-events:none}
+.pane.on{opacity:1;pointer-events:auto;transition:opacity .5s ease}
+.pane.out{opacity:0;transition:opacity .4s ease}
+.col{position:absolute;left:50%;margin-left:-310px;top:0;width:620px}
+
+/* ---------- PANE 1 : accueil ---------- */
+#paneHome .col{padding-top:62px}
+.hero{width:92px;height:92px;border-radius:18px;background:var(--green);color:#fff;font-weight:800;
+  font-size:50px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.greet{margin-top:34px;font-size:25px;font-weight:700;text-align:center}
+.greet span{color:#9aa5af;font-weight:600}
+.routing{margin-top:22px;background:var(--green-soft);border:1px solid var(--green-bd);
+  border-radius:11px;padding:13px 15px;display:flex;gap:11px;position:relative}
+.routing .rj{width:25px;height:25px;border-radius:6px;background:#dceae2;color:#2b7a53;
+  font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.routing .k{font-size:9px;letter-spacing:.13em;color:#6d8579;font-weight:700;font-family:var(--mono)}
+.routing .tx{font-size:12px;color:#3a4a41;line-height:1.55;margin-top:6px}
+.routing .tx b{color:#1b2a22}
+.routing .ac{display:flex;gap:9px;margin-top:11px}
+.bg-btn{background:var(--green);color:#fff;font-size:11.5px;font-weight:600;padding:8px 13px;border-radius:7px}
+.gh-btn{border:1px solid var(--green-bd);background:#fff;color:#3a4a41;font-size:11.5px;padding:8px 13px;border-radius:7px}
+.routing .x{position:absolute;top:9px;right:12px;color:var(--muted);font-size:13px}
+
+.chatwrap{position:relative;margin-top:17px}
+.chat{border:1px solid #e0e4e7;border-radius:11px;background:#fff;padding:14px 15px 11px}
+.chat .field{font-size:13px;min-height:20px;line-height:1.5}
+.chat .plc{color:var(--muted)}
+.tools{display:flex;align-items:center;gap:8px;margin-top:16px}
+.t{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2);
+  border:1px solid var(--line);border-radius:16px;padding:5px 11px}
+.plusB{width:25px;height:25px;border-radius:6px;color:var(--ink-2);font-size:15px;
+  display:flex;align-items:center;justify-content:center}
+.tools .sp{margin-left:auto;display:flex;align-items:center;gap:11px;color:var(--muted);font-size:13px}
+.send{width:29px;height:29px;border-radius:7px;border:1px solid var(--line);color:var(--muted);
+  display:flex;align-items:center;justify-content:center;font-size:14px}
+
+.cards{display:flex;gap:11px;margin-top:14px}
+.cards .c{flex:1;border:1px solid var(--line);border-radius:10px;padding:11px 12px;display:flex;gap:10px;align-items:center}
+.cards .ci{width:28px;height:28px;border-radius:7px;background:#f1f6f3;color:var(--green);
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.cards .c1{font-size:11.5px;font-weight:600}
+.cards .c2{font-size:9.5px;color:var(--muted);margin-top:2px}
+.recH{display:flex;justify-content:space-between;margin-top:22px;padding-bottom:7px;
+  border-bottom:1px solid var(--line);font-size:9px;letter-spacing:.13em;color:var(--muted);
+  font-weight:700;font-family:var(--mono)}
+.recR{display:flex;align-items:center;gap:10px;padding:11px 2px;font-size:12px;color:#2c3845;
+  border-bottom:1px solid #f4f6f6}
+.recR .rt{font-size:10px;color:var(--muted)}
+.recR .rk{font-size:9px;color:var(--muted);margin-left:auto;margin-right:9px}
+
+/* ==================== MODALE APPLICATIONS ==================== */
+.scrim{position:absolute;inset:0;background:rgba(26,36,48,.10);z-index:30;
+  opacity:0;pointer-events:none}
+.scrim.on{opacity:1;transition:opacity .3s ease}
+/* le fond recule légèrement pendant que la modale est ouverte */
+.row.pushed{filter:blur(1.5px);transform:scale(.994);transform-origin:center 40%}
+.row{transition:filter .35s ease,transform .35s ease}
+
+.modal{position:absolute;left:50%;top:50%;width:620px;z-index:31;
+  background:#fff;border-radius:13px;box-shadow:0 22px 60px rgba(20,30,40,.20);
+  display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;pointer-events:none;
+  transform:translate(-50%,-50%) scale(.96) translateY(6px);transform-origin:center}
+.modal.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);
+  transition:opacity .28s ease,transform .34s cubic-bezier(.2,.8,.3,1)}
+.md-h{display:flex;align-items:center;gap:10px;padding:17px 19px 0;font-size:14px}
+.md-h b{font-weight:700}
+.md-h .cnt{margin-left:0;font-family:var(--mono);font-size:10.5px}
+.md-h .x{margin-left:auto;color:var(--muted);font-size:15px}
+.md-s{margin:15px 19px 0;border:1px solid var(--line);border-radius:8px;background:#fbfcfc;
+  padding:9px 12px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}
+/* la liste est plus longue que la modale : elle est volontairement coupée par
+   le bloc CONNECTEURS, comme dans l'application réelle */
+.md-b{padding:0 19px;max-height:452px;overflow:hidden}
+.md-k{font-size:9px;letter-spacing:.13em;color:var(--muted);font-weight:700;
+  font-family:var(--mono);padding:13px 0 7px}
+.md-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mc{border:1px solid var(--line);border-radius:9px;padding:12px 13px;background:#fff;
+  transition:border-color .2s,box-shadow .2s,transform .14s}
+.mc .bdg{width:23px;height:23px;border-radius:6px;font-size:9px;margin-bottom:9px}
+.mc-n{font-size:12px;font-weight:700}
+.mc-s{font-size:10px;color:var(--muted);margin-top:2px}
+.mc.rw{display:flex;align-items:center;gap:10px;padding:10px 13px}
+.mc.rw .bdg{margin-bottom:0}
+.mc.hot{border-color:var(--green-bd);box-shadow:0 2px 12px rgba(10,92,56,.10)}
+.mc.press{transform:scale(.985)}
+.md-f{border-top:1px solid var(--line);background:#fbfcfc;padding:0 19px 17px}
+
+/* ==================== PANE 2 : GESTIONNAIRE PV JURIDIQUE ==================== */
+.pvwrap{padding:34px 150px 0;height:100%;display:flex;flex-direction:column}
+
+.pv-h{display:flex;align-items:flex-start}
+.pv-t{font-size:26px;font-weight:700;letter-spacing:-.015em}
+.pv-s{font-size:12.5px;color:var(--muted);margin-top:8px}
+.pv-s b{color:var(--ink-2);font-weight:600}
+.pv-add{margin-left:auto;background:var(--green);color:#fff;font-size:12.5px;font-weight:600;
+  padding:10px 16px;border-radius:8px;flex:0 0 auto}
+
+.pv-bar{display:flex;align-items:center;gap:13px;margin-top:20px}
+.seg{display:flex;gap:3px;border:1px solid var(--line);border-radius:8px;padding:3px;
+  background:#fbfcfc;flex:0 0 auto}
+.seg span{font-size:11.5px;color:var(--ink-2);padding:6px 11px;border-radius:6px}
+.seg span.on{background:#fff;box-shadow:0 1px 2px rgba(20,30,40,.09);font-weight:600;color:var(--ink)}
+.pv-srch{flex:1;border:1px solid var(--line);border-radius:8px;background:#fff;
+  padding:9px 13px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}
+.pv-all{font-size:11.5px;color:var(--ink-2);flex:0 0 auto}
+
+.pv-cols{display:grid;grid-template-columns:500px 1fr;gap:28px;margin-top:18px;flex:1;min-height:0}
+
+/* en-tête de colonne */
+.pv-ch{display:flex;align-items:center;gap:9px;padding:0 2px 9px;
+  border-bottom:1px solid var(--line);margin-bottom:12px}
+.kk{font-size:9px;letter-spacing:.12em;color:var(--muted);font-weight:700;font-family:var(--mono)}
+.pv-ch .n{font-style:normal;font-size:10px;font-weight:700;color:var(--amber);font-family:var(--mono)}
+.pv-mark,.pv-cnt{margin-left:auto;font-size:10px;color:var(--muted)}
+
+/* couleur de groupe : un seul repère visuel porte l'appartenance */
+.grp{font-size:8.5px;line-height:1.2;letter-spacing:.11em;font-weight:700;font-family:var(--mono);
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.grp:before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.g-ind .grp{color:#b0872f}
+.g-srv .grp{color:#3d7fb0}
+.g-pat .grp{color:#8163a3}
+
+/* --- colonne gauche : file de relecture --- */
+.pvL{display:flex;flex-direction:column;min-height:0}
+.vcard{position:relative;display:flex;gap:11px;align-items:flex-start;
+  border:1px solid var(--line);border-radius:9px;background:#fff;padding:9px 12px 8px;
+  margin-bottom:6px;box-shadow:0 1px 3px rgba(20,30,40,.04)}
+.vcard .bdg{width:24px;height:24px;border-radius:6px;font-size:9px;margin-top:1px}
+.vcard .nm{font-size:12.5px;line-height:1.25;font-weight:700;margin-top:3px}
+.vcard .sub{font-size:11px;line-height:1.3;color:var(--ink-2);margin-top:2px}
+.vcard .mt{display:flex;align-items:center;gap:10px;margin-top:5px}
+.chip{font-size:8.5px;line-height:1.15;letter-spacing:.1em;font-weight:700;font-family:var(--mono);
+  color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-bd);
+  padding:3px 7px;border-radius:5px}
+.vcard .mt em{font-style:normal;font-size:10px;color:var(--muted)}
+.chev{position:absolute;right:12px;top:13px;color:#c3ccd3;font-size:14px}
+
+/* --- colonne droite : toutes les sociétés --- */
+.pvR{position:relative;display:flex;flex-direction:column;min-height:0}
+.soc-list{flex:1;overflow:hidden}
+.soc{position:relative;display:flex;align-items:center;gap:11px;padding:8px 26px 8px 2px;
+  border-bottom:1px solid #f2f4f5;border-radius:6px;transition:background .22s}
+.soc.hot{background:#f7f9fa}
+.soc .bdg{width:24px;height:24px;border-radius:6px;font-size:9px}
+.so-x{min-width:0}
+.so-n{font-size:12px;line-height:1.25;font-weight:700;display:flex;align-items:center;gap:10px}
+.so-s{font-size:10.5px;line-height:1.3;color:var(--muted);margin-top:2px}
+.so-r{margin-left:auto;text-align:right;flex:0 0 auto}
+.so-d{font-size:10.5px;line-height:1.3;color:var(--ink-2)}
+.so-p{font-size:10px;line-height:1.3;color:var(--green-txt);margin-top:2px}
+.nb{position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:17px;height:17px;border-radius:5px;background:var(--amber-bg);
+  border:1px solid var(--amber-bd);color:var(--amber);font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+
+/* rail de défilement : la liste continue au-delà du cadre */
+.scrl{position:absolute;right:-11px;top:38px;bottom:0;width:4px;border-radius:2px;background:#f1f3f5}
+.scrl i{display:block;width:100%;height:64%;border-radius:2px;background:#d2d9de}
+
+/* ==================== VUE SOCIÉTÉ (exercice + détail PV) ==================== */
+.deep{position:absolute;left:0;right:0;top:46px;bottom:0;z-index:12;background:#fff;
+  display:flex;flex-direction:column;opacity:0;pointer-events:none}
+.deep.on{opacity:1;pointer-events:auto;transition:opacity .45s ease}
+
+/* fil de retour */
+.rb{height:30px;flex:0 0 auto;display:flex;align-items:center;padding:0 16px;
+  border-bottom:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
+.rb-crumb{margin-left:auto;font-size:11px;color:var(--muted)}
+.rb-crumb b{color:var(--ink-2);font-weight:600}
+.rb-crumb i{font-style:normal;margin:0 5px;color:#c3ccd3}
+
+/* en-tête société */
+.shead{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:11px 16px;
+  border-bottom:1px solid var(--line)}
+.sh-b{width:34px;height:34px;border-radius:8px;background:#f7ecdc;color:#96682a;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.sh-n{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-.015em}
+.siren{font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--ink-2);
+  background:#f2f4f5;border-radius:5px;padding:3px 7px;letter-spacing:.05em}
+.sh-s{font-size:11.5px;color:var(--muted);margin-top:4px}
+.sh-s b{color:var(--ink-2);font-weight:600}
+.sh-add{margin-left:auto;background:var(--green);color:#fff;font-size:12.5px;font-weight:600;
+  padding:10px 16px;border-radius:8px;flex:0 0 auto}
+
+.deep-body{flex:1;position:relative;min-height:0}
+.exo,.pvd{position:absolute;inset:0;opacity:0;pointer-events:none}
+.exo.on,.pvd.on{opacity:1;pointer-events:auto;transition:opacity .45s ease}
+
+/* ---------- ÉCRAN A : l'exercice ---------- */
+.exo{background:#f7f8f9;overflow:hidden}
+.exo-col{width:760px;margin:0 auto;padding-top:32px}
+.exo-k{display:flex;align-items:center;gap:14px}
+.exo-pill{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;
+  font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px}
+/* le chevron a une base très basse dans la fonte : on le recale à la main */
+.exo-pill i{font-style:normal;color:var(--muted);font-size:11px;line-height:1;transform:translateY(-3px)}
+.exo-h{font-size:27px;line-height:1.3;font-weight:700;letter-spacing:-.02em;margin-top:21px}
+.exo-h em{font-style:normal;color:var(--green-txt)}
+.exo-s{font-size:12.5px;line-height:1.6;color:var(--muted);margin-top:13px;max-width:540px}
+.exo-card{margin-top:25px;background:#fff;border:1px solid var(--line);border-radius:11px;
+  box-shadow:0 1px 3px rgba(20,30,40,.04);overflow:hidden}
+
+.drow{display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid #f2f4f5;
+  transition:background .22s}
+.drow:last-child{border-bottom:0}
+.drow.hot{background:#fafbfb}
+.dr-l{width:76px;flex:0 0 auto;padding-top:1px}
+.dr-d{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-2);font-weight:600}
+.dr-t{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:3px}
+.dr-x{flex:1;min-width:0}
+.dr-g{display:flex;gap:7px}
+.dr-n{font-size:13px;line-height:1.45;font-weight:600;margin-top:8px}
+.num{font-family:var(--mono);font-size:.95em}
+.dr-s{font-size:11px;line-height:1.5;color:var(--muted);margin-top:6px}
+.dr-r{width:86px;flex:0 0 auto;text-align:right;font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+/* étiquettes de nature et de statut */
+.tg{font-size:8.5px;line-height:1.15;letter-spacing:.09em;font-weight:700;font-family:var(--mono);
+  padding:3px 7px;border-radius:5px;border:1px solid transparent;white-space:nowrap}
+.tg.cap{background:#f0e9f7;color:#6b4a8c}
+.tg.cpt{background:#e2f0ef;color:#2b7a72}
+.tg.gov{background:#e8f0f7;color:#2b5f8e}
+.tg.sta{background:#fdf1e2;color:#96682a}
+.tg.ok{background:#e6f2ec;color:#2b7a53}
+.tg.wn{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd)}
+.tg.pr{background:#f1f3f5;color:#77838d}
+
+/* le dernier PV est encore en cours d'extraction : pas de résumé, une attente */
+.skel{height:8px;width:405px;border-radius:4px;margin-top:11px;
+  background:linear-gradient(90deg,#eef1f3 25%,#e0e5e9 50%,#eef1f3 75%);
+  background-size:220% 100%;animation:sk 1.7s linear infinite}
+@keyframes sk{0%{background-position:120% 0}100%{background-position:-120% 0}}
+
+/* ---------- ÉCRAN B : le détail d'un PV ---------- */
+.pvd{display:flex;background:#fff}
+
+/* rail gauche */
+.rail{width:228px;flex:0 0 auto;border-right:1px solid var(--line);display:flex;flex-direction:column}
+.rl-k{padding:11px 13px 0}
+.rl-y{display:flex;align-items:center;gap:6px;padding:5px 13px 11px;border-bottom:1px solid var(--line)}
+.rl-y i{font-style:normal;color:#c3ccd3;font-size:12px}
+.rl-y>div{flex:1;text-align:center}
+.rl-y b{font-size:17px;font-weight:700;display:block;letter-spacing:-.01em}
+.rl-y em{font-style:normal;font-size:9px;color:var(--muted);display:block;margin-top:1px}
+.rl-y .cv{color:var(--muted);font-size:11px;line-height:1;transform:translateY(-4px)}
+.rl-i{position:relative;padding:9px 13px 10px;border-bottom:1px solid #f4f6f6}
+.rl-i.on{background:#f3f9f5;box-shadow:inset 3px 0 0 var(--green)}
+.rl-t{display:flex;align-items:center;gap:7px}
+.rl-d{font-size:9.5px;color:var(--ink-2)}
+.rl-t .tg{margin-left:auto;font-size:7.5px;padding:2px 5px;letter-spacing:.07em}
+.rl-n{font-size:11.5px;line-height:1.35;font-weight:700;margin-top:6px}
+.rl-i.on .rl-n{color:var(--green-txt)}
+.rl-g{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.pill{font-size:9px;color:var(--ink-2);background:#f2f4f5;border-radius:4px;padding:2px 6px}
+.rl-f{margin-top:auto;border-top:1px solid var(--line);padding:11px 13px;
+  font-size:10.5px;color:var(--muted)}
+
+/* centre : le résumé */
+.pvc{flex:1;min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+.pvc-in{flex:1;padding:15px 24px;max-width:610px;overflow:hidden}
+.pvc-h{display:flex;align-items:center}
+.pvc-h .tg{margin-left:auto}
+.pvc-n{font-size:18px;line-height:1.3;font-weight:700;letter-spacing:-.015em;margin:9px 0 10px}
+.pvc-sep{border-top:1px solid var(--line);margin:15px 0 13px}
+.pvc-k{display:flex;align-items:center;margin-bottom:9px}
+.pvc-k .ed{margin-left:auto;font-size:10px;color:var(--muted)}
+.rsum{border-left:2px solid var(--green);padding-left:14px;margin-bottom:17px}
+.rsum p{font-size:12px;line-height:1.75;color:#2c3845;margin-bottom:11px}
+.rsum p:last-child{margin-bottom:0}
+/* les entités reconnues s'allument une à une : on voit l'IA relier
+   le résumé au texte source, des deux côtés de l'écran en même temps */
+mark{background:transparent;color:inherit;border-radius:3px;padding:0 2px;
+  transition:background .5s ease}
+.lit mark{background:#dcefe4}
+.dec-i{position:relative;font-size:11.5px;line-height:1.55;color:#2c3845;
+  padding-left:13px;margin-bottom:6px}
+.dec-i:before{content:"•";position:absolute;left:1px;color:var(--muted)}
+.pvc-ia{margin-top:16px;font-size:10.5px;color:var(--muted)}
+.pvc-ia b{color:var(--green-txt);font-weight:600}
+.pvc-f{flex:0 0 auto;border-top:1px solid var(--line);padding:10px 24px;
+  display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--muted)}
+.pvc-f b{color:var(--ink-2);font-weight:600}
+.ok-d{width:15px;height:15px;border-radius:50%;background:#e6f2ec;color:#2b7a53;
+  font-size:8px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+
+/* droite : le PV source */
+.src{width:420px;flex:0 0 auto;background:#f7f8f9;display:flex;flex-direction:column;
+  opacity:0;transform:translateX(18px)}
+.pvd.on .src{opacity:1;transform:none;
+  transition:opacity .5s ease .18s,transform .55s cubic-bezier(.2,.8,.3,1) .18s}
+.src-h{display:flex;align-items:flex-start;gap:9px;padding:13px 16px 12px}
+.src-f{font-family:var(--mono);font-size:11px;color:var(--ink);margin-top:4px}
+.src-i{color:var(--muted);font-size:11px}
+.src-h .src-i:first-of-type{margin-left:auto}
+.page{margin:0 16px;background:#fff;border:1px solid var(--line);border-radius:5px;
+  padding:15px 17px;box-shadow:0 1px 3px rgba(20,30,40,.05);overflow:hidden}
+.pg-k{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--muted);text-align:center}
+.pg-t{font-size:10.5px;line-height:1.35;font-weight:700;text-align:center;margin:7px 0 11px}
+.page p{font-size:8.5px;line-height:1.62;color:#3f6b55;margin-bottom:7px}
+.page p b{color:#245c3d}
+.pg-f{display:flex;justify-content:space-between;font-family:var(--mono);font-size:7px;
+  color:var(--muted);margin-top:11px}
+.src-f2{margin-top:auto;flex:0 0 auto;border-top:1px solid var(--line);padding:9px 16px;
+  display:flex;align-items:center;font-size:9.5px;color:var(--muted)}
+.nv{margin-left:auto;display:flex;align-items:center;gap:11px}
+.nv i,.nv em{font-style:normal}
+
+/* ==================== CURSEUR ==================== */
+/* left/top are required: without them the element keeps its static position
+   (bottom of the stage) and the JS translate pushes it outside the frame */
+.ptr{position:absolute;left:0;top:0;z-index:60;width:21px;height:21px;pointer-events:none;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));will-change:transform}
+.ptr svg{width:100%;height:100%;display:block}
+.ring{position:absolute;z-index:59;width:32px;height:32px;border-radius:50%;border:2px solid var(--green);
+  opacity:0;pointer-events:none;transform:translate(-50%,-50%)}
+.ring.go{animation:rg .5s ease-out}
+@keyframes rg{0%{opacity:.75;transform:translate(-50%,-50%) scale(.35)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}
+
+/* entrée en fondu montant, comme en V1/V2 */
+.fu,.fu2,.fu3,.fx{opacity:0;transform:translateY(12px)}
+.fu.in,.fu2.in,.fu3.in,.fx.in{opacity:1;transform:none;transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+/* les lignes de la liste arrivent une à une, pas en bloc */
+.soc,.vcard{opacity:0;transform:translateY(9px)}
+.soc.sh,.vcard.sh{opacity:1;transform:none;transition:opacity .42s ease,transform .42s cubic-bezier(.2,.7,.2,1)}
+.drow,.rl-i{opacity:0;transform:translateY(8px)}
+.drow.rv,.rl-i.rv{opacity:1;transform:none;transition:opacity .4s ease,transform .4s cubic-bezier(.2,.7,.2,1)}
+
+/* ==================== CARTON INTRO / FIN ==================== */
+.card-full{position:absolute;inset:0;z-index:70;background:#fff;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  opacity:0;pointer-events:none}
+.card-full.on{opacity:1;transition:opacity .6s ease}
+.card-full.out{opacity:0;transition:opacity .5s ease}
+.cf-logo{width:104px;height:104px;border-radius:24px;background:var(--green);color:#fff;
+  font-weight:800;font-size:58px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 50px rgba(10,92,56,.28)}
+.cf-t{font-size:40px;font-weight:800;letter-spacing:-.02em;margin-top:30px}
+.cf-s{font-size:17px;color:var(--muted);margin-top:14px;max-width:560px;line-height:1.55}
+.cf-eu{margin-top:26px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--green-txt);
+  background:var(--green-soft);border:1px solid var(--green-bd);border-radius:20px;padding:8px 16px}
+.cf-eu .eu-shield{flex:0 0 auto}
+
+/* ==================== PAUSE CONTROL (tooling, not part of the demo) ==================== */
+#pauseBtn{position:fixed;top:16px;right:16px;z-index:9999;
+  background:rgba(20,30,26,.82);color:#fff;border:1px solid rgba(255,255,255,.25);
+  border-radius:8px;padding:9px 16px;font:600 13px/1 "Inter","Segoe UI",system-ui,sans-serif;
+  cursor:pointer;backdrop-filter:blur(4px)}
+#pauseBtn:hover{background:rgba(20,30,26,.95)}
+
+/* ─────────── sous-titres / narration ─────────── */
+.sub{position:absolute;left:50%;bottom:40px;z-index:80;max-width:900px;
+  background:rgba(18,26,34,.92);color:#fff;font-size:16.5px;line-height:1.5;font-weight:500;
+  padding:12px 24px;border-radius:12px;text-align:center;
+  box-shadow:0 12px 34px rgba(0,0,0,.28);
+  opacity:0;transform:translate(-50%,10px);pointer-events:none}
+.sub.on{opacity:1;transform:translate(-50%,0);transition:opacity .38s ease,transform .42s cubic-bezier(.2,.8,.3,1)}
+
+/* ===== version embarquée généré par build.mjs, ne pas éditer ===== */
+html,body{width:100%;height:100%;background:#eef1f3}
+.stage{cursor:pointer;user-select:none}
+@media (prefers-color-scheme:dark){html,body{background:#1c2126}}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- ===== TOP BAR (persistante) ===== -->
+  <div class="top">
+    <div class="logoT">V</div><div class="nameT">VERNELYS</div>
+    <div class="appsT" id="appsT"><div class="gridi"><i></i><i></i><i></i><i></i></div>Applications</div>
+    <div class="crumb" id="crumb">›&nbsp; Gestionnaire PV Juridique</div>
+    <div class="srchT"><div class="mag"></div>Rechercher partout apps, conversations, documents</div>
+    <div class="rightT"><span>▤ Base documentaire</span><span class="gauge"></span>Consommation<svg class="shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg><div class="avT">VL</div></div>
+  </div>
+
+  <div class="row">
+    <!-- ===== SIDEBAR (se replie à l'ouverture de l'application) ===== -->
+    <div class="side" id="side">
+      <div class="sideIn">
+        <div class="filtS"><div class="mag"></div>Filtrer la sidebar…<div class="pl">+</div></div>
+        <div class="newS">+&nbsp; Nouvelle conversation</div>
+
+        <div class="secS">
+          <div class="secH"><span>⌄ AGENTS</span><span>11</span></div>
+          <div class="itS"><span class="bdg b-g">PC</span>@ProcédurescabinetVernelys</div>
+          <div class="itS"><span class="bdg b-b">RJ</span>@Référentieljuridique2026</div>
+          <div class="itS"><span class="bdg b-o">FO</span>@Formations&amp;onboarding</div>
+          <div class="itS"><span class="bdg b-p">CD</span>@PVcomitédedirection</div>
+          <div class="itS" style="color:var(--muted)"><span class="bdg" style="background:#eef1f3;color:#67737e">@</span>Voir tous les agents<span class="cnt">+7</span></div>
+        </div>
+
+        <div class="secS">
+          <div class="secH"><span>⌄ BIBLIOTHÈQUE</span></div>
+          <div class="itS"><span class="fld"></span>Général<span class="cnt">10</span></div>
+          <div class="itS" style="padding-left:16px"><span class="fld"></span>SARL Martin &amp; Fils<span class="cnt">8</span></div>
+          <div class="itS" style="padding-left:16px"><span class="fld"></span>SAS Dupont Industries<span class="cnt">12</span></div>
+          <div class="itS" style="padding-left:16px"><span class="fld"></span>Boulangerie Dervieux<span class="cnt">4</span></div>
+          <div class="itS" style="padding-left:16px"><span class="fld"></span>Lucet SAS<span class="cnt">3</span></div>
+          <div class="itS" style="color:var(--muted)"><span style="width:12px;text-align:center">+</span>Nouveau dossier<span class="cnt">⌄</span></div>
+        </div>
+
+        <div class="secS">
+          <div class="secH"><span>⌄ RÉCENTS</span><span>◷</span></div>
+          <div class="itS"><span class="bdg b-g">CL</span>Note de frais SARL Martin &amp; Fils</div>
+          <div class="itS"><span class="bdg b-b">VF</span>Audit fiscal SAS Dupont Industries</div>
+          <div class="itS"><span class="bdg b-p">PV</span>PV d'AGE Boulangerie Dervieux</div>
+        </div>
+
+        <div class="footS"><div class="avT">VL</div><div><div class="t1">Cabinet Vasseur</div><div class="t2">Espace équipe</div></div></div>
+      </div>
+    </div>
+
+    <!-- ===== MAIN ===== -->
+    <div class="main">
+
+      <!-- ---------- PANE 1 : accueil ---------- -->
+      <div class="pane" id="paneHome">
+        <div class="col">
+          <div class="hero fu" data-s="1">V</div>
+          <div class="greet fu" data-s="2">Bonjour Valérie. <span>Que voulez-vous faire aujourd'hui&nbsp;?</span></div>
+
+          <div class="chatwrap fu" data-s="4">
+            <div class="chat">
+              <div class="field"><span class="plc">Posez votre question @ pour mentionner un agent, / pour insérer un prompt</span></div>
+              <div class="tools">
+                <div class="plusB">+</div>
+                <div class="t">⊕ Web</div>
+                <div class="t">⊘ Prompts</div>
+                <div class="sp"><span>🎙</span><div class="send">↑</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cards fu" data-s="5">
+            <div class="c"><div class="ci">@</div><div><div class="c1">Mentionner un agent</div><div class="c2">Juridique, fiscal, RH…</div></div></div>
+            <div class="c"><div class="ci">⠿</div><div><div class="c1">Lancer une application</div><div class="c2">17 apps disponibles</div></div></div>
+            <div class="c"><div class="ci">TR</div><div><div class="c1">Transcription &amp; CR de réunion</div><div class="c2">Audio → compte rendu</div></div></div>
+          </div>
+
+          <div class="fu" data-s="6">
+            <div class="recH"><span>REPRENDRE OÙ VOUS EN ÉTIEZ</span><span>VOIR L'HISTORIQUE →</span></div>
+            <div class="recR"><span class="bdg b-g">CL</span>Note de frais SARL Martin &amp; Fils<span class="rk">CL</span><span class="rt">il y a 12 min</span></div>
+            <div class="recR"><span class="bdg b-b">VF</span>Audit fiscal SAS Dupont Industries<span class="rk">VF</span><span class="rt">il y a 1 h</span></div>
+            <div class="recR"><span class="bdg b-p">PV</span>PV d'AGE Boulangerie Dervieux<span class="rk">PV</span><span class="rt">il y a 3 h</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- PANE 2 : Gestionnaire PV Juridique ---------- -->
+      <div class="pane" id="panePV">
+        <div class="pvwrap">
+
+          <!-- en-tête -->
+          <div class="pv-h fu3" data-s="1">
+            <div>
+              <div class="pv-t">Bonjour Valérie.</div>
+              <div class="pv-s"><b>17 sociétés suivies</b> · <b>6 résumés</b> attendent votre relecture.</div>
+            </div>
+            <div class="pv-add">+&nbsp; Ajouter des PV</div>
+          </div>
+
+          <!-- barre d'outils -->
+          <div class="pv-bar fu3" data-s="2">
+            <div class="seg"><span>☰ Vue en liste</span><span class="on">⊞ Vue par groupe</span></div>
+            <div class="pv-srch"><div class="mag"></div>Rechercher une société…</div>
+            <div class="pv-all">Voir toutes les sociétés →</div>
+          </div>
+
+          <div class="pv-cols">
+            <!-- colonne gauche : file de relecture -->
+            <div class="pvL fu3" data-s="3">
+              <div class="pv-ch"><span class="kk">À VALIDER</span><em class="n" id="cntVal">6</em><span class="pv-mark">Tout marquer lu</span></div>
+
+              <div class="vcard g-ind"><div class="bdg b-o">AL</div><div class="vc-x">
+                <div class="grp">VERNELYS INDUSTRIES</div>
+                <div class="nm">SARL Altmann &amp; Fils</div>
+                <div class="sub">DDU 28/09 Transfert de siège</div>
+                <div class="mt"><span class="chip">À VALIDER</span><em>il y a 2 jours</em></div>
+              </div><span class="chev">›</span></div>
+
+              <div class="vcard g-ind"><div class="bdg b-o">DO</div><div class="vc-x">
+                <div class="grp">VERNELYS INDUSTRIES</div>
+                <div class="nm">SAS Dorval Industries</div>
+                <div class="sub">AGE 21/04 Pacte d'associés</div>
+                <div class="mt"><span class="chip">À VALIDER</span><em>il y a 4 jours</em></div>
+              </div><span class="chev">›</span></div>
+
+              <div class="vcard g-ind"><div class="bdg b-o">DO</div><div class="vc-x">
+                <div class="grp">VERNELYS INDUSTRIES</div>
+                <div class="nm">SAS Dorval Industries</div>
+                <div class="sub">AGE 21/04 Émission BSA</div>
+                <div class="mt"><span class="chip">À VALIDER</span><em>il y a 4 jours</em></div>
+              </div><span class="chev">›</span></div>
+
+              <div class="vcard g-ind"><div class="bdg b-o">FA</div><div class="vc-x">
+                <div class="grp">VERNELYS INDUSTRIES</div>
+                <div class="nm">SAS Farel Architectes</div>
+                <div class="sub">AGE 02/07 Cession actions</div>
+                <div class="mt"><span class="chip">À VALIDER</span><em>il y a 1 semaine</em></div>
+              </div><span class="chev">›</span></div>
+
+              <div class="vcard g-srv"><div class="bdg b-b">MA</div><div class="vc-x">
+                <div class="grp">VERNELYS SERVICES</div>
+                <div class="nm">SARL Marchand &amp; Co</div>
+                <div class="sub">AGOA 22/08 Approb. comptes</div>
+                <div class="mt"><span class="chip">À VALIDER</span><em>il y a 12 jours</em></div>
+              </div><span class="chev">›</span></div>
+
+              <div class="vcard g-pat"><div class="bdg b-p">TI</div><div class="vc-x">
+                <div class="grp">VERNELYS PATRIMOINE</div>
+                <div class="nm">SCI Lyon Tilsitt</div>
+                <div class="sub">DDU 28/09 Bail intragroupe</div>
+                <div class="mt"><span class="chip">À VALIDER</span><em>il y a 2 jours</em></div>
+              </div><span class="chev">›</span></div>
+            </div>
+
+            <!-- colonne droite : toutes les sociétés -->
+            <div class="pvR fu3" data-s="4">
+              <div class="pv-ch"><span class="kk">TOUTES LES SOCIÉTÉS · EN LISTE</span><span class="pv-cnt">17 sociétés</span></div>
+              <div class="soc-list" id="socList">
+                <div class="soc g-ind" id="socAL"><div class="bdg b-o">AL</div><div class="so-x">
+                  <div class="so-n">SARL Altmann &amp; Fils<span class="grp">VERNELYS INDUSTRIES</span></div>
+                  <div class="so-s">SARL · 220 000 € · Lyon (69)</div>
+                </div><div class="so-r"><div class="so-d">28 sept. 2025</div><div class="so-p">12 PV</div></div><span class="nb">1</span></div>
+
+                <div class="soc g-ind"><div class="bdg b-o">DO</div><div class="so-x">
+                  <div class="so-n">SAS Dorval Industries<span class="grp">VERNELYS INDUSTRIES</span></div>
+                  <div class="so-s">SAS · 850 000 € · Villeurbanne (69)</div>
+                </div><div class="so-r"><div class="so-d">21 avr. 2025</div><div class="so-p">21 PV</div></div><span class="nb">2</span></div>
+
+                <div class="soc g-ind"><div class="bdg b-o">HE</div><div class="so-x">
+                  <div class="so-n">SAS Hélios Énergie<span class="grp">VERNELYS INDUSTRIES</span></div>
+                  <div class="so-s">SAS · 1 200 000 € · Saint-Priest (69)</div>
+                </div><div class="so-r"><div class="so-d">05 mars 2025</div><div class="so-p">14 PV</div></div></div>
+
+                <div class="soc g-ind"><div class="bdg b-o">FA</div><div class="so-x">
+                  <div class="so-n">SAS Farel Architectes<span class="grp">VERNELYS INDUSTRIES</span></div>
+                  <div class="so-s">SAS · 50 000 € · Lyon (69)</div>
+                </div><div class="so-r"><div class="so-d">02 juil. 2025</div><div class="so-p">9 PV</div></div><span class="nb">1</span></div>
+
+                <div class="soc g-ind"><div class="bdg b-o">GA</div><div class="so-x">
+                  <div class="so-n">SARL Gauthier Plomberie<span class="grp">VERNELYS INDUSTRIES</span></div>
+                  <div class="so-s">SARL · 30 000 € · Givors (69)</div>
+                </div><div class="so-r"><div class="so-d">18 nov. 2024</div><div class="so-p">6 PV</div></div></div>
+
+                <div class="soc g-srv"><div class="bdg b-b">BT</div><div class="so-x">
+                  <div class="so-n">SAS Bertrand Logistique<span class="grp">VERNELYS SERVICES</span></div>
+                  <div class="so-s">SAS · 100 000 € · Vénissieux (69)</div>
+                </div><div class="so-r"><div class="so-d">15 juin 2025</div><div class="so-p">8 PV</div></div></div>
+
+                <div class="soc g-srv"><div class="bdg b-b">ES</div><div class="so-x">
+                  <div class="so-n">SARL Espace Vert 95<span class="grp">VERNELYS SERVICES</span></div>
+                  <div class="so-s">SARL · 7 500 € · Cergy (95)</div>
+                </div><div class="so-r"><div class="so-d">12 mai 2025</div><div class="so-p">3 PV</div></div></div>
+
+                <div class="soc g-srv"><div class="bdg b-b">KX</div><div class="so-x">
+                  <div class="so-n">SAS Konvex Conseil<span class="grp">VERNELYS SERVICES</span></div>
+                  <div class="so-s">SAS · 80 000 € · Lyon (69)</div>
+                </div><div class="so-r"><div class="so-d">07 fév. 2025</div><div class="so-p">7 PV</div></div></div>
+
+                <div class="soc g-srv"><div class="bdg b-b">MA</div><div class="so-x">
+                  <div class="so-n">SARL Marchand &amp; Co<span class="grp">VERNELYS SERVICES</span></div>
+                  <div class="so-s">SARL · 25 000 € · Villefranche (69)</div>
+                </div><div class="so-r"><div class="so-d">22 août 2025</div><div class="so-p">5 PV</div></div><span class="nb">1</span></div>
+
+                <div class="soc g-pat"><div class="bdg b-p">CL</div><div class="so-x">
+                  <div class="so-n">SCI Clermont Patrimoine<span class="grp">VERNELYS PATRIMOINE</span></div>
+                  <div class="so-s">SCI · 1 500 € · Lyon (69)</div>
+                </div><div class="so-r"><div class="so-d">30 juin 2025</div><div class="so-p">5 PV</div></div></div>
+
+                <div class="soc g-pat"><div class="bdg b-p">TI</div><div class="so-x">
+                  <div class="so-n">SCI Lyon Tilsitt<span class="grp">VERNELYS PATRIMOINE</span></div>
+                  <div class="so-s">SCI · 1 000 € · Lyon (69)</div>
+                </div><div class="so-r"><div class="so-d">28 sept. 2025</div><div class="so-p">4 PV</div></div><span class="nb">1</span></div>
+
+                <div class="soc g-pat"><div class="bdg b-p">ME</div><div class="so-x">
+                  <div class="so-n">SCI Médicis<span class="grp">VERNELYS PATRIMOINE</span></div>
+                  <div class="so-s">SCI · 100 000 € · Paris (75)</div>
+                </div><div class="so-r"><div class="so-d">11 avr. 2025</div><div class="so-p">6 PV</div></div></div>
+
+                <div class="soc g-pat"><div class="bdg b-p">AT</div><div class="so-x">
+                  <div class="so-n">SCI Atlantique<span class="grp">VERNELYS PATRIMOINE</span></div>
+                  <div class="so-s">SCI · 5 000 € · Nantes (44)</div>
+                </div><div class="so-r"><div class="so-d">09 oct. 2024</div><div class="so-p">3 PV</div></div></div>
+
+                <div class="soc g-pat"><div class="bdg b-p">RI</div><div class="so-x">
+                  <div class="so-n">SCI Rive Gauche<span class="grp">VERNELYS PATRIMOINE</span></div>
+                  <div class="so-s">SCI · 2 000 € · Lyon (69)</div>
+                </div><div class="so-r"><div class="so-d">14 janv. 2025</div><div class="so-p">2 PV</div></div></div>
+              </div>
+              <div class="scrl"><i></i></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== VUE SOCIÉTÉ (exercice + détail d'un PV) ===== -->
+  <div class="deep" id="deep">
+
+    <!-- fil de retour -->
+    <div class="rb">
+      <div class="rb-back">←&nbsp; Retour au tableau de bord</div>
+      <div class="rb-crumb">Sociétés <i>›</i> SARL Altmann &amp; Fils <i>›</i> <b>Exercice 2025</b></div>
+    </div>
+
+    <!-- en-tête société -->
+    <div class="shead">
+      <div class="sh-b">AL</div>
+      <div>
+        <div class="sh-n">SARL Altmann &amp; Fils<span class="siren">SIREN · 521 884 217</span></div>
+        <div class="sh-s">Travaux de menuiserie · Lyon (69) · capital <b>220 000 €</b></div>
+      </div>
+      <div class="sh-add">+&nbsp; Ajouter des PV</div>
+    </div>
+
+    <div class="deep-body">
+
+      <!-- ---------- ÉCRAN A : l'exercice ---------- -->
+      <div class="exo" id="exo">
+        <div class="exo-col">
+
+          <div class="exo-k fx" data-s="1">
+            <div class="exo-pill">▤&nbsp; Exercice 2025 <i>⌄</i></div>
+            <span class="kk">5 PV · CLÔTURE 31 DÉC. · ACTIF</span>
+          </div>
+
+          <div class="exo-h fx" data-s="2">Voici les décisions prises par <em>SARL Altmann &amp; Fils</em> durant l'exercice <em>2025</em>.</div>
+          <div class="exo-s fx" data-s="3">Synthèse des décisions majeures votées au cours de l'exercice. Cliquez sur une ligne pour ouvrir le PV et son résumé.</div>
+
+          <div class="exo-card fx" data-s="4">
+            <div class="drow" id="dr1">
+              <div class="dr-l"><div class="dr-d">14 MARS</div><div class="dr-t">AGE</div></div>
+              <div class="dr-x">
+                <div class="dr-g"><span class="tg cap">CAPITAL</span><span class="tg ok">VALIDÉ</span></div>
+                <div class="dr-n">Augmentation de capital de <span class="num">75 000 €</span> à <span class="num">220 000 €</span> par incorporation de réserves.</div>
+                <div class="dr-s">Émission de 1 450 parts nouvelles · vote unanime · résolution n°1.</div>
+              </div>
+              <div class="dr-r">+145 000 €</div>
+            </div>
+
+            <div class="drow">
+              <div class="dr-l"><div class="dr-d">12 JUIN</div><div class="dr-t">AGOA</div></div>
+              <div class="dr-x">
+                <div class="dr-g"><span class="tg cpt">COMPTES</span><span class="tg ok">VALIDÉ</span></div>
+                <div class="dr-n">Approbation des comptes 2024 résultat net <span class="num">+184 320 €</span>.</div>
+                <div class="dr-s">Quitus à la gérance · affectation : réserve légale 9 216 € · dividende 120 000 € · RAN 55 104 €.</div>
+              </div>
+              <div class="dr-r">40 €/part</div>
+            </div>
+
+            <div class="drow">
+              <div class="dr-l"><div class="dr-d">12 JUIN</div><div class="dr-t">AGOA</div></div>
+              <div class="dr-x">
+                <div class="dr-g"><span class="tg gov">GOUVERNANCE</span><span class="tg ok">VALIDÉ</span></div>
+                <div class="dr-n">Renouvellement du mandat de M. Antoine Altmann, gérant.</div>
+                <div class="dr-s">Durée illimitée · rémunération brute portée à <span class="num">62 400 €</span>/an.</div>
+              </div>
+              <div class="dr-r"></div>
+            </div>
+
+            <div class="drow">
+              <div class="dr-l"><div class="dr-d">28 SEPT.</div><div class="dr-t">DDU</div></div>
+              <div class="dr-x">
+                <div class="dr-g"><span class="tg sta">STATUTS</span><span class="tg wn">À VALIDER</span></div>
+                <div class="dr-n">Transfert du siège social du 14 rue de la Soie au 8 quai Tilsitt.</div>
+                <div class="dr-s">Effectif au 1er octobre 2025 · modification de l'article 4 des statuts · formalités RCS sous 30 jours.</div>
+              </div>
+              <div class="dr-r"></div>
+            </div>
+
+            <!-- ce PV est encore en cours d'extraction : le résumé n'existe pas -->
+            <div class="drow">
+              <div class="dr-l"><div class="dr-d">14 OCT.</div><div class="dr-t">AGO</div></div>
+              <div class="dr-x">
+                <div class="dr-g"><span class="tg gov">GOUVERNANCE</span><span class="tg pr">▪ EN TRAITEMENT</span></div>
+                <div class="dr-n">Renouvellement du mandat de commissaire aux comptes.</div>
+                <div class="skel"></div>
+              </div>
+              <div class="dr-r"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ---------- ÉCRAN B : le détail d'un PV ---------- -->
+      <div class="pvd" id="pvd">
+
+        <!-- rail gauche : les PV de l'exercice -->
+        <div class="rail">
+          <div class="rl-k"><span class="kk">EXERCICE</span></div>
+          <div class="rl-y"><i>‹</i><div><b>2025</b><em>5 PV · actif</em></div><span class="cv">⌄</span><i>›</i></div>
+
+          <div class="rl-i on">
+            <div class="rl-t"><span class="kk">AGE</span><span class="rl-d">14 mars 2025</span><span class="tg ok">VALIDÉ</span></div>
+            <div class="rl-n">Augmentation de capital de 75 000 € à 220 000 €</div>
+            <div class="rl-g"><span class="pill">Capital</span><span class="pill">Statuts</span></div>
+          </div>
+          <div class="rl-i">
+            <div class="rl-t"><span class="kk">AGOA</span><span class="rl-d">12 juin 2025</span><span class="tg ok">VALIDÉ</span></div>
+            <div class="rl-n">Approbation des comptes 2024 et affectation du résultat</div>
+            <div class="rl-g"><span class="pill">Comptes</span><span class="pill">Affectation</span><span class="pill">Gouvernance</span></div>
+          </div>
+          <div class="rl-i">
+            <div class="rl-t"><span class="kk">AGOA</span><span class="rl-d">12 juin 2025</span><span class="tg ok">VALIDÉ</span></div>
+            <div class="rl-n">Renouvellement du mandat de gérant</div>
+            <div class="rl-g"><span class="pill">Gouvernance</span></div>
+          </div>
+          <div class="rl-i">
+            <div class="rl-t"><span class="kk">DDU</span><span class="rl-d">28 sept. 2025</span><span class="tg wn">À VALIDER</span></div>
+            <div class="rl-n">Transfert du siège social</div>
+            <div class="rl-g"><span class="pill">Statuts</span></div>
+          </div>
+          <div class="rl-i">
+            <div class="rl-t"><span class="kk">AGO</span><span class="rl-d">14 oct. 2025</span><span class="tg pr">▪ TRAITEMENT</span></div>
+            <div class="rl-n">Renouvellement du mandat de commissaire aux comptes</div>
+            <div class="rl-g"><span class="pill">Gouvernance</span></div>
+          </div>
+
+          <div class="rl-f">▤&nbsp; Revenir à la page de garde</div>
+        </div>
+
+        <!-- centre : le résumé -->
+        <div class="pvc">
+          <div class="pvc-in">
+            <div class="pvc-h"><span class="kk">AGE · 14 mars 2025 · 7 pages</span><span class="tg ok">VALIDÉ</span></div>
+            <div class="pvc-n">Augmentation de capital de 75 000 € à 220 000 €</div>
+            <div class="dr-g"><span class="tg cap">CAPITAL</span><span class="tg sta">STATUTS</span></div>
+
+            <div class="pvc-sep"></div>
+
+            <div class="pvc-k"><span class="kk">RÉSUMÉ SYNTHÉTIQUE</span><span class="ed">✎ Éditer</span></div>
+            <div class="rsum" id="rsum">
+              <p>L'assemblée générale extraordinaire, convoquée le <mark style="transition-delay:.05s">28 février 2025</mark>, s'est tenue au siège social le <mark style="transition-delay:.15s">14 mars 2025</mark> sous la présidence de M. Antoine Altmann.</p>
+              <p>Sur la première résolution, l'assemblée approuve à l'<mark style="transition-delay:.25s">unanimité</mark> l'augmentation du capital social de <mark style="transition-delay:.35s">75 000 €</mark> à <mark style="transition-delay:.45s">220 000 €</mark>, soit une augmentation de <mark style="transition-delay:.55s">145 000 €</mark> réalisée par incorporation de réserves disponibles à hauteur de <mark style="transition-delay:.65s">70 000 €</mark> et émission de <mark style="transition-delay:.75s">1 450 parts nouvelles</mark> de <mark style="transition-delay:.85s">100 €</mark> de nominal.</p>
+              <p>L'<mark style="transition-delay:.95s">article 7</mark> des statuts est modifié en conséquence pour refléter le nouveau montant du capital et le nouveau nombre de parts (<mark style="transition-delay:1.05s">2 200 parts</mark>).</p>
+              <p>Tous pouvoirs sont donnés au gérant pour effectuer les formalités de publicité et de dépôt au greffe du tribunal de commerce de Lyon.</p>
+            </div>
+
+            <div class="pvc-k"><span class="kk">DÉCISIONS ACTÉES</span></div>
+            <div class="dec">
+              <div class="dec-i">Augmentation de capital de 145 000 € à l'unanimité</div>
+              <div class="dec-i">Émission de 1 450 parts nouvelles de 100 € chacune</div>
+              <div class="dec-i">Modification de l'article 7 des statuts</div>
+              <div class="dec-i">Pouvoir donné à la gérance pour les formalités RCS</div>
+            </div>
+
+            <div class="pvc-ia">◷ Généré par l'IA · score de confiance <b>96 %</b></div>
+          </div>
+          <div class="pvc-f"><span class="ok-d">✓</span>Validé par <b>Sophie M.</b> le 18 mars 2025 · consultable par toute l'équipe</div>
+        </div>
+
+        <!-- droite : le PV source -->
+        <div class="src" id="src">
+          <div class="src-h">
+            <div><span class="kk">PV SOURCE</span><div class="src-f">AGE_Altmann_2025-03-14.pdf</div></div>
+            <span class="src-i">↗</span><span class="src-i">⤓</span>
+          </div>
+          <div class="page" id="page">
+            <div class="pg-k">PROCÈS-VERBAL · AGE</div>
+            <div class="pg-t">Augmentation de capital de 75 000 € à 220 000 €</div>
+            <p>L'an deux mille vingt-cinq, le <mark style="transition-delay:.15s">14 mars</mark>,</p>
+            <p>Les associés de la société à responsabilité limitée Altmann &amp; Fils, au capital de <mark style="transition-delay:.35s">75 000 €</mark>, dont le siège social est sis 14 rue de la Soie, 69100 Villeurbanne, se sont réunis en assemblée générale extraordinaire au siège social, sur convocation du gérant en date du <mark style="transition-delay:.05s">28 février 2025</mark>.</p>
+            <p>Sont présents ou représentés les associés détenant la totalité des <mark style="transition-delay:.9s">750 parts</mark> composant le capital social, formant ainsi le quorum requis.</p>
+            <p>L'assemblée est présidée par M. Antoine Altmann, gérant.</p>
+            <p><b>Première résolution.</b> L'assemblée, après avoir entendu lecture du rapport de la gérance, décide d'augmenter le capital social d'une somme de cent quarante-cinq mille euros (<mark style="transition-delay:.55s">145 000 €</mark>) pour le porter de soixante-quinze mille euros (<mark style="transition-delay:.35s">75 000 €</mark>) à deux cent vingt mille euros (<mark style="transition-delay:.45s">220 000 €</mark>), par incorporation de réserves disponibles à hauteur de <mark style="transition-delay:.65s">70 000 €</mark> et création de <mark style="transition-delay:.75s">1 450 parts nouvelles</mark> de cent euros (<mark style="transition-delay:.85s">100 €</mark>) de valeur nominale chacune.</p>
+            <p>Cette résolution est adoptée à l'<mark style="transition-delay:.25s">unanimité</mark> des voix.</p>
+            <p><b>Deuxième résolution.</b> En conséquence de l'adoption de la première résolution, l'<mark style="transition-delay:.95s">article 7</mark> des statuts est modifié comme suit : « Le capital social est fixé à la somme de <mark style="transition-delay:.45s">220 000 €</mark>. Il est divisé en <mark style="transition-delay:1.05s">2 200 parts</mark> de <mark style="transition-delay:.85s">100 €</mark> chacune… »</p>
+            <div class="pg-f"><span>Page 1 / 7</span><span>AGE_Altmann_2025-03-14.pdf</span></div>
+          </div>
+          <div class="src-f2"><span>Page 1 / 3</span><span class="nv"><i>‹</i><i>›</i><em>120 %</em></span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODALE APPLICATIONS ===== -->
+  <div class="scrim" id="scrim"></div>
+  <div class="modal" id="modal">
+    <div class="md-h"><div class="gridi g2"><i></i><i></i><i></i><i></i></div><b>Applications &amp; agents</b><span class="cnt">17 disponibles</span><span class="x">×</span></div>
+    <div class="md-s"><div class="mag"></div>Rechercher une application ou un agent…</div>
+    <div class="md-b">
+      <div class="md-k">RÉCENTS</div>
+      <div class="md-g">
+        <div class="mc" id="mcPV"><div class="bdg b-p">PV</div><div class="mc-n">Gestionnaire PV Juridique</div><div class="mc-s">Extraction d'assemblées &amp; décisions</div></div>
+        <div class="mc"><div class="bdg b-o">TR</div><div class="mc-n">Transcription &amp; CR de réunion</div><div class="mc-s">Audio → compte rendu structuré</div></div>
+        <div class="mc"><div class="bdg b-g">CL</div><div class="mc-n">Chat libre</div><div class="mc-s">Assistant généraliste · LLM Vertex AI</div></div>
+        <div class="mc"><div class="bdg b-b">AD</div><div class="mc-n">Agent documentaire</div><div class="mc-s">RAG sur votre base documentaire</div></div>
+      </div>
+      <div class="md-k">GÉNÉRIQUES</div>
+      <div class="md-g">
+        <div class="mc"><div class="bdg b-g">CL</div><div class="mc-n">Chat libre</div><div class="mc-s">Assistant généraliste · LLM Vertex AI</div></div>
+        <div class="mc"><div class="bdg b-b">AD</div><div class="mc-n">Agent documentaire</div><div class="mc-s">RAG sur votre base documentaire</div></div>
+        <div class="mc"><div class="bdg b-o">TR</div><div class="mc-n">Transcription &amp; CR de réunion</div><div class="mc-s">Audio → compte rendu structuré</div></div>
+        <div class="mc"><div class="bdg b-p">PV</div><div class="mc-n">Gestionnaire PV Juridique</div><div class="mc-s">Extraction d'assemblées &amp; décisions</div></div>
+      </div>
+      <div class="md-k">AGENTS</div>
+      <div class="md-g">
+        <div class="mc"><div class="bdg b-g">PC</div><div class="mc-n">@ProcédurescabinetVernelys</div><div class="mc-s">Procédures cabinet · 84 documents</div></div>
+        <div class="mc"><div class="bdg b-b">RJ</div><div class="mc-n">@Référentieljuridique2026</div><div class="mc-s">Référentiel juridique · 156 documents</div></div>
+      </div>
+    </div>
+    <div class="md-f">
+      <div class="md-k">CONNECTEURS</div>
+      <div class="md-g">
+        <div class="mc rw"><div class="bdg b-b">▤</div><div><div class="mc-n">Legifrance</div><div class="mc-s">Textes officiels</div></div></div>
+        <div class="mc rw"><div class="bdg b-o">▤</div><div><div class="mc-n">Pennylane</div><div class="mc-s">Comptabilité</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CARTON INTRO ===== -->
+  <div class="card-full" id="intro">
+    <div class="cf-logo">V</div>
+    <div class="cf-t">VERNELYS</div>
+    <div class="cf-s">Le gestionnaire PV juridique du cabinet, vos assemblées et décisions, extraites et classées automatiquement.</div>
+    <div class="cf-eu"><svg class="eu-shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg>Hébergement UE · vos données ne quittent pas l'Union européenne</div>
+  </div>
+
+  <!-- ===== CARTON FIN ===== -->
+  <div class="card-full" id="outro">
+    <div class="cf-logo">V</div>
+    <div class="cf-t">Toutes les décisions, une seule interface.</div>
+    <div class="cf-s">Résumé et PV d'origine, toujours consultables exercice après exercice.</div>
+    <div class="cf-eu"><svg class="eu-shield" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8.5 12.2l2.3 2.3 4.7-5.1"/></svg>Hébergé en UE · vernelys.com</div>
+  </div>
+
+  <!-- ===== SOUS-TITRES (narration) ===== -->
+  <div class="sub" id="sub"><span id="subT"></span></div>
+
+  <div class="ring" id="ring"></div>
+  <div class="ptr" id="ptr">
+    <svg viewBox="0 0 24 24"><path d="M4 2 L4 20 L9 15 L12.5 22 L15 21 L11.5 14 L18 14 Z" fill="#fff" stroke="#111" stroke-width="1.2" stroke-linejoin="round"/></svg>
+  </div>
+</div>
+
+<button id="pauseBtn" type="button">⏸ Pause</button>
+
+<script>
+window.__EMBED=true;
+/* ══════════════════════════════════════════════════════════════
+   Vernelys moteur d'animation V3
+   Même contrat que les V1/V2 : ?render=1 délègue la lecture au script de
+   capture (window.__play / __done / __tail) et ?speed= ralentit la
+   lecture pendant la capture. Le scénario est dans play(), tout en bas.
+
+   PARTIE 1 accueil → modale Applications → Gestionnaire PV Juridique
+   ══════════════════════════════════════════════════════════════ */
+
+const $=id=>document.getElementById(id);
+const stage=$('stage'),ptr=$('ptr'),ring=$('ring'),
+      paneHome=$('paneHome'),panePV=$('panePV'),
+      appsT=$('appsT'),modal=$('modal'),scrim=$('scrim'),mcPV=$('mcPV'),
+      crumb=$('crumb'),side=$('side'),row=document.querySelector('.row'),
+      cntVal=$('cntVal'),
+      deep=$('deep'),exo=$('exo'),pvd=$('pvd'),socAL=$('socAL'),dr1=$('dr1'),
+      rsum=$('rsum'),page=$('page'),
+      intro=$('intro'),outro=$('outro'),pauseBtn=$('pauseBtn'),sub=$('sub'),subT=$('subT');
+
+/* ?render=1 hands playback to the capture script and fills the frame exactly */
+const RENDER=new URLSearchParams(location.search).has('render');
+/* speed<1 plays slower, letting a slow capture collect more frames per second
+   of animation. Durations are compressed again at encode time. CSS transitions
+   are slowed separately via CDP Animation.setPlaybackRate. */
+const SPEED=parseFloat(new URLSearchParams(location.search).get('speed')||'1')||1;
+const NOSUB=window.__NOSUB===true||new URLSearchParams(location.search).has('nosub');
+
+function fit(){
+  if(RENDER){
+    // fill the viewport exactly from the top-left corner. Capturing at a larger
+    // viewport (e.g. 3840x2160) makes Chrome re-rasterise text at the final
+    // scale, so the output is natively sharp rather than upscaled.
+    const s=Math.min(innerWidth/1600,innerHeight/900);
+    stage.style.transformOrigin='top left';
+    stage.style.transform=`scale(${s})`;
+    return;
+  }
+  const s=Math.min(innerWidth/1600,innerHeight/900)*.98;stage.style.transform=`scale(${s})`;
+}
+addEventListener('resize',fit);fit();
+if(RENDER){
+  stage.style.borderRadius='0';stage.style.boxShadow='none';
+  document.documentElement.style.background='#fff';
+  // a transform does not affect layout, so the flex centring would still place
+  // the unscaled 1600x900 box in the middle and the scale would grow from
+  // there, pushing the frame off. Pin the stage to the top-left corner.
+  document.body.style.alignItems='flex-start';
+  document.body.style.justifyContent='flex-start';
+  pauseBtn.style.display='none';
+}
+
+/* ---- pause/resume: every wait/animation below reads time from vnow(), a
+   clock that freezes while paused, instead of performance.now() directly ---- */
+let pausedAccum=0,pauseStartedAt=null;
+function vnow(){return(pauseStartedAt!==null?pauseStartedAt:performance.now())-pausedAccum;}
+function setPaused(p){
+  if(p===(pauseStartedAt!==null))return;
+  if(p){
+    pauseStartedAt=performance.now();
+    document.getAnimations().forEach(a=>a.pause());
+    pauseBtn.textContent='▶ Reprendre';
+  }else{
+    pausedAccum+=performance.now()-pauseStartedAt;
+    pauseStartedAt=null;
+    document.getAnimations().forEach(a=>a.play());
+    pauseBtn.textContent='⏸ Pause';
+  }
+}
+function togglePause(){setPaused(pauseStartedAt===null);}
+
+/* rAF-polled against vnow() (not setTimeout) so a pause also freezes pending waits */
+function wait(ms){
+  const total=ms/SPEED;
+  return new Promise(res=>{
+    const t0=vnow();
+    (function step(){vnow()-t0>=total?res():requestAnimationFrame(step)})();
+  });
+}
+const SC=()=>stage.getBoundingClientRect().width/1600;
+function ctr(el,ox=0,oy=0){
+  const r=el.getBoundingClientRect(),s=stage.getBoundingClientRect(),k=SC();
+  return {x:(r.left+r.width/2-s.left)/k+ox,y:(r.top+r.height/2-s.top)/k+oy};
+}
+let cx=1180,cy=140;
+const draw=()=>ptr.style.transform=`translate(${cx}px,${cy}px)`;draw();
+
+/* frame-synced and time-based: one position per rendered frame, whatever the
+   frame rate, instead of a fixed number of 16ms hops */
+function moveTo(el,ox=0,oy=0,dur=600){
+  const p=ctr(el,ox,oy),sx=cx,sy=cy;
+  return new Promise(res=>{
+    const t0=vnow(),total=dur/SPEED;
+    const step=()=>{
+      const now=vnow();   // single time source: rAF timestamps can
+      const t=Math.min(1,(now-t0)/total),e=1-Math.pow(1-t,3);  // be on a slowed timeline
+      cx=sx+(p.x-sx)*e;cy=sy+(p.y-sy)*e;draw();
+      t<1?requestAnimationFrame(step):res();
+    };
+    requestAnimationFrame(step);
+  });
+}
+function click(){ring.style.left=cx+'px';ring.style.top=cy+'px';
+  ring.classList.remove('go');void ring.offsetWidth;ring.classList.add('go')}
+
+/* ─────────── sous-titres (narration) ─────────── */
+async function showSub(t){
+  if(NOSUB)return;
+  if(sub.classList.contains('on')){sub.classList.remove('on');await wait(210)}
+  subT.textContent=t;sub.classList.add('on');await wait(160);
+}
+function hideSub(){sub.classList.remove('on')}
+
+/* Clic sur un élément : approche, survol, appui, onde. */
+async function clickOn(el,dur=600,hold=260){
+  await moveTo(el,0,0,dur);
+  el.classList.add('hot');await wait(hold);
+  el.classList.add('press');click();await wait(130);
+  el.classList.remove('press');
+}
+
+/* Entrée en cascade des blocs d'un pane, dans l'ordre de leur data-s. */
+async function revealIn(pane,sel,gap=110){
+  const items=[...pane.querySelectorAll(sel)]
+    .sort((a,b)=>(+a.dataset.s||0)-(+b.dataset.s||0));
+  for(const el of items){el.classList.add('in');await wait(gap)}
+}
+
+/* Cascade sur une liste : le décalage reste court, sinon les 14 lignes
+   prendraient plus de temps que la scène entière. */
+async function cascade(sel,gap=42,cls='sh'){
+  for(const el of document.querySelectorAll(sel)){
+    el.classList.add(cls);await wait(gap);
+  }
+}
+
+/* Compteur qui s'incrémente : le chiffre est le sujet de l'écran. */
+function countTo(el,n,ms){
+  return new Promise(res=>{
+    const t0=vnow(),total=ms/SPEED;
+    const step=()=>{
+      const p=Math.min(1,(vnow()-t0)/total);
+      el.textContent=Math.round(p*n);
+      p<1?requestAnimationFrame(step):res();
+    };requestAnimationFrame(step);
+  });
+}
+
+/* ────────────────── CARTON INTRO ────────────────── */
+async function runIntro(){
+  intro.classList.add('on');
+  await wait(2400);
+  intro.classList.add('out');intro.classList.remove('on');
+  await wait(500);
+  await showSub('Vos assemblées et décisions juridiques, extraites et classées automatiquement.');
+}
+
+/* ────────────────── CARTON FIN ────────────────── */
+async function runOutro(){
+  await wait(400);
+  hideSub();
+  outro.classList.add('on');
+  await wait(2200);
+}
+
+/* ────────────────── SCÈNE 1 : l'accueil ────────────────── */
+async function runHome(){
+  paneHome.classList.add('on');
+  await revealIn(paneHome,'.fu',105);
+  await wait(700);
+
+  // le curseur vise le bouton Applications de la barre haute
+  await showSub('Depuis l\'accueil, « Applications » ouvre la bibliothèque d\'apps et d\'agents.');
+  await moveTo(appsT,0,0,620);
+  appsT.classList.add('hot');
+  await wait(240);
+  appsT.classList.add('press');
+  click();
+  await wait(120);
+  appsT.classList.remove('press');
+}
+
+/* ────────────────── SCÈNE 2 : la modale ────────────────── */
+async function runModal(){
+  row.classList.add('pushed');
+  scrim.classList.add('on');
+  modal.classList.add('on');
+  appsT.classList.remove('hot');
+  await showSub('Sélectionnez « Gestionnaire PV Juridique » pour démarrer.');
+  await wait(900);                        // le temps de balayer le catalogue
+
+  // descente vers la carte de l'application
+  await moveTo(mcPV,0,0,700);
+  mcPV.classList.add('hot');
+  await wait(340);
+  mcPV.classList.add('press');
+  click();
+  await wait(130);
+  mcPV.classList.remove('press');
+  await wait(170);
+
+  modal.classList.remove('on');
+  scrim.classList.remove('on');
+  row.classList.remove('pushed');
+  await wait(240);
+}
+
+/* ────────── SCÈNE 3 : le tableau de bord PV Juridique ────────── */
+async function runPV(){
+  paneHome.classList.remove('on');paneHome.classList.add('out');
+  // la sidebar se replie : l'application prend toute la largeur
+  side.classList.add('hide');
+  await wait(430);
+
+  panePV.classList.add('on');
+  crumb.classList.add('in');
+  await revealIn(panePV,'.fu3',150);
+  await showSub('Retrouvez les PV à valider et vos sociétés, classées par exercice.');
+
+  // le compteur « à valider » se pose après l'en-tête de colonne
+  countTo(cntVal,6,600);
+  await cascade('.pvL .vcard',95);
+  await cascade('.pvR .soc',38);
+  await wait(1100);
+}
+
+/* ────────── SCÈNE 4 : la fiche société et son exercice ────────── */
+async function runSociete(){
+  await clickOn(socAL,760,320);
+  socAL.classList.remove('hot');
+  await wait(170);
+
+  deep.classList.add('on');
+  exo.classList.add('on');
+  await showSub('Ouvrez une société pour parcourir ses PV, exercice par exercice.');
+  await revealIn(exo,'.fx',135);
+  await cascade('.exo-card .drow',85,'rv');
+  await wait(1600);                       // le temps de parcourir l'exercice
+}
+
+/* ────────── SCÈNE 5 : le PV, son résumé et sa source ────────── */
+async function runPVDetail(){
+  await clickOn(dr1,620,320);
+  dr1.classList.remove('hot');
+  await wait(180);
+
+  exo.classList.remove('on');
+  await wait(330);
+  pvd.classList.add('on');
+  await cascade('.rail .rl-i',75,'rv');
+  await showSub('Chaque résumé renvoie à sa page source dans le PV d\'origine.');
+  await wait(600);
+
+  /* les deux colonnes s'allument ensemble : on voit le résumé et le PV
+     source pointer sur les mêmes chiffres */
+  rsum.classList.add('lit');
+  page.classList.add('lit');
+  await wait(2600);
+}
+
+/* ────────────────── remise à zéro ────────────────── */
+function reset(){
+  intro.classList.remove('on','out');
+  outro.classList.remove('on','out');
+  [paneHome,panePV].forEach(p=>p.classList.remove('on','out'));
+  document.querySelectorAll('.fu,.fu3').forEach(e=>e.classList.remove('in'));
+  document.querySelectorAll('.soc,.vcard').forEach(e=>e.classList.remove('sh'));
+  document.querySelectorAll('.fx').forEach(e=>e.classList.remove('in'));
+  document.querySelectorAll('.drow,.rl-i').forEach(e=>e.classList.remove('rv'));
+  modal.classList.remove('on');scrim.classList.remove('on');row.classList.remove('pushed');
+  document.querySelectorAll('.hot,.press').forEach(e=>e.classList.remove('hot','press'));
+  crumb.classList.remove('in');
+  side.classList.remove('hide');
+  deep.classList.remove('on');exo.classList.remove('on');pvd.classList.remove('on');
+  rsum.classList.remove('lit');page.classList.remove('lit');
+  cntVal.textContent='0';
+  hideSub();
+  cx=1180;cy=140;draw();
+}
+
+let busy=false;
+window.__done=false;
+async function play(){
+  if(busy)return;busy=true;window.__done=false;
+  reset();await wait(RENDER?0:300);
+  await runIntro();
+  await runHome();await runModal();await runPV();
+  await runSociete();await runPVDetail();
+  await runOutro();
+  // The last captured frame is held for the whole tail, so it must be a settled
+  // state signalling __done mid-transition would truncate the ending.
+  if(RENDER){window.__tail=2.5}
+  busy=false;window.__done=true;
+}
+
+if(RENDER){
+  window.__play=play;                 // capture script calls this
+}else{
+  /* Version embarquée (build.mjs) : la séquence tourne en boucle avec une
+     respiration entre deux passages. En développement, un clic la rejoue. */
+  const LOOP=window.__EMBED===true;
+  async function run(){
+    await play();
+    if(LOOP){await wait(2600);run()}
+  }
+  stage.addEventListener('click',()=>{if(!busy)play()});
+  addEventListener('load',()=>setTimeout(run,400));
+  pauseBtn.addEventListener('click',togglePause);
+  addEventListener('keydown',e=>{
+    if(e.code==='Space'){e.preventDefault();togglePause()}
+  });
+}
+</script>
+</body>
+</html>

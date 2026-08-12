@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Vernelys — Vue d'ensemble</title>
+<style>
+  :root{
+    --green:#0a5c38; --green-txt:#0d6b45; --green-soft:#eef7f1; --green-bd:#cde5d8;
+    --ink:#1a2430; --muted:#8b97a3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#c9d1d6;
+    height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .stage{position:relative;width:1600px;height:900px;flex:0 0 auto;background:#fff;overflow:hidden;
+    border-radius:10px;box-shadow:0 26px 70px rgba(0,0,0,.3);transform-origin:center}
+
+  /* Les démos : aucune surimpression, aucun voile. Une seule est visible à la fois,
+     et le changement se fait pendant que le carton titre est opaque — donc invisible. */
+  .clip{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;
+    opacity:0;pointer-events:none;transition:opacity .45s ease}
+  .clip.show{opacity:1}
+
+  /* Carton titre : même langage visuel que les cartons d'intro/fin des vidéos
+     (fond blanc, pastille verte, titre gras, sous-titre gris). Simple fondu. */
+  .card{position:absolute;inset:0;z-index:60;background:#fff;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .5s ease}
+  .card.on{opacity:1}
+  .cf-logo{width:104px;height:104px;border-radius:24px;background:var(--green);color:#fff;
+    font-weight:800;font-size:58px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 20px 50px rgba(10,92,56,.28)}
+  .cf-t{font-size:40px;font-weight:800;letter-spacing:-.02em;margin-top:30px}
+  .cf-s{font-size:17px;color:var(--muted);margin-top:14px;max-width:620px;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <iframe class="clip" data-i="0" title="V4-question"></iframe>
+  <iframe class="clip" data-i="1" title="V1-question"></iframe>
+  <iframe class="clip" data-i="2" title="V1-answer"></iframe>
+  <iframe class="clip" data-i="3" title="V6-agents"></iframe>
+  <iframe class="clip" data-i="4" title="V2"></iframe>
+  <iframe class="clip" data-i="5" title="V3"></iframe>
+
+  <div class="card" id="card">
+    <div class="cf-logo">V</div>
+    <div class="cf-t" id="cardT"></div>
+    <div class="cf-s" id="cardS"></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const stage=$('stage'),card=$('card'),cardT=$('cardT'),cardS=$('cardS');
+
+function fit(){
+  const s=Math.min(innerWidth/1600,innerHeight/900)*.98;
+  stage.style.transform=`scale(${s})`;
+}
+addEventListener('resize',fit);fit();
+
+/* Section 1 (un seul carton d'intro, 4 clips enchaînés) :
+     0  V4 question  — saisie NAF + activation web, coupé avant la réponse
+     1  V1 question  — saisie @agent + question, coupé avant la réponse
+     2  V1 réponse   — réponse déjà générée avec source (skipto=answer)
+     3  V6 agents    — gestion des agents
+   Section 2 : V2   (carton propre)
+   Section 3 : V3   (carton propre) */
+const PARTS=[
+  {src:'/showcase/V4/vernalys-partie1-avec-soustitres.html',             speed:1.2,  hold:5800,
+   t:"L'assistant IA",  s:"Questions, réponses sourcées, prompts enregistrés, agents métier."},
+  {src:'/showcase/V1/index.html',                                        speed:1.4,  hold:5700,
+   noCard:true, nointro:true},
+  {src:'/showcase/V1/index.html',                                        speed:1.0,  hold:4200,
+   noCard:true, skipto:'answer'},
+  {src:'/showcase/V6/vernalys-applications-agents-avec-soustitres.html', speed:1.25, hold:13000,
+   noCard:true, nointro:true},
+  {src:'/showcase/V2/index-rapide.html',                                 speed:1.5,  hold:22100,
+   t:"Transcription & comptes rendus", s:"Vos réunions transcrites et transformées en comptes rendus structurés."},
+  {src:'/showcase/V3/vernalys-pv-juridique.html',                        speed:1.6,  hold:12500,
+   t:"PV juridique",                s:"Vos assemblées et décisions, extraites et classées automatiquement."},
+];
+
+const CARD_FADE=500;
+const CARD_HOLD=2900;
+
+const clips=[...document.querySelectorAll('.clip')];
+const url=p=>{
+  let u=`${p.src}?render=1&speed=${p.speed}&nosub`;
+  if(p.nointro)u+='&nointro';
+  if(p.skipto)u+='&skipto='+p.skipto;
+  return u;
+};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+clips.forEach(c=>c.addEventListener('load',()=>{
+  try{c.contentWindow.__play&&c.contentWindow.__play()}catch(e){}
+}));
+
+window.__seg=-1;window.__lap=0;
+
+async function runSegment(i){
+  const p=PARTS[i];
+  window.__seg=i;
+
+  if(p.noCard){
+    clips[i].setAttribute('src',url(p));
+    await new Promise(r=>clips[i].addEventListener('load',r,{once:true}));
+    await wait(50);
+    clips.forEach((c,k)=>c.classList.toggle('show',k===i));
+    card.classList.remove('on');
+    await wait(p.hold);
+  }else{
+    // Cut instantly to the opaque title card (no fade-in from the previous
+    // segment) — only the reveal at the end (card → demo) stays a smooth fade.
+    // Text must be set BEFORE the snap, or the previous card's title flashes
+    // for a frame first (looked like two transition cards in a row).
+    cardT.textContent=p.t;cardS.textContent=p.s;
+    card.style.transition='none';
+    card.classList.add('on');
+    card.offsetHeight;             // force reflow so the transition-less snap applies
+    card.style.transition='';
+    clips.forEach((c,k)=>c.classList.toggle('show',k===i));
+    clips[i].setAttribute('src',url(p));
+    await wait(CARD_HOLD);
+    card.classList.remove('on');   // the kept transition: fade-out reveal
+    await wait(p.hold);
+  }
+}
+
+async function play(){
+  card.classList.add('on');
+  await wait(CARD_FADE);
+  let i=0;
+  for(;;){
+    await runSegment(i);
+    i=(i+1)%PARTS.length;
+    if(i===0)window.__lap++;
+  }
+}
+addEventListener('load',play);
+</script>
+</body>
+</html>
