@@ -84,6 +84,31 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
                   {l.label}
                 </Link>
               ))}
+              {/* Accès à l'application — inerte tant que la plateforme
+                  n'est pas ouverte aux clients. */}
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="Bientôt disponible"
+                className="mt-2 flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-3 text-base font-semibold text-slate-500 disabled:cursor-not-allowed"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.75}
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                  />
+                </svg>
+                Accès Plateforme
+              </button>
               <Link
                 href="/contact"
                 onClick={() => setOpen(false)}
