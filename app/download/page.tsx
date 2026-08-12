@@ -1,7 +1,7 @@
-const CHANNEL = "stable";
+import DownloadButton from "./DownloadButton";
+
 const LATEST_VERSION = "1.0.4";
 const SETUP_FILENAME = "VernalysInstaller.msi";
-const SETUP_HREF = `/download/excel-addin/${CHANNEL}/${SETUP_FILENAME}`;
 
 export const metadata = {
   title: "Téléchargement",
@@ -34,13 +34,9 @@ export default function DownloadPage() {
               Version {LATEST_VERSION} · installeur signé (.msi)
             </p>
           </div>
-          <a
-            href={SETUP_HREF}
-            download={SETUP_FILENAME}
-            className="rounded-md bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
-          >
+          <DownloadButton className="cursor-pointer rounded-md bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">
             Télécharger l&apos;installeur
-          </a>
+          </DownloadButton>
         </div>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
