@@ -35,10 +35,12 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-6 py-24 md:grid-cols-2 md:gap-20 md:py-32">
-          {/* Colonne images — en arrière plan */}
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 sm:gap-16 sm:px-6 sm:py-24 md:grid-cols-2 md:gap-20 md:py-32">
+          {/* Colonne images — en arrière plan. Masquée sous md : sur téléphone,
+              les deux captures empilées n'apportent rien et alourdissent le
+              haut de page. */}
           <div
-            className="relative order-2 z-0 h-[32rem] overflow-hidden sm:h-[42rem] md:order-1 md:h-[48rem] md:overflow-visible"
+            className="relative order-2 z-0 hidden md:order-1 md:block md:h-[48rem]"
             style={{ perspective: "1200px" }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -95,35 +97,35 @@ export default function HomePage() {
         id="decouvrir"
         className="relative overflow-hidden scroll-mt-20 bg-gradient-to-b from-brand-50 via-white to-white"
       >
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
-          <h1 className="mx-auto max-w-4xl text-balance text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+        <div className="mx-auto max-w-6xl px-5 pt-14 pb-12 text-center sm:px-6 sm:pt-28 sm:pb-16">
+          <h1 className="mx-auto max-w-4xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
             Deux solutions pour{" "}
             <span className="italic text-brand-600">les professionnels du chiffre</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600">
+          <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-relaxed text-slate-600 sm:mt-6 sm:text-lg">
             Une plateforme collaborative qui centralise vos outils métier et votre
             IA sécurisée, et un complément Excel pour la production comptable au
             quotidien. Conçues par et pour la profession.
           </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
             <Link
               href="/plateforme"
-              className="inline-flex min-w-[17rem] items-center justify-center rounded-md bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+              className="inline-flex w-full items-center justify-center rounded-md bg-brand-600 px-6 py-3.5 sm:w-auto sm:min-w-[17rem] text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
             >
               Découvrir la plateforme
             </Link>
             <Link
               href="/complement-excel"
-              className="inline-flex min-w-[17rem] items-center justify-center rounded-md bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+              className="inline-flex w-full items-center justify-center rounded-md bg-brand-600 px-6 py-3.5 sm:w-auto sm:min-w-[17rem] text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
             >
               Découvrir le complément Excel
             </Link>
           </div>
-          <div className="mt-10">
+          <div className="mt-8 sm:mt-10">
             <TrustRow />
           </div>
 
-          <div className="group mx-auto mt-16 max-w-5xl">
+          <div className="group mx-auto mt-12 max-w-5xl sm:mt-16">
             <MockupFrame label="vernelys.app">
               <LiveShowcase
                 src="/showcase/recap/index.html"
@@ -140,22 +142,22 @@ export default function HomePage() {
       <VeilleSection />
 
       {/* Section plateforme — illustration pleine largeur + texte en dessous */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20">
         <div className="text-center">
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             Plateforme
           </span>
-          <h2 className="mt-2 text-4xl font-bold tracking-tight">
+          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
             Une plateforme collaborative et souveraine
           </h2>
         </div>
 
         {/* Déborde du conteneur en xl pour offrir 1152px d'affichage pixel-perfect au carrousel */}
-        <div className="mt-12 xl:-mx-16">
+        <div className="mt-10 sm:mt-12 xl:-mx-16">
           <PlateformeMockup />
         </div>
 
-        <div className="mt-14 grid gap-10 sm:grid-cols-3">
+        <div className="mt-12 grid gap-8 sm:mt-14 sm:grid-cols-3 sm:gap-10">
           <div>
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
               <svg className="h-5 w-5 text-brand-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -233,18 +235,18 @@ export default function HomePage() {
       />
 
       {/* Choix produit */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Choisissez votre point d&apos;entrée
           </h2>
-          <p className="mt-4 text-lg text-slate-600">
+          <p className="mt-4 text-base text-slate-600 sm:text-lg">
             Nos deux solutions fonctionnent seules ou ensemble. À vous de choisir
             celle qui répond à votre besoin immédiat.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-2">
+        <div className="mt-10 grid gap-6 sm:mt-14 sm:gap-8 lg:grid-cols-2">
           <ProductCard
             eyebrow="Plateforme"
             title="Vernelys Plateforme"
@@ -276,16 +278,16 @@ export default function HomePage() {
 
       {/* Section socle commun — light, illustrations orbitales, carte d'accent */}
       <section className="bg-slate-50">
-        <div className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
+            <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
               Sérieux, souverain,
               <br />
               pensé pour votre métier.
             </h2>
           </div>
 
-          <div className="mt-14 grid gap-5 md:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:mt-14 sm:gap-5 md:grid-cols-3">
             <SocleCard
               illustration={<RingsIllustration />}
               title="Conçu par la profession"
@@ -349,8 +351,8 @@ function SocleCard({
     <div
       className={
         accent
-          ? "rounded-3xl bg-brand-600 p-8 text-white shadow-lg shadow-brand-600/25"
-          : "rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition hover:shadow-md"
+          ? "rounded-3xl bg-brand-600 p-6 text-white shadow-lg shadow-brand-600/25 sm:p-8"
+          : "rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md sm:p-8"
       }
     >
       <div className={accent ? "text-white/90" : "text-brand-600"}>
@@ -358,7 +360,7 @@ function SocleCard({
       </div>
       <h3
         className={
-          "mt-8 text-2xl font-semibold " +
+          "mt-6 text-xl font-semibold sm:mt-8 sm:text-2xl " +
           (accent ? "text-white" : "text-slate-900")
         }
       >

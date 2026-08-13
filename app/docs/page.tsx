@@ -211,21 +211,21 @@ export default function DocsPage() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
+        <div className="mx-auto max-w-6xl px-5 pt-14 pb-12 text-center sm:px-6 sm:pt-28 sm:pb-16">
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             Documentation
           </span>
-          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Chaque commande du ruban,{" "}
             <span className="italic text-brand-600">expliquée.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600">
+          <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-relaxed text-slate-600 sm:mt-6 sm:text-lg">
             La référence complète de l&apos;onglet « Outils Excel » du
             complément Vernelys : installation, licence, outils de production,
             extraction PDF, raccourcis et assistant IA.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-9 sm:gap-4">
             <Link
               href="/guides"
               className="rounded-full bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
@@ -243,8 +243,8 @@ export default function DocsPage() {
       </section>
 
       {/* Sommaire + contenu */}
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+      <section className="mx-auto max-w-6xl px-5 pb-16 sm:px-6 sm:pb-24">
+        <div className="grid gap-10 sm:gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Sommaire */}
           <aside className="lg:col-span-3">
             <div className="lg:sticky lg:top-24">
@@ -270,7 +270,7 @@ export default function DocsPage() {
           </aside>
 
           {/* Contenu */}
-          <div className="space-y-16 lg:col-span-9">
+          <div className="space-y-12 sm:space-y-16 lg:col-span-9">
             {SECTIONS.map((s) => (
               <section key={s.id} id={s.id} className="scroll-mt-24">
                 <div className="flex items-center gap-3">
@@ -279,7 +279,7 @@ export default function DocsPage() {
                   </span>
                   <span className="h-px flex-1 bg-brand-100" />
                 </div>
-                <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:mt-4 sm:text-3xl">
                   {s.title}
                 </h2>
                 <div className="mt-5 space-y-5 text-base leading-relaxed text-slate-600">
@@ -289,8 +289,8 @@ export default function DocsPage() {
             ))}
 
             {/* Support */}
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-8 sm:p-10">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-10">
+              <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 Une question qui n&apos;est pas couverte ici ?
               </h2>
               <p className="mt-3 text-base leading-relaxed text-slate-600">
@@ -356,9 +356,9 @@ function FeatureTable({ rows }: { rows: Row[] }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <table className="w-full text-left text-sm">
-        <thead>
+        <thead className="hidden sm:table-header-group">
           <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="w-1/3 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
+            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500 sm:w-1/3">
               Commande
             </th>
             <th className="px-5 py-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
@@ -368,11 +368,11 @@ function FeatureTable({ rows }: { rows: Row[] }) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {rows.map(([name, desc]) => (
-            <tr key={name}>
-              <td className="px-5 py-4 align-top font-semibold text-slate-900">
+            <tr key={name} className="block sm:table-row">
+              <td className="block px-4 pt-3.5 pb-1 font-semibold text-slate-900 sm:table-cell sm:px-5 sm:py-4 sm:align-top">
                 {name}
               </td>
-              <td className="px-5 py-4 align-top leading-relaxed text-slate-600">
+              <td className="block px-4 pb-3.5 leading-relaxed text-slate-600 sm:table-cell sm:px-5 sm:py-4 sm:align-top">
                 {desc}
               </td>
             </tr>

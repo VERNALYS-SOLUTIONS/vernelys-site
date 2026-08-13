@@ -8,14 +8,14 @@ export const metadata = {
 
 export default function AProposPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
+    <div className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
       <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">
         À propos
       </p>
-      <h1 className="mt-2 text-4xl font-bold tracking-tight">
+      <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
         VERNALYS SOLUTIONS, éditeur de Vernelys
       </h1>
-      <p className="mt-4 text-lg text-slate-600">
+      <p className="mt-4 text-base text-slate-600 sm:text-lg">
         VERNALYS SOLUTIONS conçoit et édite Vernelys, un complément Excel pensé
         avec et pour les équipes de production comptable. Notre objectif est
         simple : faire gagner du temps aux cabinets sur les tâches Excel

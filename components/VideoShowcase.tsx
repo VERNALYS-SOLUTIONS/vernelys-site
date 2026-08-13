@@ -41,9 +41,9 @@ export default function VideoShowcase({
   const next = () => setActive((a) => (a + 1) % n);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-white py-24">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-white py-16 sm:py-24">
       {(eyebrow || title) && (
-        <div className="mx-auto max-w-2xl px-6 text-center">
+        <div className="mx-auto max-w-2xl px-5 text-center sm:px-6">
           {eyebrow ? (
             <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
               {eyebrow}
@@ -159,7 +159,7 @@ export default function VideoShowcase({
       </div>
 
       {/* ── Mobile / tablette : empilé simple ── */}
-      <div className="mx-auto mt-12 grid max-w-7xl gap-8 px-6 lg:hidden sm:grid-cols-2">
+      <div className="mx-auto mt-10 grid max-w-7xl gap-6 px-5 sm:mt-12 sm:grid-cols-2 sm:gap-8 sm:px-6 lg:hidden">
         {items.map((v, i) => (
           <div
             key={i}

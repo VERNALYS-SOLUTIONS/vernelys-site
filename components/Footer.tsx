@@ -4,24 +4,24 @@ import { SITE_VERSION } from "@/lib/version";
 export default function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-6 text-sm text-slate-500 sm:flex-row">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 text-sm text-slate-500 sm:flex-row sm:px-6">
         <p>
           © {new Date().getFullYear()} Vernelys. Tous droits réservés.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link href="/complement-excel" className="hover:text-brand-600">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <Link href="/complement-excel" className="py-1 hover:text-brand-600 sm:py-0">
             Complément Excel
           </Link>
-          <Link href="/plateforme" className="hover:text-brand-600">
+          <Link href="/plateforme" className="py-1 hover:text-brand-600 sm:py-0">
             Plateforme
           </Link>
-          <Link href="/a-propos" className="hover:text-brand-600">
+          <Link href="/a-propos" className="py-1 hover:text-brand-600 sm:py-0">
             À propos
           </Link>
-          <Link href="/confidentialite" className="hover:text-brand-600">
+          <Link href="/confidentialite" className="py-1 hover:text-brand-600 sm:py-0">
             Mentions légales & confidentialité
           </Link>
-          <Link href="/contact" className="hover:text-brand-600">
+          <Link href="/contact" className="py-1 hover:text-brand-600 sm:py-0">
             Contact
           </Link>
           <span className="rounded bg-slate-200 px-2 py-0.5 font-mono text-xs text-slate-600">

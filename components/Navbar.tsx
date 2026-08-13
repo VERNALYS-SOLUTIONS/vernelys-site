@@ -11,7 +11,7 @@ const links = [
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur">
-      <nav className="flex w-full items-center justify-between px-6 py-4 sm:px-10">
+      <nav className="flex w-full items-center justify-between px-5 py-4 sm:px-10">
         <Link href="/" className="flex items-center gap-2.5">
           <svg
             width="32"
@@ -36,7 +36,7 @@ export default function Navbar() {
           </span>
         </Link>
         <div className="flex items-center gap-4 sm:gap-6">
-          <ul className="hidden items-center gap-6 text-sm font-medium text-slate-700 md:flex">
+          <ul className="hidden items-center gap-6 text-sm font-medium text-slate-700 lg:flex">
             {links.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className="transition hover:text-brand-600">
@@ -46,13 +46,14 @@ export default function Navbar() {
             ))}
           </ul>
           {/* Accès à l'application — volontairement inerte tant que la
-              plateforme n'est pas ouverte aux clients. */}
+              plateforme n'est pas ouverte aux clients. Masqué sous xl :
+              la barre ne tiendrait pas, le bouton reste dans le menu mobile. */}
           <button
             type="button"
             disabled
             aria-disabled="true"
             title="Bientôt disponible"
-            className="hidden items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500 transition disabled:cursor-not-allowed md:inline-flex"
+            className="hidden items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500 transition disabled:cursor-not-allowed xl:inline-flex"
           >
             <svg
               className="h-4 w-4"
@@ -72,7 +73,7 @@ export default function Navbar() {
           </button>
           <Link
             href="/contact"
-            className="hidden rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 md:inline-flex"
+            className="hidden rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 lg:inline-flex"
           >
             Demander une démo
           </Link>

@@ -9,13 +9,13 @@ import ComplementMockup from "@/components/ComplementMockup";
 export default function QuickSetupCard() {
   return (
     <div className="grid overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm sm:grid-cols-2">
-      <div className="relative flex items-center overflow-hidden bg-gradient-to-br from-brand-600 to-brand-400 p-6 sm:p-10">
-        <div className="w-full scale-105 sm:translate-x-6 sm:scale-110">
+      <div className="relative flex items-center overflow-hidden bg-gradient-to-br from-brand-600 to-brand-400 p-4 sm:p-10">
+        <div className="w-full sm:translate-x-6 sm:scale-110">
           <ComplementMockup />
         </div>
       </div>
 
-      <div className="flex flex-col justify-center gap-4 p-8 sm:p-12">
+      <div className="flex flex-col justify-center gap-4 p-6 sm:p-12">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logos/excel.png"
@@ -24,7 +24,7 @@ export default function QuickSetupCard() {
           height={40}
           className="h-10 w-10 rounded-xl shadow-sm ring-1 ring-slate-900/5"
         />
-        <h3 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h3 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
           Vernelys s&apos;installe directement dans Excel
         </h3>
         <p className="text-base leading-relaxed text-slate-600">

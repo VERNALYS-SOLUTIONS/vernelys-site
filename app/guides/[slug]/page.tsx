@@ -101,12 +101,12 @@ export default async function GuidePage({
   if (!guide) notFound();
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-16">
+    <article className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
       <Link href="/guides" className="text-sm text-brand-600 hover:underline">
         ← Tous les guides
       </Link>
-      <h1 className="mt-4 text-4xl font-bold tracking-tight">{guide.title}</h1>
-      <p className="mt-4 text-lg text-slate-600">{guide.intro}</p>
+      <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{guide.title}</h1>
+      <p className="mt-4 text-base text-slate-600 sm:text-lg">{guide.intro}</p>
 
       <ol className="mt-10 space-y-4">
         {guide.steps.map((step, i) => (

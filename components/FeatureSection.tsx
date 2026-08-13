@@ -43,9 +43,9 @@ export default function FeatureSection({
               type="button"
               onClick={() => setOpenIndex(open ? -1 : i)}
               aria-expanded={open}
-              className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
             >
-              <span className="text-xl font-semibold tracking-tight text-slate-900">
+              <span className="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
                 {item.title}
               </span>
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
@@ -66,7 +66,7 @@ export default function FeatureSection({
               </span>
             </button>
             {open ? (
-              <div className="px-6 pb-6">
+              <div className="px-5 pb-5 sm:px-6 sm:pb-6">
                 <p className="font-semibold text-slate-900">{item.lead}</p>
                 <p className="mt-3 leading-relaxed text-slate-600">
                   {item.description}
@@ -80,23 +80,23 @@ export default function FeatureSection({
   );
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20">
+    <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20">
       <div className="mx-auto max-w-3xl text-center">
         {eyebrow ? (
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             {eyebrow}
           </span>
         ) : null}
-        <h2 className="mt-4 text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+        <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-slate-900 sm:mt-4 sm:text-4xl lg:text-5xl">
           {title}
         </h2>
       </div>
 
-      <div className="mt-14 grid items-center gap-10 lg:grid-cols-2">
-        <div className={illustrationSide === "right" ? "lg:order-2" : "lg:order-1"}>
+      <div className="mt-10 grid items-center gap-8 sm:mt-14 sm:gap-10 lg:grid-cols-2">
+        <div className={"min-w-0 " + (illustrationSide === "right" ? "lg:order-2" : "lg:order-1")}>
           {illustration}
         </div>
-        <div className={illustrationSide === "right" ? "lg:order-1" : "lg:order-2"}>
+        <div className={"min-w-0 " + (illustrationSide === "right" ? "lg:order-1" : "lg:order-2")}>
           {accordion}
         </div>
       </div>

@@ -39,7 +39,7 @@ export default function ComplementMockup() {
   ];
 
   return (
-    <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-100 to-brand-50 p-4 shadow-xl ring-1 ring-slate-900/5 sm:p-6">
+    <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-brand-100 to-brand-50 p-3 shadow-xl ring-1 ring-slate-900/5 sm:p-6">
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
         {/* Onglets du ruban */}
         <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-50 px-4 pt-2 text-[10px] text-slate-400">
@@ -53,7 +53,7 @@ export default function ComplementMockup() {
         </div>
 
         {/* Barre d'outils Vernelys, groupée comme le vrai ruban (une seule ligne) */}
-        <div className="flex flex-nowrap items-stretch overflow-hidden border-b border-slate-100 bg-white px-1.5 py-1.5">
+        <div className="flex flex-wrap items-stretch gap-y-1 border-b border-slate-100 bg-white px-1.5 py-1.5 sm:flex-nowrap sm:gap-y-0 sm:overflow-hidden">
           {groups.map((g) => (
             <div
               key={g.label}
@@ -63,7 +63,7 @@ export default function ComplementMockup() {
                 {g.tools.map((t) => (
                   <div
                     key={t.label}
-                    className="flex w-9 flex-col items-center gap-1 rounded-md py-1"
+                    className="flex w-10 flex-col items-center gap-1 rounded-md py-1 sm:w-9"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -73,13 +73,13 @@ export default function ComplementMockup() {
                       height={16}
                       className="h-4 w-4 object-contain"
                     />
-                    <span className="w-full truncate text-center text-[7px] font-medium leading-tight text-slate-600">
+                    <span className="w-full truncate text-center text-[8px] font-medium leading-tight text-slate-600 sm:text-[7px]">
                       {t.label}
                     </span>
                   </div>
                 ))}
               </div>
-              <span className="mt-1 truncate text-center text-[7px] uppercase tracking-wide text-slate-400">
+              <span className="mt-1 truncate text-center text-[8px] uppercase tracking-wide text-slate-400 sm:text-[7px]">
                 {g.label}
               </span>
             </div>
@@ -120,7 +120,7 @@ export default function ComplementMockup() {
           </div>
 
           {/* Panneau « Aperçu des PDF » */}
-          <div className="w-40 shrink-0 border-l border-slate-200 bg-slate-50/70 p-3 sm:w-48">
+          <div className="w-36 shrink-0 border-l border-slate-200 bg-slate-50/70 p-2.5 sm:w-48 sm:p-3">
             <div className="text-[10px] font-semibold text-slate-700">
               Aperçu des PDF
             </div>

@@ -82,7 +82,7 @@ export default function PlateformeMockup() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-100 to-brand-50 p-5 shadow-xl ring-1 ring-slate-900/5 sm:overflow-visible sm:p-8"
+      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-100 to-brand-50 p-3 shadow-xl ring-1 ring-slate-900/5 sm:overflow-visible sm:p-8"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -142,13 +142,13 @@ export default function PlateformeMockup() {
       </div>
 
       {/* Indicateurs (dots + labels) */}
-      <div className="mt-4 flex items-center justify-center gap-2 overflow-x-auto sm:gap-3">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:gap-3">
         {slides.map((slide, i) => (
           <button
             key={slide.base}
             onClick={() => setActive(i)}
             className={
-              "rounded-full px-3 py-1 text-[11px] font-medium transition " +
+              "rounded-full px-2.5 py-1.5 text-[11px] font-medium transition sm:px-3 sm:py-1 " +
               (i === active
                 ? "bg-brand-600 text-white shadow-sm"
                 : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-slate-50")

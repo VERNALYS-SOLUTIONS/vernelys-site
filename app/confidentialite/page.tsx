@@ -26,14 +26,14 @@ export const metadata = {
 
 export default function ConfidentialitePage() {
   return (
-    <div className="mx-auto max-w-4xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-5 py-12 sm:px-6 sm:py-16">
       <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">
         Informations légales
       </p>
-      <h1 className="mt-2 text-4xl font-bold tracking-tight">
+      <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
         Confidentialité & mentions légales
       </h1>
-      <p className="mt-4 text-lg text-slate-600">
+      <p className="mt-4 text-base text-slate-600 sm:text-lg">
         Cette page décrit l&apos;identité de l&apos;éditeur du site, la manière
         dont vos données personnelles sont traitées dans le cadre du site et du
         complément Excel Vernelys, ainsi que les droits dont vous disposez.
@@ -604,11 +604,11 @@ function FeatureTable({ rows }: { rows: [string, string][] }) {
       <table className="w-full text-sm">
         <tbody className="divide-y divide-slate-200">
           {rows.map(([name, desc]) => (
-            <tr key={name} className="bg-white">
-              <td className="w-1/3 px-4 py-3 font-semibold text-slate-800 align-top">
+            <tr key={name} className="block bg-white sm:table-row">
+              <td className="block px-4 pt-3 pb-1 font-semibold text-slate-800 sm:table-cell sm:w-1/3 sm:py-3 sm:align-top">
                 {name}
               </td>
-              <td className="px-4 py-3 text-slate-600">{desc}</td>
+              <td className="block px-4 pb-3 text-slate-600 sm:table-cell sm:py-3">{desc}</td>
             </tr>
           ))}
         </tbody>

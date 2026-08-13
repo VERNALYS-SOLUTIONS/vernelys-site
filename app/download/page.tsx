@@ -50,15 +50,15 @@ export default function DownloadPage() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
+        <div className="mx-auto max-w-6xl px-5 pt-14 pb-12 text-center sm:px-6 sm:pt-28 sm:pb-16">
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             Téléchargement
           </span>
-          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Vernelys s&apos;installe dans Excel,{" "}
             <span className="italic text-brand-600">en quelques minutes.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600">
+          <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-relaxed text-slate-600 sm:mt-6 sm:text-lg">
             Un complément COM pour Microsoft Excel sur Windows, distribué via un
             installeur signé. L&apos;installation se fait{" "}
             <strong className="font-semibold text-slate-800">
@@ -67,7 +67,7 @@ export default function DownloadPage() {
             et sans changer vos habitudes de travail.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:mt-9 sm:gap-4">
             <DownloadButton className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700">
               <svg
                 className="h-4 w-4"
@@ -97,33 +97,33 @@ export default function DownloadPage() {
             Version {LATEST_VERSION} · installeur signé (.msi) · Windows 10 & 11
           </p>
 
-          <div className="mx-auto mt-16 max-w-3xl">
+          <div className="mx-auto mt-12 max-w-3xl sm:mt-16">
             <ComplementMockup />
           </div>
         </div>
       </section>
 
       {/* Étapes d'installation */}
-      <section className="mx-auto max-w-6xl px-6 py-24">
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             Installation
           </span>
-          <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Quatre étapes, aucune complication
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-slate-600">
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:mt-5 sm:text-lg">
             Pas de service informatique à mobiliser, pas de configuration à
             préparer : le complément se pose sur le poste de chaque
             collaborateur.
           </p>
         </div>
 
-        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {STEPS.map((step) => (
             <div
               key={step.index}
-              className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition hover:shadow-md"
+              className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md sm:p-8"
             >
               <div className="flex items-center gap-3">
                 <span className="font-mono text-sm font-bold text-brand-600">
@@ -144,10 +144,10 @@ export default function DownloadPage() {
 
       {/* Prérequis & activation */}
       <section className="bg-slate-50">
-        <div className="mx-auto max-w-6xl px-6 py-24">
-          <div className="grid gap-8 lg:grid-cols-2">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
             {/* Prérequis */}
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
               <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">
                 Prérequis
               </span>
@@ -170,7 +170,7 @@ export default function DownloadPage() {
             </div>
 
             {/* Activation */}
-            <div className="rounded-3xl bg-brand-600 p-8 text-white shadow-lg shadow-brand-600/25 sm:p-10">
+            <div className="rounded-3xl bg-brand-600 p-6 text-white shadow-lg shadow-brand-600/25 sm:p-10">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
                 <svg
                   className="h-5 w-5 text-white"

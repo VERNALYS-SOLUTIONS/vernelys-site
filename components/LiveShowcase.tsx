@@ -125,7 +125,7 @@ function ShowcaseOverlay({
 
       <div
         className={
-          "aspect-video max-h-[94vh] w-full max-w-[1800px] overflow-hidden rounded-lg bg-[#c9d1d6] shadow-2xl transition-all ease-out " +
+          "cinema-stage aspect-video max-h-[94vh] w-full max-w-[1800px] overflow-hidden rounded-lg bg-[#c9d1d6] shadow-2xl transition-all ease-out " +
           (visible ? "scale-100 opacity-100" : "scale-95 opacity-0")
         }
         style={{ transitionDuration: `${TRANSITION_MS}ms` }}

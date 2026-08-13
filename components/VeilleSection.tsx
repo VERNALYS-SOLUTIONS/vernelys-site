@@ -15,23 +15,23 @@ export default function VeilleSection() {
         }}
       />
 
-      <div className="relative mx-auto max-w-6xl px-6 py-24">
+      <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Toujours à la pointe,<br />pas de changement d&apos;infrastructure
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-slate-600">
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:mt-5 sm:text-lg">
             Le marché de l&apos;IA évolue à une vitesse fulgurante. Nouveaux modèles,
             nouveaux acteurs, nouvelles capacités : nous surveillons tout pour vous.
           </p>
         </div>
 
-        <div className="mt-16 grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div className="mt-12 grid items-center gap-10 sm:mt-16 sm:gap-12 lg:grid-cols-2 lg:gap-20">
           <div className="order-2 lg:order-1">
             <AiRaceOrbit />
           </div>
 
-          <div className="order-1 space-y-8 lg:order-2">
+          <div className="order-1 space-y-6 sm:space-y-8 lg:order-2">
             <div className="flex gap-4">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50">
                 <svg className="h-5 w-5 text-brand-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

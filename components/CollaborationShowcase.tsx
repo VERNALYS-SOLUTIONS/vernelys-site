@@ -5,8 +5,8 @@
  */
 export default function CollaborationShowcase() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-brand-50/30 to-white py-24">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white via-brand-50/30 to-white py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
             Collaboration
@@ -22,7 +22,7 @@ export default function CollaborationShowcase() {
         </div>
 
         {/* ── Mockup classeur partagé ── */}
-        <div className="mt-14 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
+        <div className="mt-10 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5 sm:mt-14">
           <div className="grid lg:grid-cols-3">
             {/* Feuille de calcul */}
             <div className="border-b border-slate-100 lg:col-span-2 lg:border-b-0 lg:border-r">
@@ -35,7 +35,7 @@ export default function CollaborationShowcase() {
                 </span>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-slate-500">
                     Cabinet &amp; client sur le même dossier
@@ -102,7 +102,7 @@ export default function CollaborationShowcase() {
             </div>
 
             {/* Fil d'activité */}
-            <div className="bg-slate-50/60 p-6">
+            <div className="bg-slate-50/60 p-5 sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
                 Activité récente
               </p>
@@ -133,7 +133,7 @@ export default function CollaborationShowcase() {
         </div>
 
         {/* ── Trois points forts ── */}
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-3 sm:gap-6">
           <HighlightPoint
             icon={<UsersIcon />}
             title="Collaboration client boostée"
@@ -209,7 +209,7 @@ function HighlightPoint({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-600">
         {icon}
       </span>

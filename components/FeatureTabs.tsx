@@ -110,22 +110,22 @@ export default function FeatureTabs() {
   const current = tabs.find((t) => t.key === active) ?? tabs[0];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-brand-50/60 via-white to-white py-24">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="relative overflow-hidden bg-gradient-to-b from-brand-50/60 via-white to-white py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
         {/* ── Titre ── */}
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h2 className="text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Ne chercher plus faîtes la différence{" "}
             <span className="italic text-brand-600">avec Vernelys</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-600">
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:mt-5">
             Un ruban unique qui regroupe les fonctionnalités utilisées au
             quotidien. Choisissez un usage :
           </p>
         </div>
 
         {/* ── Barre d'onglets ── */}
-        <div className="mt-10 flex justify-center">
+        <div className="mt-8 flex justify-center sm:mt-10">
           <div
             role="tablist"
             aria-label="Fonctionnalités du complément Excel"
@@ -143,7 +143,7 @@ export default function FeatureTabs() {
                   id={`tab-${tab.key}`}
                   onClick={() => setActive(tab.key)}
                   className={
-                    "whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold transition sm:px-4 " +
+                    "whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-semibold transition sm:px-4 sm:text-sm " +
                     (isActive
                       ? "bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200"
                       : "text-slate-600 hover:text-slate-900")
@@ -162,12 +162,12 @@ export default function FeatureTabs() {
           role="tabpanel"
           id={`tab-panel-${current.key}`}
           aria-labelledby={`tab-${current.key}`}
-          className="mt-10 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6"
+          className="mt-8 rounded-3xl border border-slate-200 bg-white p-2 shadow-sm sm:mt-10 sm:p-6"
         >
-          <div className="grid gap-8 rounded-2xl bg-slate-50/60 p-6 sm:p-10 lg:grid-cols-2 lg:items-center lg:gap-12">
+          <div className="grid gap-6 rounded-2xl bg-slate-50/60 p-4 sm:gap-8 sm:p-10 lg:grid-cols-2 lg:items-center lg:gap-12">
             {/* Texte */}
             <div>
-              <h3 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h3 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 {current.title}
               </h3>
               <p className="mt-4 text-base leading-relaxed text-slate-600">

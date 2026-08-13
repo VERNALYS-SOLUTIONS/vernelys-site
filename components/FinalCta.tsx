@@ -17,7 +17,7 @@ export default function FinalCta({
 }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white via-brand-50/40 to-white">
-      <div className="relative mx-auto max-w-5xl px-6 py-28 text-center sm:py-32">
+      <div className="relative mx-auto max-w-5xl px-5 py-16 text-center sm:px-6 sm:py-28 md:py-32">
         {/* Logo Vernelys en watermark — recouvre titre + chat */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <svg
@@ -36,13 +36,13 @@ export default function FinalCta({
           </svg>
         </div>
 
-        <h2 className="relative mx-auto max-w-3xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+        <h2 className="relative mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
           {title}
         </h2>
 
-        <div className="relative mt-16">
+        <div className="relative mt-10 sm:mt-16">
           {/* Chat input mockup */}
-          <div className="relative mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl shadow-brand-900/10">
+          <div className="relative mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl shadow-brand-900/10 sm:p-5">
             {/* Barre d'outils */}
             <div className="flex items-center gap-2">
               <button
@@ -78,11 +78,11 @@ export default function FinalCta({
             </div>
 
             {/* Prompt + bouton Démo */}
-            <div className="mt-5 flex items-center justify-between gap-4">
+            <div className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <p className="text-left text-slate-800 sm:text-lg">{prompt}</p>
               <Link
                 href={ctaHref}
-                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition hover:bg-brand-700"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition hover:bg-brand-700"
               >
                 {ctaLabel}
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">

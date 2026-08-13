@@ -71,3 +71,20 @@ body {
       rgba(1, 22, 14, 0) 70%
     );
 }
+
+/* Lecteur de démo plein écran — sur téléphone en portrait, une scène 16:9
+   n'occuperait qu'une mince bande illisible. On la pivote d'un quart de tour
+   pour qu'elle remplisse l'écran, comme un lecteur vidéo en mode paysage. */
+@media (max-width: 639px) and (orientation: portrait) {
+  /* Selecteur double : passe devant les utilitaires Tailwind (w-full, max-h). */
+  .cinema-stage.cinema-stage {
+    /* Hauteur = largeur visuelle apres rotation ; la largeur suit le ratio 16:9. */
+    height: min(100vw - 1rem, 56.25vh);
+    width: auto;
+    /* Sans cela, le flex parent retrecirait la scene a la largeur du telephone. */
+    flex: none;
+    max-width: none;
+    max-height: none;
+    transform: rotate(90deg);
+  }
+}

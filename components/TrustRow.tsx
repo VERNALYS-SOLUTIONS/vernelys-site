@@ -16,7 +16,7 @@ type TrustRowProps = {
  */
 export default function TrustRow({ items = DEFAULT_ITEMS, dark = false }: TrustRowProps) {
   return (
-    <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+    <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2.5 sm:gap-x-6 sm:gap-y-3">
       {items.map((item) => (
         <li
           key={item}

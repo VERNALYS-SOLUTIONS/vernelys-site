@@ -19,7 +19,7 @@ export default function ComplementExcelPage() {
       <FeatureTabs />
 
       {/* Installation simple */}
-      <section className="mx-auto max-w-6xl px-6 pt-20">
+      <section className="mx-auto max-w-6xl px-5 pt-14 sm:px-6 sm:pt-20">
         <QuickSetupCard />
       </section>
 
@@ -42,13 +42,13 @@ export default function ComplementExcelPage() {
       <ExcelShowcase />
 
       {/* Stats + CTA guides */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="grid gap-8 rounded-2xl border border-slate-200 bg-white p-10 shadow-sm sm:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20">
+        <div className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-3 sm:gap-8 sm:p-10">
           <Stat label="Compatibilité" value="Excel 2016+" />
           <Stat label="Plateforme" value="Windows" />
           <Stat label="Installation" value=".msi en 1 clic" />
         </div>
-        <div className="mt-12 flex justify-center">
+        <div className="mt-10 flex justify-center sm:mt-12">
           <Link
             href="/guides"
             className="text-sm font-semibold text-brand-600 hover:underline"
@@ -66,7 +66,7 @@ export default function ComplementExcelPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center">
-      <p className="text-3xl font-bold text-brand-600">{value}</p>
+      <p className="text-2xl font-bold text-brand-600 sm:text-3xl">{value}</p>
       <p className="mt-1 text-sm text-slate-500">{label}</p>
     </div>
   );

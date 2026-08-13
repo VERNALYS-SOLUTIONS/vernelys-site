@@ -12,20 +12,20 @@ export default function ContactPage() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
+        <div className="mx-auto max-w-6xl px-5 pt-14 pb-12 text-center sm:px-6 sm:pt-28 sm:pb-16">
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             Démonstration
           </span>
-          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mx-auto mt-3 max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Découvrez Vernelys{" "}
             <span className="italic text-brand-600">en action.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600">
+          <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-relaxed text-slate-600 sm:mt-6 sm:text-lg">
             Réservez un créneau avec notre équipe pour une présentation
             personnalisée, adaptée aux besoins et aux outils de votre cabinet.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-9 sm:gap-3">
             <HeroBadge label="30 minutes" />
             <HeroBadge label="Sans engagement" />
             <HeroBadge label="À distance ou sur site" />
@@ -34,14 +34,14 @@ export default function ContactPage() {
       </section>
 
       {/* Content */}
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="grid gap-12 lg:grid-cols-5 lg:gap-16">
+      <section className="mx-auto max-w-6xl px-5 pb-16 sm:px-6 sm:pb-24">
+        <div className="grid gap-10 sm:gap-12 lg:grid-cols-5 lg:gap-16">
           {/* Left: Benefits */}
           <div className="lg:col-span-2">
             <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">
               Le déroulé
             </span>
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+            <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               Ce que vous découvrirez
             </h2>
             <p className="mt-4 text-base leading-relaxed text-slate-600">
@@ -125,7 +125,7 @@ export default function ContactPage() {
 
           {/* Right: Form */}
           <div className="lg:col-span-3">
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-brand-900/5 sm:p-10">
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xl shadow-brand-900/5 sm:p-10">
               <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                 Réserver votre créneau
               </h2>

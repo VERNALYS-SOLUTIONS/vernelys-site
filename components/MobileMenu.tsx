@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 type NavLink = { href: string; label: string };
 
 /**
- * Menu de navigation mobile : bouton hamburger (visible sous `md`) qui ouvre un
+ * Menu de navigation mobile : bouton hamburger (visible sous `lg`) qui ouvre un
  * panneau plein écran avec les liens + le CTA démo. Se ferme au changement de route,
  * au clic sur un lien, avec la touche Échap, et verrouille le scroll de la page.
  */
@@ -36,7 +36,7 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -62,13 +62,13 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
             type="button"
             aria-label="Fermer le menu"
             onClick={() => setOpen(false)}
-            className="fixed inset-0 top-[65px] z-30 bg-slate-900/20 backdrop-blur-sm"
+            className="fixed inset-0 z-30 bg-slate-900/20 backdrop-blur-sm"
           />
           <div
             id="mobile-menu-panel"
-            className="fixed inset-x-0 top-[65px] z-40 border-b border-slate-200 bg-white shadow-lg"
+            className="absolute inset-x-0 top-full z-40 border-b border-slate-200 bg-white shadow-lg"
           >
-            <nav className="flex flex-col gap-1 px-6 py-4">
+            <nav className="flex flex-col gap-1 px-5 py-4">
               {links.map((l) => (
                 <Link
                   key={l.href}

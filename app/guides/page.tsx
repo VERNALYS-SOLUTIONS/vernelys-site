@@ -41,14 +41,14 @@ const guides = [
 
 export default function GuidesPage() {
   return (
-    <div className="mx-auto max-w-4xl px-6 py-16">
+    <div className="mx-auto max-w-4xl px-5 py-12 sm:px-6 sm:py-16">
       <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">
         Guides & tutos
       </p>
-      <h1 className="mt-2 text-4xl font-bold tracking-tight">
+      <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
         Apprendre Vernelys pas à pas
       </h1>
-      <p className="mt-4 text-lg text-slate-600">
+      <p className="mt-4 text-base text-slate-600 sm:text-lg">
         Des parcours courts et concrets pour tirer parti du complément sur des
         cas réels de production comptable.
       </p>

@@ -6,28 +6,40 @@
  */
 export default function ExcelShowcase() {
   return (
-    <section className="overflow-hidden bg-gradient-to-b from-white via-slate-50 to-white py-24">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="overflow-hidden bg-gradient-to-b from-white via-slate-50 to-white py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
         {/* ── Toutes les fenêtres dans un seul écran ── */}
         <div className="mx-auto max-w-4xl">
           <div className="relative overflow-hidden rounded-2xl border-[6px] border-slate-800 bg-gradient-to-b from-slate-100 to-slate-50 shadow-2xl ring-1 ring-slate-900/5 sm:border-[10px]">
             {/* Caméra du moniteur */}
             <span className="absolute left-1/2 top-1 z-20 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-slate-700 sm:h-2 sm:w-2" />
 
-            <div className="relative h-[340px] sm:h-[440px]">
-              <FloatingScreen top="7%" left="2%" width="32%" z={10}>
+            <div className="relative h-[380px] sm:h-[440px]">
+              {/* Composition complète — à partir de sm, les cinq fenêtres tiennent */}
+              <FloatingScreen top="7%" left="2%" width="32%" z={10} className="hidden sm:block">
                 <ScreenRibbon />
               </FloatingScreen>
-              <FloatingScreen top="0%" left="34%" width="32%" z={20}>
+              <FloatingScreen top="0%" left="34%" width="32%" z={20} className="hidden sm:block">
                 <ScreenPdf />
               </FloatingScreen>
-              <FloatingScreen top="7%" left="66%" width="32%" z={10}>
+              <FloatingScreen top="7%" left="66%" width="32%" z={10} className="hidden sm:block">
                 <ScreenAudit />
               </FloatingScreen>
-              <FloatingScreen top="48%" left="10%" width="38%" z={15}>
+              <FloatingScreen top="48%" left="10%" width="38%" z={15} className="hidden sm:block">
                 <ScreenShortcuts />
               </FloatingScreen>
-              <FloatingScreen top="48%" left="52%" width="38%" z={15}>
+              <FloatingScreen top="48%" left="52%" width="38%" z={15} className="hidden sm:block">
+                <ScreenAI />
+              </FloatingScreen>
+
+              {/* Téléphone — trois fenêtres en cascade, assez larges pour rester lisibles */}
+              <FloatingScreen top="2%" left="1%" width="66%" z={10} className="sm:hidden">
+                <ScreenRibbon />
+              </FloatingScreen>
+              <FloatingScreen top="24%" left="30%" width="68%" z={20} className="sm:hidden">
+                <ScreenPdf />
+              </FloatingScreen>
+              <FloatingScreen top="48%" left="6%" width="72%" z={30} className="sm:hidden">
                 <ScreenAI />
               </FloatingScreen>
             </div>
@@ -41,7 +53,7 @@ export default function ExcelShowcase() {
         </div>
 
         {/* ── Accroche ── */}
-        <div className="mx-auto mt-16 max-w-3xl text-center">
+        <div className="mx-auto mt-12 max-w-3xl text-center sm:mt-16">
           <p className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             Le complément <span className="italic text-brand-600">Vernelys</span>{" "}
             a pour mission de{" "}
@@ -53,7 +65,7 @@ export default function ExcelShowcase() {
         </div>
 
         {/* ── Grille de points forts ── */}
-        <div className="mx-auto mt-10 grid max-w-4xl gap-x-12 gap-y-4 sm:grid-cols-2">
+        <div className="mx-auto mt-8 grid max-w-4xl gap-x-12 gap-y-3.5 sm:mt-10 sm:grid-cols-2 sm:gap-y-4">
           <CheckItem>
             Facilitation des missions d&apos;audit dans Excel
           </CheckItem>
@@ -93,16 +105,19 @@ function FloatingScreen({
   left,
   width,
   z = 10,
+  className = "",
 }: {
   children: React.ReactNode;
   top: string;
   left: string;
   width: string;
   z?: number;
+  /** Classes de visibilité par breakpoint (composition mobile / desktop). */
+  className?: string;
 }) {
   return (
     <div
-      className="absolute overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl ring-1 ring-slate-900/5"
+      className={"absolute overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl ring-1 ring-slate-900/5 " + className}
       style={{ top, left, width, zIndex: z }}
     >
       {children}

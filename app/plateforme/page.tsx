@@ -16,14 +16,14 @@ export default function PlateformePage() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
-        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16 text-center sm:pt-28">
-          <h1 className="mx-auto max-w-3xl text-balance text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+        <div className="mx-auto max-w-6xl px-5 pt-14 pb-12 text-center sm:px-6 sm:pt-28 sm:pb-16">
+          <h1 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             On pourrait vous en parler.
             <br />
             <span className="italic text-brand-600">On préfère vous présenter.</span>
           </h1>
 
-          <div className="group mx-auto mt-12 max-w-5xl">
+          <div className="group mx-auto mt-10 max-w-5xl sm:mt-12">
             <MockupFrame label="Vernelys Plateforme">
               <LiveShowcase />
             </MockupFrame>
@@ -33,15 +33,15 @@ export default function PlateformePage() {
 
       {/* Personnalisation & connectivité */}
       <section className="relative overflow-hidden bg-white">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-24 lg:grid-cols-2 lg:gap-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 sm:gap-12 sm:px-6 sm:py-24 lg:grid-cols-2 lg:gap-20">
           <div>
             <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">
               Personnalisation & connectivité
             </span>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
               Votre cabinet, votre expertise, votre IA.
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-slate-600">
+            <p className="mt-4 text-base leading-relaxed text-slate-600 sm:mt-5 sm:text-lg">
               Nous connectons notre technologie à votre base de données
               documentaire afin de créer une IA spécialement entraînée pour
               votre cabinet. Cette couche intelligente ne profite qu&apos;à
@@ -69,21 +69,21 @@ export default function PlateformePage() {
       <VeilleSection />
 
       {/* Modules — une section par outil */}
-      <section className="mx-auto max-w-7xl px-6 py-24">
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-3xl text-center">
           <span className="text-sm font-semibold uppercase tracking-widest text-brand-600">
             Les modules
           </span>
-          <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
             Cinq outils qui parlent la même langue
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-slate-600">
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:mt-5 sm:text-lg">
             Chaque module fonctionne seul, mais leur vraie force est de partager
             le même socle : mêmes dossiers, même sécurité, même contrôle.
           </p>
         </div>
 
-        <div className="mt-20 space-y-24">
+        <div className="mt-14 space-y-16 sm:mt-20 sm:space-y-24">
           <ModuleFeature
             index="01"
             eyebrow="La barre de saisie"
@@ -161,19 +161,19 @@ export default function PlateformePage() {
 
       {/* Souveraineté numérique */}
       <section className="bg-slate-50">
-        <div className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
           <div className="max-w-xl">
             <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
               Souveraineté numérique
             </span>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
               Une IA sécurisée,
               <br />
               pensée pour votre déontologie.
             </h2>
           </div>
 
-          <div className="mt-16">
+          <div className="mt-12 sm:mt-16">
             <div className="grid grid-cols-1 gap-y-10 border-b border-slate-200 pb-10 sm:grid-cols-3 sm:gap-x-10 sm:divide-x sm:divide-slate-200 sm:border-b-0 sm:pb-0">
               <SecurityItem
                 icon={
@@ -291,7 +291,7 @@ function ModuleFeature({
   poster: string;
 }) {
   return (
-    <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+    <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-20">
       <div className={reverse ? "lg:order-2" : ""}>
         <div className="flex items-center gap-3">
           <span className="font-mono text-sm font-bold text-brand-600">
@@ -302,10 +302,10 @@ function ModuleFeature({
             {eyebrow}
           </span>
         </div>
-        <h3 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+        <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl md:text-4xl">
           {title}
         </h3>
-        <p className="mt-4 text-lg leading-relaxed text-slate-600">
+        <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
           {description}
         </p>
         <ul className="mt-6 space-y-3 text-sm text-slate-700">
