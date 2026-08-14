@@ -85,6 +85,17 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: SECURITY_HEADERS,
       },
+      // Conditions générales de service : page diffusée uniquement par URL
+      // directe, absente de la navigation et du sitemap. L'en-tête complète la
+      // balise meta « noindex » des pages /cgs — elle couvre aussi les robots
+      // qui ne rendent pas le HTML. Volontairement absente de robots.txt :
+      // une règle Disallow y publierait l'URL que l'on garde discrète.
+      {
+        source: "/cgs/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
     ];
   },
 
