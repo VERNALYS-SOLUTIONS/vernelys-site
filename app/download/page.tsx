@@ -1,5 +1,6 @@
 import Link from "next/link";
 import DownloadButton from "./DownloadButton";
+import InviteAccess from "./InviteAccess";
 import ComplementMockup from "@/components/ComplementMockup";
 import FinalCta from "@/components/FinalCta";
 
@@ -212,6 +213,9 @@ export default function DownloadPage() {
               </p>
             </div>
           </div>
+
+          {/* Complément Invité : accès discret, protégé par mot de passe */}
+          <InviteAccess />
         </div>
       </section>
 
