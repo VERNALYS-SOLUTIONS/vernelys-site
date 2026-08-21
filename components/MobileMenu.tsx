@@ -84,14 +84,13 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
                   {l.label}
                 </Link>
               ))}
-              {/* Accès à l'application — inerte tant que la plateforme
-                  n'est pas ouverte aux clients. */}
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Bientôt disponible"
-                className="mt-2 flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-3 text-base font-semibold text-slate-500 disabled:cursor-not-allowed"
+              {/* Accès à l'application. */}
+              <a
+                href="https://beta.vernelys.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="mt-2 flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-3 text-base font-semibold text-slate-800 transition hover:border-brand-300 hover:text-brand-600"
               >
                 <svg
                   className="h-4 w-4"
@@ -104,11 +103,11 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"
                   />
                 </svg>
                 Accès Plateforme
-              </button>
+              </a>
               <Link
                 href="/contact"
                 onClick={() => setOpen(false)}
