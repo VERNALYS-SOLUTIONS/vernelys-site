@@ -11,9 +11,11 @@ export const runtime = "nodejs";
 
 // URL de l'installeur du complément Invité. Tant qu'elle vaut `null`, le mot de
 // passe est bien vérifié mais le bouton de téléchargement reste inactif côté
-// client (« bientôt disponible »). Il suffira de renseigner l'URL ici pour
-// activer le téléchargement.
-const INVITE_DOWNLOAD_URL: string | null = null;
+// client (« bientôt disponible »). Le fichier est servi en statique depuis
+// `public/downloads/` : pour publier une nouvelle version, remplacez le .msi
+// dans ce dossier (même nom) puis redéployez.
+const INVITE_DOWNLOAD_URL: string | null =
+  "/downloads/vernalys-invite-setup.msi";
 
 // Limitation de débit, au mieux : la mémoire est propre à chaque instance
 // serverless, elle ne survit pas à un redémarrage. Suffisant pour casser une
